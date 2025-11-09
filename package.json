@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "tsc -b --noEmit && eslint --cache --fix . && prettier --cache --write --log-level warn ."
   },
   "dependencies": {
     "react": "^19.1.1",
