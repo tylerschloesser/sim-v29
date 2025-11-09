@@ -16,6 +16,7 @@ import clsx from "clsx";
 import { times } from "lodash-es";
 import { useState } from "react";
 import { Panel } from "./Panel";
+import { MineButton } from "./MineButton";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"bottom" | "left" | "right">("right");
@@ -54,9 +55,7 @@ export function BottomBar() {
               }
             />
           </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faPickaxe} />
-          </button>
+          <MineButton />
           <button className="p-4">
             <FontAwesomeIcon icon={faGear} />
           </button>

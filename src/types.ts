@@ -24,7 +24,7 @@ export const RESOURCE_COLORS: Record<ResourceType, number> = {
   coal: 0x000000, // black
   copper: 0xff6600, // bright orange
   iron: 0x4682b4, // steel blue
-  stone: 0xcccccc, // light gray
+  stone: 0xff69b4, // hot pink
 };
 
 export interface AppState {
