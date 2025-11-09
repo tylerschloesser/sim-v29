@@ -1,8 +1,7 @@
-import { Application, Graphics } from "pixi.js";
+import { Application, Graphics, Color } from "pixi.js";
 
 const TILE_SIZE = 32;
-const GRID_COLOR = 0x333333;
-const GRID_ALPHA = 0.5;
+const GRID_COLOR = new Color({ h: 0, s: 0, l: 20 });
 
 let app: Application | null = null;
 let gridGraphics: Graphics | null = null;
@@ -43,10 +42,6 @@ function drawGrid() {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
 
-  // Calculate offset to center tiles (equal partial tiles on both sides)
-  const offsetX = (width % TILE_SIZE) / 2;
-  const offsetY = (height % TILE_SIZE) / 2;
-
   // Calculate how many tiles are visible (plus extra for panning)
   const tilesX = Math.ceil(width / TILE_SIZE) + 1;
   const tilesY = Math.ceil(height / TILE_SIZE) + 1;
@@ -54,19 +49,20 @@ function drawGrid() {
   gridGraphics.setStrokeStyle({
     width: 1,
     color: GRID_COLOR,
-    alpha: GRID_ALPHA,
   });
 
   // Draw vertical lines centered around origin
-  for (let i = 0; i <= tilesX; i++) {
-    const x = i * TILE_SIZE - halfWidth + offsetX;
+  // Start from -1 to ensure coverage when grid shifts via modulo positioning
+  for (let i = -1; i <= tilesX; i++) {
+    const x = i * TILE_SIZE - halfWidth;
     gridGraphics.moveTo(x, -halfHeight);
     gridGraphics.lineTo(x, halfHeight);
   }
 
   // Draw horizontal lines centered around origin
-  for (let i = 0; i <= tilesY; i++) {
-    const y = i * TILE_SIZE - halfHeight + offsetY;
+  // Start from -1 to ensure coverage when grid shifts via modulo positioning
+  for (let i = -1; i <= tilesY; i++) {
+    const y = i * TILE_SIZE - halfHeight;
     gridGraphics.moveTo(-halfWidth, y);
     gridGraphics.lineTo(halfWidth, y);
   }
@@ -81,7 +77,11 @@ export function updateCamera(x: number, y: number) {
   const centerX = app.screen.width / 2;
   const centerY = app.screen.height / 2;
 
-  // Use modulo to create infinite scrolling effect
-  gridGraphics.position.x = centerX - (x % TILE_SIZE);
-  gridGraphics.position.y = centerY - (y % TILE_SIZE);
+  // Calculate offset to center tiles (equal partial tiles on both sides)
+  const offsetX = (app.screen.width % TILE_SIZE) / 2;
+  const offsetY = (app.screen.height % TILE_SIZE) / 2;
+
+  // Use modulo to create infinite scrolling effect, with centering offset
+  gridGraphics.position.x = centerX - (x % TILE_SIZE) + offsetX;
+  gridGraphics.position.y = centerY - (y % TILE_SIZE) + offsetY;
 }

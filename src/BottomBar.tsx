@@ -2,8 +2,14 @@ import {
   faBorderBottom,
   faBorderLeft,
   faBorderRight,
+  faDrawSquare,
+  faGear,
+  faHammer,
+  faHouse,
   faPickaxe,
-} from "@fortawesome/pro-regular-svg-icons";
+  faSquareInfo,
+  faSquarePlus,
+} from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import { times } from "lodash-es";
@@ -49,7 +55,25 @@ export function BottomBar() {
           <button className="p-4">
             <FontAwesomeIcon icon={faPickaxe} />
           </button>
-          {times(8, (i) => (
+          <button className="p-4">
+            <FontAwesomeIcon icon={faGear} />
+          </button>
+          <button className="p-4">
+            <FontAwesomeIcon icon={faHouse} />
+          </button>
+          <button className="p-4">
+            <FontAwesomeIcon icon={faHammer} />
+          </button>
+          <button className="p-4">
+            <FontAwesomeIcon icon={faDrawSquare} />
+          </button>
+          <button className="p-4">
+            <FontAwesomeIcon icon={faSquareInfo} />
+          </button>
+          <button className="p-4">
+            <FontAwesomeIcon icon={faSquarePlus} />
+          </button>
+          {times(2, (i) => (
             <button
               key={i}
               className="p-4"
