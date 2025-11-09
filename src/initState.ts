@@ -1,5 +1,10 @@
 import type { AppState, ChunkId } from "./types.ts";
-import { generateChunk, getVisibleChunks } from "./chunkUtils.ts";
+import {
+  addResourceToTile,
+  generateChunk,
+  getVisibleChunks,
+} from "./chunkUtils.ts";
+import { CHUNK_SIZE, getChunkId } from "./types.ts";
 
 export interface InitializedState {
   state: AppState;
@@ -27,7 +32,17 @@ export function initializeState(
     },
   };
 
-  // Calculate and generate initial visible chunks
+  // Generate initial 4x4 grid of chunks from -2,-2 to 1,1 (chunk coordinates)
+  // This ensures a predictable starting area is always loaded
+  for (let cy = -2; cy <= 1; cy++) {
+    for (let cx = -2; cx <= 1; cx++) {
+      // Convert chunk coordinates to chunk IDs (multiply by CHUNK_SIZE)
+      const chunkId = getChunkId(cx * CHUNK_SIZE, cy * CHUNK_SIZE);
+      state.chunks.set(chunkId, generateChunk(chunkId));
+    }
+  }
+
+  // Calculate visible chunks and generate any that are missing (safety check)
   const visibleChunkIds = getVisibleChunks(
     state.camera.x,
     state.camera.y,
@@ -36,8 +51,16 @@ export function initializeState(
   );
 
   for (const chunkId of visibleChunkIds) {
-    state.chunks.set(chunkId, generateChunk(chunkId));
+    if (!state.chunks.has(chunkId)) {
+      state.chunks.set(chunkId, generateChunk(chunkId));
+    }
   }
+
+  // Add resources to specific tiles (after all chunks are generated)
+  addResourceToTile(state.chunks, -3, -3, { type: "coal", count: 100 });
+  addResourceToTile(state.chunks, 3, 2, { type: "iron", count: 100 });
+  addResourceToTile(state.chunks, 1, -3, { type: "stone", count: 100 });
+  addResourceToTile(state.chunks, -8, 3, { type: "copper", count: 100 });
 
   return { state, visibleChunkIds };
 }

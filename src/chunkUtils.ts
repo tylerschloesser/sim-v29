@@ -54,23 +54,42 @@ export function generateChunk(id: ChunkId): Chunk {
       // Convert to hex color (grayscale: R=G=B)
       const color = (grayValue << 16) | (grayValue << 8) | grayValue;
 
-      // Check if this tile should have a test resource
-      let resource: Resource | undefined;
-      if (worldTileX === -3 && worldTileY === -3) {
-        resource = { type: "coal", count: 100 };
-      } else if (worldTileX === 3 && worldTileY === 2) {
-        resource = { type: "iron", count: 100 };
-      } else if (worldTileX === 1 && worldTileY === -3) {
-        resource = { type: "stone", count: 100 };
-      } else if (worldTileX === -8 && worldTileY === 3) {
-        resource = { type: "copper", count: 100 };
-      }
-
-      tiles.push({ color, resource });
+      tiles.push({ color });
     }
   }
 
   return { tiles };
+}
+
+/**
+ * Adds a resource to a tile at the specified world tile coordinates.
+ * Initializes the chunk if it doesn't exist (for future-proofing).
+ */
+export function addResourceToTile(
+  chunks: Map<ChunkId, Chunk>,
+  worldTileX: number,
+  worldTileY: number,
+  resource: Resource,
+): void {
+  // Calculate which chunk contains this tile
+  const chunkX = tileToChunk(worldTileX);
+  const chunkY = tileToChunk(worldTileY);
+  const chunkId = getChunkId(chunkX, chunkY);
+
+  // Get or create the chunk
+  let chunk = chunks.get(chunkId);
+  if (!chunk) {
+    chunk = generateChunk(chunkId);
+    chunks.set(chunkId, chunk);
+  }
+
+  // Calculate tile position within chunk
+  const tileXInChunk = worldTileX - chunkX;
+  const tileYInChunk = worldTileY - chunkY;
+  const tileIndex = tileYInChunk * CHUNK_SIZE + tileXInChunk;
+
+  // Add resource to the tile
+  chunk.tiles[tileIndex].resource = resource;
 }
 
 export function getVisibleChunks(
