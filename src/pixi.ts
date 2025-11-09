@@ -1,6 +1,7 @@
 import { Application, Graphics } from "pixi.js";
 import { Grid } from "./Grid";
 import { ChunkManager } from "./ChunkManager";
+import { TileHighlight } from "./TileHighlight";
 import type { Chunk, ChunkId } from "./types";
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
@@ -22,16 +23,20 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create grid
   const grid = new Grid(app);
 
+  // Create tile highlight (renders above grid)
+  const tileHighlight = new TileHighlight(app);
+
   // Create graphics object for center circle
   const circleGraphics = new Graphics();
   circleGraphics.circle(app.screen.width / 2, app.screen.height / 2, 4);
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
-  // Create updateCamera callback with grid and chunkManager in closure
+  // Create updateCamera callback with grid, chunkManager, and tileHighlight in closure
   const updateCamera = (x: number, y: number) => {
     grid.updatePosition(x, y);
     chunkManager.updatePosition(x, y);
+    tileHighlight.updatePosition(x, y);
   };
 
   // Create updateChunks callback
