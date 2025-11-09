@@ -38,31 +38,24 @@ function drawGrid() {
   const width = app.screen.width;
   const height = app.screen.height;
 
-  // Draw grid centered around origin (0,0) so camera (0,0) is at screen center
-  const halfWidth = width / 2;
-  const halfHeight = height / 2;
-
-  // Calculate how many tiles are visible (plus extra for panning)
   const tilesX = Math.ceil(width / TILE_SIZE) + 1;
   const tilesY = Math.ceil(height / TILE_SIZE) + 1;
 
-  // Draw vertical lines centered around origin
-  // Start from -1 to ensure coverage when grid shifts via modulo positioning
-  for (let i = -1; i <= tilesX; i++) {
-    const x = i * TILE_SIZE - halfWidth;
+  // Draw vertical lines
+  for (let i = 0; i <= tilesX; i++) {
+    const x = i * TILE_SIZE;
     gridGraphics
-      .moveTo(x, -halfHeight)
-      .lineTo(x, halfHeight)
+      .moveTo(x, 0)
+      .lineTo(x, tilesY * TILE_SIZE)
       .stroke({ color: GRID_COLOR, pixelLine: true });
   }
 
-  // Draw horizontal lines centered around origin
-  // Start from -1 to ensure coverage when grid shifts via modulo positioning
-  for (let i = -1; i <= tilesY; i++) {
-    const y = i * TILE_SIZE - halfHeight;
+  // Draw horizontal lines
+  for (let j = 0; j <= tilesY; j++) {
+    const y = j * TILE_SIZE;
     gridGraphics
-      .moveTo(-halfWidth, y)
-      .lineTo(halfWidth, y)
+      .moveTo(0, y)
+      .lineTo(tilesX * TILE_SIZE, y)
       .stroke({ color: GRID_COLOR, pixelLine: true });
   }
 }
@@ -70,15 +63,13 @@ function drawGrid() {
 export function updateCamera(x: number, y: number) {
   if (!gridGraphics || !app) return;
 
-  // Center the camera: (0,0) is at the center of the screen
   const centerX = app.screen.width / 2;
   const centerY = app.screen.height / 2;
 
-  // Calculate offset to center tiles (equal partial tiles on both sides)
-  const offsetX = (app.screen.width % TILE_SIZE) / 2;
-  const offsetY = (app.screen.height % TILE_SIZE) / 2;
+  gridGraphics.position.x = centerX - mod(x, TILE_SIZE);
+  gridGraphics.position.y = centerY - mod(y, TILE_SIZE);
+}
 
-  // Use modulo to create infinite scrolling effect, with centering offset
-  gridGraphics.position.x = centerX - (x % TILE_SIZE) + offsetX;
-  gridGraphics.position.y = centerY - (y % TILE_SIZE) + offsetY;
+function mod(n: number, m: number) {
+  return ((n % m) + m) % m;
 }
