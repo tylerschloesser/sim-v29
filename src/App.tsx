@@ -1,4 +1,5 @@
-import { useImmer } from "use-immer";
+import { useCallback } from "react";
+import { useImmer, type Updater } from "use-immer";
 import { TopBar } from "./TopBar";
 import { BottomBar } from "./BottomBar";
 import { useCamera } from "./useCamera";
@@ -15,23 +16,31 @@ export interface AppState {
   };
 }
 
+function useSetCamera(
+  updateState: Updater<AppState>,
+  updateCamera: (x: number, y: number) => void,
+) {
+  return useCallback(
+    (updater: (state: AppState) => { x: number; y: number }) => {
+      updateState((draft) => {
+        const newCamera = updater(draft);
+        if (!isEqual(draft.camera, newCamera)) {
+          draft.camera.x = newCamera.x;
+          draft.camera.y = newCamera.y;
+          updateCamera(draft.camera.x, draft.camera.y);
+        }
+      });
+    },
+    [updateState, updateCamera],
+  );
+}
+
 export function App({ updateCamera }: AppProps) {
   const [, updateState] = useImmer<AppState>({
     camera: { x: 0, y: 0 },
   });
 
-  const setCamera = (
-    updater: (state: AppState) => { x: number; y: number },
-  ) => {
-    updateState((draft) => {
-      const newCamera = updater(draft);
-      if (!isEqual(draft.camera, newCamera)) {
-        draft.camera.x = newCamera.x;
-        draft.camera.y = newCamera.y;
-        updateCamera(draft.camera.x, draft.camera.y);
-      }
-    });
-  };
+  const setCamera = useSetCamera(updateState, updateCamera);
 
   useCamera(setCamera);
 
