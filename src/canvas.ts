@@ -41,6 +41,10 @@ export function animate(
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
+    // Fill background with black
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, width, height);
+
     // Draw blue circle with bounce offset
     ctx.fillStyle = "blue";
     ctx.beginPath();
