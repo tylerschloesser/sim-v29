@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { isEqual } from "lodash-es";
 import type { AppState } from "./types";
 import { generateChunk, getVisibleChunks } from "./chunkUtils";
-import { useAppContext } from "./useAppContext";
+import { useAppContext } from "./appContext";
 
 export function useSetCamera() {
   const { updateState, updateCamera, updateChunks } = useAppContext();

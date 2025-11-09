@@ -5,7 +5,7 @@ import invariant from "tiny-invariant";
 import { setupPixi } from "./pixi.ts";
 import { enableMapSet } from "immer";
 import { initializeState } from "./initState.ts";
-import { AppContextProvider } from "./AppContext.tsx";
+import { AppContextProvider } from "./AppContextProvider.tsx";
 
 import "./index.css";
 

@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 import type { AppState, Chunk, ChunkId } from "./types";
 
 export interface AppContextType {
@@ -12,3 +12,11 @@ export interface AppContextType {
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
+
+export function useAppContext(): AppContextType {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useAppContext must be used within AppContextProvider");
+  }
+  return context;
+}
