@@ -1,15 +1,25 @@
 import { faPickaxe } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useHighlightedTile } from "./useHighlightedTile";
+import { useAppContext } from "./appContext";
+import { getTileId } from "./types";
 
 export function MineButton() {
-  const { resource } = useHighlightedTile();
+  const { tileX, tileY, resource } = useHighlightedTile();
+  const { updateState } = useAppContext();
 
   const isDisabled = !resource;
 
   const handleClick = () => {
     if (resource) {
-      alert(`Resource: ${resource.type}\nCount: ${resource.count}`);
+      // Create mine action for this tile
+      updateState((draft) => {
+        draft.action = {
+          type: "mine",
+          tileId: getTileId(tileX, tileY),
+          progress: 0,
+        };
+      });
     }
   };
 

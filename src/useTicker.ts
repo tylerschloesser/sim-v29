@@ -1,9 +1,56 @@
 import { useEffect, useRef } from "react";
 import type { Updater } from "use-immer";
+import invariant from "tiny-invariant";
 import type { AppState } from "./types";
+import { getTileLocation } from "./tileUtils";
 
 const TICK_RATE = 60; // ticks per second
 const TICK_INTERVAL = 1000 / TICK_RATE; // ms per tick (~16.67ms)
+
+/**
+ * Process the current action for one tick.
+ * Handles action progress and completion.
+ */
+function tickAction(draft: AppState) {
+  if (draft.action?.type === "mine") {
+    // Auto-increment progress (1/60th per tick = 1 second to complete)
+    draft.action.progress += 1 / TICK_RATE;
+
+    // Complete action when progress reaches 1
+    if (draft.action.progress >= 1) {
+      draft.action.progress = 1;
+
+      // Get tile location
+      const { chunkId, tileIndex } = getTileLocation(draft.action.tileId);
+
+      const chunk = draft.chunks.get(chunkId);
+      invariant(chunk, "Chunk must exist for mining action");
+
+      const tile = chunk.tiles[tileIndex];
+      invariant(tile, "Tile must exist for mining action");
+      invariant(tile.resource, "Tile must have resource for mining action");
+      invariant(
+        tile.resource.count > 0,
+        "Resource count must be greater than 0 for mining action",
+      );
+
+      // Mine 1 unit of resource
+      const minedAmount = 1;
+      draft.inventory[tile.resource.type] += minedAmount;
+
+      // Decrement resource count
+      tile.resource.count -= minedAmount;
+
+      // Remove resource from tile if depleted
+      if (tile.resource.count <= 0) {
+        delete tile.resource;
+      }
+
+      // Clear the action
+      draft.action = null;
+    }
+  }
+}
 
 /**
  * Hook that initializes a fixed timestep ticker for the world simulation.
@@ -32,17 +79,8 @@ export function useTicker(updateState: Updater<AppState>) {
           // Increment tick counter
           draft.tick++;
 
-          if (draft.action?.type === "mine") {
-            // Auto-increment progress (1/60th per tick = 1 second to complete)
-            draft.action.progress += 1 / TICK_RATE;
-
-            // Clamp to [0, 1] and complete action at 1
-            if (draft.action.progress >= 1) {
-              draft.action.progress = 1;
-              // TODO: Complete the action (for now just clear it)
-              draft.action = null;
-            }
-          }
+          // Process action
+          tickAction(draft);
         });
 
         // Subtract one tick interval from accumulator
