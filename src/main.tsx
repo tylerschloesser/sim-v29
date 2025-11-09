@@ -35,7 +35,7 @@ async function main() {
   );
 
   for (const chunkId of visibleChunkIds) {
-    initialState.chunks.set(chunkId, generateChunk());
+    initialState.chunks.set(chunkId, generateChunk(chunkId));
   }
 
   // Render initial chunks in PixiJS before React mounts
