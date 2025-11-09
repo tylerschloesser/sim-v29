@@ -5,6 +5,7 @@ import { useState } from "react";
 import { MineButton } from "./MineButton";
 import { Panel } from "./Panel";
 import { HomeButton } from "./HomeButton";
+import { BuildButton } from "./BuildButton";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"left" | "right">("right");
@@ -30,6 +31,7 @@ export function BottomBar() {
           })}
         >
           <MineButton />
+          <BuildButton />
           <HomeButton />
           <button className="p-4" onClick={toggleConfig}>
             <FontAwesomeIcon
