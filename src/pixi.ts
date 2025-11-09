@@ -1,13 +1,9 @@
 import { Application, Graphics } from "pixi.js";
 import { Grid } from "./Grid";
 
-let app: Application | null = null;
-let grid: Grid | null = null;
-let circleGraphics: Graphics | null = null;
-
 export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create PixiJS application
-  app = new Application();
+  const app = new Application();
 
   await app.init({
     canvas,
@@ -19,23 +15,22 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   });
 
   // Create and draw grid
-  grid = new Grid(app);
+  const grid = new Grid(app);
   grid.draw();
 
   // Create graphics object for center circle
-  circleGraphics = new Graphics();
+  const circleGraphics = new Graphics();
   circleGraphics.circle(app.screen.width / 2, app.screen.height / 2, 4);
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
+  // Create updateCamera callback with grid in closure
+  const updateCamera = (x: number, y: number) => {
+    grid.updatePosition(x, y);
+  };
+
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
 
-  return app;
-}
-
-export function updateCamera(x: number, y: number) {
-  if (!grid) return;
-
-  grid.updatePosition(x, y);
+  return { app, updateCamera };
 }
