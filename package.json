@@ -18,6 +18,7 @@
     "@fortawesome/pro-regular-svg-icons": "^7.1.0",
     "@fortawesome/pro-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
+    "@tanstack/react-router": "^1.134.18",
     "@types/lodash-es": "^4.17.12",
     "clsx": "^2.1.1",
     "immer": "^10.2.0",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@tailwindcss/vite": "^4.1.17",
+    "@tanstack/router-plugin": "^1.134.18",
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
