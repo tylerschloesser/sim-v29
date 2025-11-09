@@ -37,7 +37,7 @@ export function BottomBar() {
       >
         <div
           className={clsx(
-            "bg-black/50",
+            "bg-black/50 backdrop-blur-xs",
             "pointer-events-auto",
             "border rounded",
             {
