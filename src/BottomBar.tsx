@@ -2,6 +2,7 @@ import {
   faBorderBottom,
   faBorderLeft,
   faBorderRight,
+  faPickaxe,
 } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
@@ -20,7 +21,7 @@ export function BottomBar() {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0">
+    <div className="fixed inset-x-0 bottom-0 pointer-events-none">
       <div
         className={clsx("flex p-4", {
           "justify-end": config === "right",
@@ -28,37 +29,35 @@ export function BottomBar() {
         })}
       >
         <div
-          className={clsx("border rounded", {
+          className={clsx("pointer-events-auto", "border rounded", {
             "flex-1 grid grid-cols-5 grid-rows-2": config === "bottom",
             // prettier-ignore
             "inline-grid grid-cols-2 grid-rows-5": config === "left" || config === "right",
           })}
         >
-          {times(10, (i) => (
+          <button className="p-4" onClick={toggleConfig}>
+            <FontAwesomeIcon
+              icon={
+                config === "bottom"
+                  ? faBorderBottom
+                  : config === "left"
+                    ? faBorderLeft
+                    : faBorderRight
+              }
+            />
+          </button>
+          <button className="p-4">
+            <FontAwesomeIcon icon={faPickaxe} />
+          </button>
+          {times(8, (i) => (
             <button
               key={i}
               className="p-4"
               onClick={() => {
-                if (i === 0) {
-                  toggleConfig();
-                } else {
-                  alert(`Button ${i + 1} clicked`);
-                }
+                alert(`Button ${i + 1} clicked`);
               }}
             >
-              {i === 0 ? (
-                <FontAwesomeIcon
-                  icon={
-                    config === "bottom"
-                      ? faBorderBottom
-                      : config === "left"
-                        ? faBorderLeft
-                        : faBorderRight
-                  }
-                />
-              ) : (
-                <>{i + 1}</>
-              )}
+              {i + 1}
             </button>
           ))}
         </div>
