@@ -1,9 +1,18 @@
+import { useState } from "react";
 import clsx from "clsx";
 import { times } from "lodash-es";
 
-const config: "bottom" | "left" | "right" = "right";
-
 export function BottomBar() {
+  const [config, setConfig] = useState<"bottom" | "left" | "right">("right");
+
+  const toggleConfig = () => {
+    setConfig((current) => {
+      if (current === "right") return "bottom";
+      if (current === "bottom") return "left";
+      return "right";
+    });
+  };
+
   return (
     <div className="fixed inset-x-0 bottom-0">
       <div
@@ -23,7 +32,13 @@ export function BottomBar() {
             <button
               key={i}
               className="p-4"
-              onClick={() => alert(`Button ${i + 1} clicked`)}
+              onClick={() => {
+                if (i === 0) {
+                  toggleConfig();
+                } else {
+                  alert(`Button ${i + 1} clicked`);
+                }
+              }}
             >
               {i + 1}
             </button>
