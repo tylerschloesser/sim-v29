@@ -1,10 +1,13 @@
 import { useEffect, useRef } from "react";
 import type { AppState } from "./App";
+import type { ReadonlyDeep } from "type-fest";
 
 const CAMERA_SPEED = 5; // pixels per frame for WASD movement
 
 export function useCamera(
-  setCamera: (updater: (state: AppState) => { x: number; y: number }) => void,
+  setCamera: (
+    updater: (state: ReadonlyDeep<AppState>) => { x: number; y: number },
+  ) => void,
 ) {
   const keysPressed = useRef<Set<string>>(new Set());
   const isDragging = useRef(false);
