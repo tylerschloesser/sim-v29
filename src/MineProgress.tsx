@@ -1,7 +1,7 @@
 import { faPickaxe } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAppContext } from "./appContext";
-import { getTileById } from "./tileUtils";
+import { useHighlightedTile } from "./useHighlightedTile";
 import { RESOURCE_COLORS } from "./types";
 
 const CIRCLE_SIZE = 48;
@@ -16,28 +16,28 @@ const FILL_STROKE_WIDTH = BORDER_RADIUS - BORDER_STROKE_WIDTH / 2;
 
 export function MineProgress() {
   const { state } = useAppContext();
+  const { resource } = useHighlightedTile();
 
-  if (!state.action || state.action.type !== "mine") {
-    return null;
-  }
+  // Check if we have an active mine action
+  const isMining = state.action?.type === "mine";
+  const progress = isMining && state.action ? state.action.progress : 0;
 
-  // Get the tile being mined to determine resource color
-  const tile = getTileById(state, state.action.tileId);
-  const resourceColor = tile?.resource
-    ? RESOURCE_COLORS[tile.resource.type]
-    : 0x808080;
+  // Determine if disabled (no resource at highlighted tile)
+  const isDisabled = !resource;
+
+  // Get resource color (from highlighted tile, or gray if disabled)
+  const resourceColor = resource ? RESOURCE_COLORS[resource.type] : 0x808080;
 
   // Convert hex color to CSS color
   const colorString = `#${resourceColor.toString(16).padStart(6, "0")}`;
 
   // Calculate circle progress (use fill radius for circumference)
   const circumference = 2 * Math.PI * FILL_RADIUS;
-  const progress = state.action.progress;
   const dashOffset = circumference * (1 - progress);
 
   return (
     <div
-      className="relative"
+      className={`relative ${isDisabled ? "opacity-50" : ""}`}
       style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
     >
       <svg
