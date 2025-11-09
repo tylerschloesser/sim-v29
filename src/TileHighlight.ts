@@ -1,5 +1,6 @@
 import { Application, Graphics, Color } from "pixi.js";
 import { TILE_SIZE } from "./types";
+import { getHighlightedTileCoords } from "./tileUtils";
 
 export class TileHighlight {
   private graphics: Graphics;
@@ -21,9 +22,8 @@ export class TileHighlight {
   }
 
   updatePosition(cameraX: number, cameraY: number): void {
-    // Calculate which tile the camera is currently on (using floor)
-    const tileX = Math.floor(cameraX / TILE_SIZE);
-    const tileY = Math.floor(cameraY / TILE_SIZE);
+    // Calculate which tile the camera is currently on
+    const { tileX, tileY } = getHighlightedTileCoords(cameraX, cameraY);
 
     // Calculate the world position of the tile's top-left corner
     const tileWorldX = tileX * TILE_SIZE;
