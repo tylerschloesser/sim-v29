@@ -14,9 +14,8 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     autoDensity: true,
   });
 
-  // Create and draw grid
+  // Create grid
   const grid = new Grid(app);
-  grid.draw();
 
   // Create graphics object for center circle
   const circleGraphics = new Graphics();

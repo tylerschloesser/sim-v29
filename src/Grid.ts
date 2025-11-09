@@ -11,9 +11,8 @@ export class Grid {
     this.app = app;
     this.graphics = new Graphics();
     this.app.stage.addChild(this.graphics);
-  }
 
-  draw(): void {
+    // Draw initial grid
     const width = this.app.screen.width;
     const height = this.app.screen.height;
 
