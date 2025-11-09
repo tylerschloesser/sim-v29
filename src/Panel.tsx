@@ -12,7 +12,7 @@ export function Panel({
     <div
       className={clsx(
         "bg-black/50 backdrop-blur-xs",
-        "border rounded",
+        "border shadow-md",
         className,
       )}
     >
