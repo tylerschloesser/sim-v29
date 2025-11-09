@@ -10,7 +10,7 @@ function RootComponent() {
   return (
     <>
       <div className="fixed pointer-events-none">
-        <span className="text-xs font-mono">{state.tick}</span>
+        <span className="text-xs font-mono leading-none">{state.tick}</span>
       </div>
       <Outlet />
     </>
