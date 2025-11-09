@@ -57,6 +57,7 @@ export class ChunkManager {
       }
     }
 
+    // Rect on top left for debugging
     graphics.rect(chunkX * TILE_SIZE - 4, chunkY * TILE_SIZE - 4, 8, 8);
     graphics.fill({ color: "white" });
 
