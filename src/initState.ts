@@ -17,6 +17,8 @@ export function initializeState(
   const state: AppState = {
     camera: { x: 0, y: 0 },
     chunks: new Map(),
+    action: null,
+    tick: 0,
   };
 
   // Calculate and generate initial visible chunks

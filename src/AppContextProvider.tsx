@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { useImmer } from "use-immer";
 import type { AppState, Chunk, ChunkId } from "./types";
 import { AppContext } from "./appContext";
+import { useTicker } from "./useTicker";
 
 interface AppContextProviderProps {
   initialState: AppState;
@@ -20,6 +21,9 @@ export function AppContextProvider({
   children,
 }: AppContextProviderProps) {
   const [state, updateState] = useImmer<AppState>(initialState);
+
+  // Initialize ticker to auto-update action progress at 60 ticks/second
+  useTicker(updateState);
 
   return (
     <AppContext.Provider
