@@ -56,13 +56,13 @@ export function generateChunk(id: ChunkId): Chunk {
 
       // Check if this tile should have a test resource
       let resource: Resource | undefined;
-      if (worldTileX === -1 && worldTileY === -1) {
+      if (worldTileX === -3 && worldTileY === -3) {
         resource = { type: "coal", count: 100 };
-      } else if (worldTileX === 1 && worldTileY === 1) {
+      } else if (worldTileX === 3 && worldTileY === 2) {
         resource = { type: "iron", count: 100 };
-      } else if (worldTileX === 3 && worldTileY === 1) {
+      } else if (worldTileX === 1 && worldTileY === -3) {
         resource = { type: "stone", count: 100 };
-      } else if (worldTileX === -4 && worldTileY === 1) {
+      } else if (worldTileX === -8 && worldTileY === 3) {
         resource = { type: "copper", count: 100 };
       }
 
