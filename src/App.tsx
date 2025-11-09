@@ -8,6 +8,7 @@ import type { Chunk, ChunkId } from "./types";
 import { generateChunk, getVisibleChunks } from "./chunkUtils";
 
 interface AppProps {
+  initialState: AppState;
   updateCamera: (x: number, y: number) => void;
   updateChunks: (
     visibleChunkIds: ChunkId[],
@@ -64,11 +65,8 @@ function useSetCamera(
   );
 }
 
-export function App({ updateCamera, updateChunks }: AppProps) {
-  const [, updateState] = useImmer<AppState>({
-    camera: { x: 0, y: 0 },
-    chunks: new Map(),
-  });
+export function App({ initialState, updateCamera, updateChunks }: AppProps) {
+  const [, updateState] = useImmer<AppState>(initialState);
 
   const setCamera = useSetCamera(updateState, updateCamera, updateChunks);
 
