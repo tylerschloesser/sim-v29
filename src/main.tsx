@@ -6,17 +6,21 @@ import { setupPixi } from "./pixi.ts";
 
 import "./index.css";
 
-const canvas = document.querySelector("canvas");
-invariant(canvas);
+async function main() {
+  const canvas = document.querySelector("canvas");
+  invariant(canvas);
 
-const container = document.getElementById("root");
-invariant(container);
+  const container = document.getElementById("root");
+  invariant(container);
 
-// Initialize PixiJS and render React app with callback
-const { updateCamera } = await setupPixi(canvas);
+  // Initialize PixiJS and render React app with callback
+  const { updateCamera } = await setupPixi(canvas);
 
-createRoot(container).render(
-  <StrictMode>
-    <App updateCamera={updateCamera} />
-  </StrictMode>,
-);
+  createRoot(container).render(
+    <StrictMode>
+      <App updateCamera={updateCamera} />
+    </StrictMode>,
+  );
+}
+
+main();
