@@ -26,6 +26,7 @@ Always use `bun` instead of `npm` for all package management and script executio
 ## TypeScript Configuration
 
 The project uses a multi-config TypeScript setup:
+
 - `tsconfig.json`: Root config that references app and node configs
 - `tsconfig.app.json`: Main application config for `src/` directory
   - Target: ES2022
