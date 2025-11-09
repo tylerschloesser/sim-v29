@@ -3,9 +3,29 @@ export const TILE_SIZE = 32; // pixels per tile
 
 export type ChunkId = string; // format: "x,y" in tile coordinates
 
-export interface Chunk {
-  tiles: number[]; // array of hex colors (32 * 32 = 1024 colors)
+export type ResourceType = "coal" | "copper" | "iron" | "stone";
+
+export interface Resource {
+  type: ResourceType;
+  count: number;
 }
+
+export interface Tile {
+  color: number; // hex color
+  resource?: Resource;
+}
+
+export interface Chunk {
+  tiles: Tile[]; // array of tiles (32 * 32 = 1024 tiles)
+}
+
+// Resource color constants (vibrant game colors)
+export const RESOURCE_COLORS: Record<ResourceType, number> = {
+  coal: 0x000000, // black
+  copper: 0xff6600, // bright orange
+  iron: 0x4682b4, // steel blue
+  stone: 0xcccccc, // light gray
+};
 
 export interface AppState {
   camera: {

@@ -1,6 +1,6 @@
 import { Application, Container, Graphics } from "pixi.js";
 import type { Chunk, ChunkId } from "./types";
-import { CHUNK_SIZE, parseChunkId, TILE_SIZE } from "./types";
+import { CHUNK_SIZE, parseChunkId, RESOURCE_COLORS, TILE_SIZE } from "./types";
 
 export class ChunkManager {
   private app: Application;
@@ -41,19 +41,37 @@ export class ChunkManager {
     const graphics = new Graphics();
     const { x: chunkX, y: chunkY } = parseChunkId(id);
 
-    // Render each tile in the chunk
+    // Pass 1: Render terrain colors for all tiles
     for (let ty = 0; ty < CHUNK_SIZE; ty++) {
       for (let tx = 0; tx < CHUNK_SIZE; tx++) {
         const tileIndex = ty * CHUNK_SIZE + tx;
-        const color = chunk.tiles[tileIndex];
+        const tile = chunk.tiles[tileIndex];
 
         // Calculate world position for this tile
         const worldX = (chunkX + tx) * TILE_SIZE;
         const worldY = (chunkY + ty) * TILE_SIZE;
 
-        // Draw filled rectangle
+        // Draw terrain tile
         graphics.rect(worldX, worldY, TILE_SIZE, TILE_SIZE);
-        graphics.fill(color);
+        graphics.fill(tile.color);
+      }
+    }
+
+    // Pass 2: Render resources with checkerboard pattern
+    for (let ty = 0; ty < CHUNK_SIZE; ty++) {
+      for (let tx = 0; tx < CHUNK_SIZE; tx++) {
+        const tileIndex = ty * CHUNK_SIZE + tx;
+        const tile = chunk.tiles[tileIndex];
+
+        if (tile.resource) {
+          // Calculate world position for this tile
+          const worldX = (chunkX + tx) * TILE_SIZE;
+          const worldY = (chunkY + ty) * TILE_SIZE;
+
+          // Draw checkerboard pattern for resource
+          const resourceColor = RESOURCE_COLORS[tile.resource.type];
+          this.drawCheckerboard(graphics, worldX, worldY, resourceColor);
+        }
       }
     }
 
@@ -63,6 +81,34 @@ export class ChunkManager {
 
     this.container.addChild(graphics);
     this.renderedChunks.set(id, graphics);
+  }
+
+  /**
+   * Draw a checkerboard pattern on a tile (4×4 grid of 8×8 pixel squares)
+   */
+  private drawCheckerboard(
+    graphics: Graphics,
+    tileX: number,
+    tileY: number,
+    color: number,
+  ) {
+    const squareSize = 8; // Each square is 8×8 pixels
+    const gridSize = 4; // 4×4 grid of squares
+
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        // Standard checkerboard pattern: alternate based on row + col parity
+        const isFilledSquare = (row + col) % 2 === 0;
+
+        if (isFilledSquare) {
+          const x = tileX + col * squareSize;
+          const y = tileY + row * squareSize;
+
+          graphics.rect(x, y, squareSize, squareSize);
+          graphics.fill(color);
+        }
+      }
+    }
   }
 
   private destroyChunk(id: ChunkId, graphics: Graphics) {

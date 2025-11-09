@@ -1,6 +1,6 @@
 import { createNoise2D } from "simplex-noise";
 import Prando from "prando";
-import type { Chunk, ChunkId } from "./types";
+import type { Chunk, ChunkId, Resource, Tile } from "./types";
 import {
   CHUNK_SIZE,
   getChunkId,
@@ -18,7 +18,7 @@ export function generateChunk(id: ChunkId): Chunk {
   // Parse chunk coordinates
   const { x: chunkX, y: chunkY } = parseChunkId(id);
 
-  const tiles: number[] = [];
+  const tiles: Tile[] = [];
 
   // Generate each tile using multi-octave simplex noise
   for (let ty = 0; ty < CHUNK_SIZE; ty++) {
@@ -54,7 +54,19 @@ export function generateChunk(id: ChunkId): Chunk {
       // Convert to hex color (grayscale: R=G=B)
       const color = (grayValue << 16) | (grayValue << 8) | grayValue;
 
-      tiles.push(color);
+      // Check if this tile should have a test resource
+      let resource: Resource | undefined;
+      if (worldTileX === -1 && worldTileY === -1) {
+        resource = { type: "coal", count: 100 };
+      } else if (worldTileX === 1 && worldTileY === 1) {
+        resource = { type: "iron", count: 100 };
+      } else if (worldTileX === 3 && worldTileY === 1) {
+        resource = { type: "stone", count: 100 };
+      } else if (worldTileX === -4 && worldTileY === 1) {
+        resource = { type: "copper", count: 100 };
+      }
+
+      tiles.push({ color, resource });
     }
   }
 
