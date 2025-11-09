@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import { times } from "lodash-es";
 import { useState } from "react";
+import { Panel } from "./Panel";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"bottom" | "left" | "right">("right");
@@ -35,17 +36,12 @@ export function BottomBar() {
           "justify-start": config === "left",
         })}
       >
-        <div
-          className={clsx(
-            "bg-black/50 backdrop-blur-xs",
-            "pointer-events-auto",
-            "border rounded",
-            {
-              "flex-1 grid grid-cols-6 grid-rows-2": config === "bottom",
-              // prettier-ignore
-              "inline-grid grid-cols-2 grid-rows-6": config === "left" || config === "right",
-            },
-          )}
+        <Panel
+          className={clsx({
+            "flex-1 grid grid-cols-6 grid-rows-2": config === "bottom",
+            // prettier-ignore
+            "inline-grid grid-cols-2 grid-rows-6": config === "left" || config === "right",
+          })}
         >
           <button className="p-4" onClick={toggleConfig}>
             <FontAwesomeIcon
@@ -93,7 +89,7 @@ export function BottomBar() {
               {i + 1}
             </button>
           ))}
-        </div>
+        </Panel>
       </div>
     </div>
   );

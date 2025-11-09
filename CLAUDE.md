@@ -78,6 +78,7 @@ This is a **hybrid React + PixiJS application** for infinite 2D chunk-based worl
 ### Key Components
 
 **React Layer:**
+
 - `routes/index.tsx`: Root route component that manages app state and camera controls
 - `routes/__root.tsx`: Router root that provides context interface
 - `useCamera.ts`: Custom hook implementing camera input controls
@@ -90,6 +91,7 @@ This is a **hybrid React + PixiJS application** for infinite 2D chunk-based worl
   - Triggers PixiJS updates via callbacks
 
 **PixiJS Layer:**
+
 - `pixi.ts`: PixiJS initialization and setup
   - Creates PixiJS application with proper DPI scaling
   - Initializes Grid and ChunkManager
@@ -103,6 +105,7 @@ This is a **hybrid React + PixiJS application** for infinite 2D chunk-based worl
   - Updates container position based on camera
 
 **Utilities:**
+
 - `chunkUtils.ts`: Chunk generation and visibility calculations
   - `generateChunk()`: Creates chunk with procedurally generated tiles using simplex noise
   - `getVisibleChunks()`: Calculates which chunk IDs are visible given camera/viewport
