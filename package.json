@@ -11,6 +11,8 @@
     "check": "tsc -b --noEmit && eslint --cache --fix . && prettier --cache --write --log-level warn ."
   },
   "dependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "lodash-es": "^4.17.21",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
