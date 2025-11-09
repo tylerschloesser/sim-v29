@@ -2,6 +2,7 @@ import {
   faBorderBottom,
   faBorderLeft,
   faBorderRight,
+  faChartLine,
   faDrawSquare,
   faGear,
   faHammer,
@@ -78,7 +79,10 @@ export function BottomBar() {
           <button className="p-4">
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
-          {times(4, (i) => (
+          <button className="p-4">
+            <FontAwesomeIcon icon={faChartLine} />
+          </button>
+          {times(3, (i) => (
             <button
               key={i}
               className="p-4"

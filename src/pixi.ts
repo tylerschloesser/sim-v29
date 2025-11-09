@@ -1,10 +1,8 @@
-import { Application, Graphics, Color } from "pixi.js";
-
-const TILE_SIZE = 32;
-const GRID_COLOR = new Color({ h: 0, s: 0, l: 20 });
+import { Application, Graphics } from "pixi.js";
+import { Grid } from "./Grid";
 
 let app: Application | null = null;
-let gridGraphics: Graphics | null = null;
+let grid: Grid | null = null;
 let circleGraphics: Graphics | null = null;
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
@@ -20,12 +18,9 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     autoDensity: true,
   });
 
-  // Create graphics object for grid
-  gridGraphics = new Graphics();
-  app.stage.addChild(gridGraphics);
-
-  // Draw grid once
-  drawGrid();
+  // Create and draw grid
+  grid = new Grid(app);
+  grid.draw();
 
   // Create graphics object for center circle
   circleGraphics = new Graphics();
@@ -39,44 +34,8 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   return app;
 }
 
-function drawGrid() {
-  if (!gridGraphics || !app) return;
-
-  const width = app.screen.width;
-  const height = app.screen.height;
-
-  const tilesX = Math.ceil(width / TILE_SIZE) + 1;
-  const tilesY = Math.ceil(height / TILE_SIZE) + 1;
-
-  // Draw vertical lines
-  for (let i = 0; i <= tilesX; i++) {
-    const x = i * TILE_SIZE;
-    gridGraphics
-      .moveTo(x, 0)
-      .lineTo(x, tilesY * TILE_SIZE)
-      .stroke({ color: GRID_COLOR, pixelLine: true });
-  }
-
-  // Draw horizontal lines
-  for (let j = 0; j <= tilesY; j++) {
-    const y = j * TILE_SIZE;
-    gridGraphics
-      .moveTo(0, y)
-      .lineTo(tilesX * TILE_SIZE, y)
-      .stroke({ color: GRID_COLOR, pixelLine: true });
-  }
-}
-
 export function updateCamera(x: number, y: number) {
-  if (!gridGraphics || !app) return;
+  if (!grid) return;
 
-  const centerX = app.screen.width / 2;
-  const centerY = app.screen.height / 2;
-
-  gridGraphics.position.x = mod(centerX - x, TILE_SIZE) - TILE_SIZE;
-  gridGraphics.position.y = mod(centerY - y, TILE_SIZE) - TILE_SIZE;
-}
-
-function mod(n: number, m: number) {
-  return ((n % m) + m) % m;
+  grid.updatePosition(x, y);
 }
