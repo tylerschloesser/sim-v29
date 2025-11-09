@@ -9,8 +9,8 @@ function RootComponent() {
   const { state } = useAppContext();
   return (
     <>
-      <div className="fixed pointer-events-none">
-        <span className="text-xs font-mono leading-none">{state.tick}</span>
+      <div className="fixed pointer-events-none flex">
+        <span className="text-xs font-mono">{state.tick}</span>
       </div>
       <Outlet />
     </>
