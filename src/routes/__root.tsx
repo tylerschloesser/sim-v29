@@ -1,16 +1,6 @@
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import type { AppState, Chunk, ChunkId } from "../types";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 
-interface RouterContext {
-  initialState: AppState;
-  updateCamera: (x: number, y: number) => void;
-  updateChunks: (
-    visibleChunkIds: ChunkId[],
-    chunkMap: Map<ChunkId, Chunk>,
-  ) => void;
-}
-
-export const Route = createRootRouteWithContext<RouterContext>()({
+export const Route = createRootRoute({
   component: RootComponent,
 });
 

@@ -7,7 +7,6 @@ import {
   faGear,
   faHammer,
   faHouse,
-  faPickaxe,
   faSquareInfo,
   faSquarePlus,
 } from "@fortawesome/pro-solid-svg-icons";
@@ -15,8 +14,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import { times } from "lodash-es";
 import { useState } from "react";
-import { Panel } from "./Panel";
 import { MineButton } from "./MineButton";
+import { Panel } from "./Panel";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"bottom" | "left" | "right">("right");

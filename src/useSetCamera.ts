@@ -1,17 +1,12 @@
 import { useCallback } from "react";
 import { isEqual } from "lodash-es";
-import type { Updater } from "use-immer";
-import type { AppState, Chunk, ChunkId } from "./types";
+import type { AppState } from "./types";
 import { generateChunk, getVisibleChunks } from "./chunkUtils";
+import { useAppContext } from "./useAppContext";
 
-export function useSetCamera(
-  updateState: Updater<AppState>,
-  updateCamera: (x: number, y: number) => void,
-  updateChunks: (
-    visibleChunkIds: ChunkId[],
-    chunkMap: Map<ChunkId, Chunk>,
-  ) => void,
-) {
+export function useSetCamera() {
+  const { updateState, updateCamera, updateChunks } = useAppContext();
+
   return useCallback(
     (updater: (state: AppState) => { x: number; y: number }) => {
       updateState((draft) => {

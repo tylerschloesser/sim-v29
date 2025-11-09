@@ -5,6 +5,7 @@ import invariant from "tiny-invariant";
 import { setupPixi } from "./pixi.ts";
 import { enableMapSet } from "immer";
 import { initializeState } from "./initState.ts";
+import { AppContextProvider } from "./AppContext.tsx";
 
 import "./index.css";
 
@@ -33,19 +34,20 @@ async function main() {
   updateCamera(initialState.camera.x, initialState.camera.y);
   updateChunks(visibleChunkIds, initialState.chunks);
 
-  // Create a new router instance with the callbacks and initial state in context
+  // Create a new router instance
   const router = createRouter({
     routeTree,
-    context: {
-      initialState,
-      updateCamera,
-      updateChunks,
-    },
   });
 
   createRoot(container).render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <AppContextProvider
+        initialState={initialState}
+        updateCamera={updateCamera}
+        updateChunks={updateChunks}
+      >
+        <RouterProvider router={router} />
+      </AppContextProvider>
     </StrictMode>,
   );
 }
