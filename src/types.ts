@@ -66,7 +66,7 @@ export interface AppState {
   nextEntityId: number;
   action: Action | null;
   tick: number;
-  inventory: Record<ResourceType, number>;
+  inventory: Record<ResourceType | EntityType, number>;
 }
 
 export function getChunkId(tileX: number, tileY: number): ChunkId {

@@ -51,6 +51,8 @@ export function initializeState(
       copper: 0,
       iron: 0,
       stone: 0,
+      "home-storage": 0,
+      "stone-furnace": 1,
     },
   };
 
