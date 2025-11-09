@@ -11,6 +11,13 @@
     "check": "tsc -b --noEmit && eslint --cache --fix . && prettier --cache --write --log-level warn ."
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-regular-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/pro-regular-svg-icons": "^7.1.0",
+    "@fortawesome/pro-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.0",
     "@types/lodash-es": "^4.17.12",
     "clsx": "^2.1.1",
     "lodash-es": "^4.17.21",

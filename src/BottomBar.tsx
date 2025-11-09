@@ -1,6 +1,12 @@
-import { useState } from "react";
+import {
+  faBorderBottom,
+  faBorderLeft,
+  faBorderRight,
+} from "@fortawesome/pro-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import { times } from "lodash-es";
+import { useState } from "react";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"bottom" | "left" | "right">("right");
@@ -40,7 +46,19 @@ export function BottomBar() {
                 }
               }}
             >
-              {i + 1}
+              {i === 0 ? (
+                <FontAwesomeIcon
+                  icon={
+                    config === "bottom"
+                      ? faBorderBottom
+                      : config === "left"
+                        ? faBorderLeft
+                        : faBorderRight
+                  }
+                />
+              ) : (
+                <>{i + 1}</>
+              )}
             </button>
           ))}
         </div>
