@@ -5,8 +5,7 @@ import { TopBar } from "../TopBar";
 import { BottomBar } from "../BottomBar";
 import { useCamera } from "../useCamera";
 import { isEqual } from "lodash-es";
-import type { AppState } from "../App";
-import type { Chunk, ChunkId } from "../types";
+import type { AppState, Chunk, ChunkId } from "../types";
 import { generateChunk, getVisibleChunks } from "../chunkUtils";
 
 export const Route = createFileRoute("/")({

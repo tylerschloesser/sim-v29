@@ -7,6 +7,14 @@ export interface Chunk {
   tiles: number[]; // array of hex colors (32 * 32 = 1024 colors)
 }
 
+export interface AppState {
+  camera: {
+    x: number;
+    y: number;
+  };
+  chunks: Map<ChunkId, Chunk>;
+}
+
 export function getChunkId(tileX: number, tileY: number): ChunkId {
   return `${tileX},${tileY}`;
 }

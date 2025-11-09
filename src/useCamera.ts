@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { AppState } from "./App";
+import type { AppState } from "./types";
 import type { ReadonlyDeep } from "type-fest";
 
 const CAMERA_SPEED = 5; // pixels per frame for WASD movement
