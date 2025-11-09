@@ -46,28 +46,25 @@ function drawGrid() {
   const tilesX = Math.ceil(width / TILE_SIZE) + 1;
   const tilesY = Math.ceil(height / TILE_SIZE) + 1;
 
-  gridGraphics.setStrokeStyle({
-    width: 1,
-    color: GRID_COLOR,
-  });
-
   // Draw vertical lines centered around origin
   // Start from -1 to ensure coverage when grid shifts via modulo positioning
   for (let i = -1; i <= tilesX; i++) {
     const x = i * TILE_SIZE - halfWidth;
-    gridGraphics.moveTo(x, -halfHeight);
-    gridGraphics.lineTo(x, halfHeight);
+    gridGraphics
+      .moveTo(x, -halfHeight)
+      .lineTo(x, halfHeight)
+      .stroke({ color: GRID_COLOR, pixelLine: true });
   }
 
   // Draw horizontal lines centered around origin
   // Start from -1 to ensure coverage when grid shifts via modulo positioning
   for (let i = -1; i <= tilesY; i++) {
     const y = i * TILE_SIZE - halfHeight;
-    gridGraphics.moveTo(-halfWidth, y);
-    gridGraphics.lineTo(halfWidth, y);
+    gridGraphics
+      .moveTo(-halfWidth, y)
+      .lineTo(halfWidth, y)
+      .stroke({ color: GRID_COLOR, pixelLine: true });
   }
-
-  gridGraphics.stroke();
 }
 
 export function updateCamera(x: number, y: number) {
