@@ -1,4 +1,4 @@
-import type { AppState, ChunkId } from "./types.ts";
+import type { AppState, ChunkId, ResourceType } from "./types.ts";
 import {
   addResourceToTile,
   generateChunk,
@@ -10,6 +10,17 @@ export interface InitializedState {
   state: AppState;
   visibleChunkIds: ChunkId[];
 }
+
+// Initial resource positions in world tile coordinates
+const INITIAL_RESOURCES: Record<
+  ResourceType,
+  Array<{ x: number; y: number }>
+> = {
+  coal: [{ x: -3, y: -3 }],
+  copper: [{ x: -8, y: 3 }],
+  iron: [{ x: 3, y: 2 }],
+  stone: [{ x: 1, y: -3 }],
+};
 
 /**
  * Initialize the app state with camera position and visible chunks
@@ -57,10 +68,14 @@ export function initializeState(
   }
 
   // Add resources to specific tiles (after all chunks are generated)
-  addResourceToTile(state.chunks, -3, -3, { type: "coal", count: 100 });
-  addResourceToTile(state.chunks, 3, 2, { type: "iron", count: 100 });
-  addResourceToTile(state.chunks, 1, -3, { type: "stone", count: 100 });
-  addResourceToTile(state.chunks, -8, 3, { type: "copper", count: 100 });
+  for (const [resourceType, positions] of Object.entries(INITIAL_RESOURCES)) {
+    for (const { x, y } of positions) {
+      addResourceToTile(state.chunks, x, y, {
+        type: resourceType as ResourceType,
+        count: 100,
+      });
+    }
+  }
 
   return { state, visibleChunkIds };
 }
