@@ -32,7 +32,7 @@ export function useSetCamera(
           // Generate any missing chunks
           for (const chunkId of visibleChunkIds) {
             if (!draft.chunks.has(chunkId)) {
-              draft.chunks.set(chunkId, generateChunk());
+              draft.chunks.set(chunkId, generateChunk(chunkId));
             }
           }
 
