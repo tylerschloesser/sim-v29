@@ -57,6 +57,9 @@ export class ChunkManager {
       }
     }
 
+    graphics.rect(chunkX * TILE_SIZE - 4, chunkY * TILE_SIZE - 4, 8, 8);
+    graphics.fill({ color: "white" });
+
     this.container.addChild(graphics);
     this.renderedChunks.set(id, graphics);
   }
