@@ -8,10 +8,13 @@ Always use `bun` instead of `npm` for all package management and script executio
 
 ## Build and Development Commands
 
+- **Check code quality**: `bun check` (runs type checking, ESLint with auto-fix, and Prettier with auto-formatting)
 - **Type checking**: `bun run tsc --noEmit` (run this after changes instead of full build)
 - **Build**: `bun run build` (runs TypeScript compilation with `tsc -b` then Vite build)
 - **Lint**: `bun run lint`
 - **Preview production build**: `bun run preview`
+
+**Important**: Always run `bun check` after making code changes to automatically fix and format code.
 
 **Note**: Never run `bun run dev` yourself - the user will handle development server.
 
