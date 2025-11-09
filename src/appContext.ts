@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { AppState, Chunk, ChunkId } from "./types";
+import type { AppState, Chunk, ChunkId, Entity, EntityId } from "./types";
 
 export interface AppContextType {
   state: AppState;
@@ -9,6 +9,7 @@ export interface AppContextType {
     visibleChunkIds: ChunkId[],
     chunkMap: Map<ChunkId, Chunk>,
   ) => void;
+  updateEntities: (entities: Map<EntityId, Entity>) => void;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);

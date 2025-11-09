@@ -1,8 +1,9 @@
 import { Application, Graphics } from "pixi.js";
 import { Grid } from "./Grid";
 import { ChunkManager } from "./ChunkManager";
+import { EntityManager } from "./EntityManager";
 import { TileHighlight } from "./TileHighlight";
-import type { Chunk, ChunkId } from "./types";
+import type { Chunk, ChunkId, Entity, EntityId } from "./types";
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create PixiJS application
@@ -20,6 +21,9 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create chunk manager (must be first, renders below grid)
   const chunkManager = new ChunkManager(app);
 
+  // Create entity manager (renders above chunks, below grid)
+  const entityManager = new EntityManager(app);
+
   // Create grid
   const grid = new Grid(app);
 
@@ -32,10 +36,11 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
-  // Create updateCamera callback with grid, chunkManager, and tileHighlight in closure
+  // Create updateCamera callback with grid, chunkManager, entityManager, and tileHighlight in closure
   const updateCamera = (x: number, y: number) => {
     grid.updatePosition(x, y);
     chunkManager.updatePosition(x, y);
+    entityManager.updatePosition(x, y);
     tileHighlight.updatePosition(x, y);
   };
 
@@ -47,8 +52,13 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     chunkManager.updateChunks(visibleChunkIds, chunkMap);
   };
 
+  // Create updateEntities callback
+  const updateEntities = (entities: Map<EntityId, Entity>) => {
+    entityManager.updateEntities(entities);
+  };
+
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
 
-  return { app, updateCamera, updateChunks };
+  return { app, updateCamera, updateChunks, updateEntities };
 }

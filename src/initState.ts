@@ -4,7 +4,8 @@ import {
   generateChunk,
   getVisibleChunks,
 } from "./chunkUtils.ts";
-import { CHUNK_SIZE, getChunkId } from "./types.ts";
+import { CHUNK_SIZE, createEntity, getChunkId, getEntityId } from "./types.ts";
+import { getTilesForEntity } from "./entityUtils.ts";
 
 export interface InitializedState {
   state: AppState;
@@ -41,6 +42,8 @@ export function initializeState(
   const state: AppState = {
     camera: { x: 0, y: 0 },
     chunks: new Map(),
+    entities: new Map(),
+    nextEntityId: 1,
     action: null,
     tick: 0,
     inventory: {
@@ -82,6 +85,26 @@ export function initializeState(
         type: resourceType as ResourceType,
         count: 100,
       });
+    }
+  }
+
+  // Add initial home-storage entity at (-1, -1)
+  const homeStorageId = getEntityId(state.nextEntityId++);
+  const homeStorageEntity = createEntity(homeStorageId, "home-storage", -1, -1);
+  state.entities.set(homeStorageId, homeStorageEntity);
+
+  // Update tiles occupied by the entity to reference it
+  for (const { x, y } of getTilesForEntity(homeStorageEntity)) {
+    const chunkId = getChunkId(
+      Math.floor(x / CHUNK_SIZE) * CHUNK_SIZE,
+      Math.floor(y / CHUNK_SIZE) * CHUNK_SIZE,
+    );
+    const chunk = state.chunks.get(chunkId);
+    if (chunk) {
+      const localX = x < 0 ? (x % CHUNK_SIZE) + CHUNK_SIZE : x % CHUNK_SIZE;
+      const localY = y < 0 ? (y % CHUNK_SIZE) + CHUNK_SIZE : y % CHUNK_SIZE;
+      const tileIndex = localY * CHUNK_SIZE + localX;
+      chunk.tiles[tileIndex].entityId = homeStorageId;
     }
   }
 
