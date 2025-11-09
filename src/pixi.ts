@@ -1,5 +1,7 @@
 import { Application, Graphics } from "pixi.js";
 import { Grid } from "./Grid";
+import { ChunkManager } from "./ChunkManager";
+import type { Chunk, ChunkId } from "./types";
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create PixiJS application
@@ -14,9 +16,11 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     autoDensity: true,
   });
 
-  // Create and draw grid
+  // Create chunk manager (must be first, renders below grid)
+  const chunkManager = new ChunkManager(app);
+
+  // Create grid
   const grid = new Grid(app);
-  grid.draw();
 
   // Create graphics object for center circle
   const circleGraphics = new Graphics();
@@ -24,13 +28,22 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
-  // Create updateCamera callback with grid in closure
+  // Create updateCamera callback with grid and chunkManager in closure
   const updateCamera = (x: number, y: number) => {
     grid.updatePosition(x, y);
+    chunkManager.updatePosition(x, y);
+  };
+
+  // Create updateChunks callback
+  const updateChunks = (
+    visibleChunkIds: ChunkId[],
+    chunkMap: Map<ChunkId, Chunk>,
+  ) => {
+    chunkManager.updateChunks(visibleChunkIds, chunkMap);
   };
 
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
 
-  return { app, updateCamera };
+  return { app, updateCamera, updateChunks };
 }
