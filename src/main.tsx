@@ -1,11 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import type { AppState } from "./types.ts";
 import invariant from "tiny-invariant";
 import { setupPixi } from "./pixi.ts";
 import { enableMapSet } from "immer";
-import { generateChunk, getVisibleChunks } from "./chunkUtils.ts";
+import { initializeState } from "./initState.ts";
 
 import "./index.css";
 
@@ -25,22 +24,10 @@ async function main() {
   const { updateCamera, updateChunks } = await setupPixi(canvas);
 
   // Initialize app state outside of React
-  const initialState: AppState = {
-    camera: { x: 0, y: 0 },
-    chunks: new Map(),
-  };
-
-  // Calculate and generate initial visible chunks
-  const visibleChunkIds = getVisibleChunks(
-    initialState.camera.x,
-    initialState.camera.y,
+  const { state: initialState, visibleChunkIds } = initializeState(
     window.innerWidth,
     window.innerHeight,
   );
-
-  for (const chunkId of visibleChunkIds) {
-    initialState.chunks.set(chunkId, generateChunk(chunkId));
-  }
 
   // Render initial chunks in PixiJS before React mounts
   updateCamera(initialState.camera.x, initialState.camera.y);
