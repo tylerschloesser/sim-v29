@@ -5,6 +5,7 @@ const GRID_COLOR = new Color({ h: 0, s: 0, l: 20 });
 
 let app: Application | null = null;
 let gridGraphics: Graphics | null = null;
+let circleGraphics: Graphics | null = null;
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create PixiJS application
@@ -25,6 +26,12 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
 
   // Draw grid once
   drawGrid();
+
+  // Create graphics object for center circle
+  circleGraphics = new Graphics();
+  circleGraphics.circle(app.screen.width / 2, app.screen.height / 2, 4);
+  circleGraphics.fill({ color: 0x0000ff });
+  app.stage.addChild(circleGraphics);
 
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
@@ -66,8 +73,8 @@ export function updateCamera(x: number, y: number) {
   const centerX = app.screen.width / 2;
   const centerY = app.screen.height / 2;
 
-  gridGraphics.position.x = centerX - mod(x, TILE_SIZE);
-  gridGraphics.position.y = centerY - mod(y, TILE_SIZE);
+  gridGraphics.position.x = mod(centerX - x, TILE_SIZE) - TILE_SIZE;
+  gridGraphics.position.y = mod(centerY - y, TILE_SIZE) - TILE_SIZE;
 }
 
 function mod(n: number, m: number) {
