@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { useState } from "react";
 import { MineButton } from "./MineButton";
 import { Panel } from "./Panel";
+import { HomeButton } from "./HomeButton";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"left" | "right">("right");
@@ -29,6 +30,7 @@ export function BottomBar() {
           })}
         >
           <MineButton />
+          <HomeButton />
           <button className="p-4" onClick={toggleConfig}>
             <FontAwesomeIcon
               icon={config === "left" ? faBorderLeft : faBorderRight}
