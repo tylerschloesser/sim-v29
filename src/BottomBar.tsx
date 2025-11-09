@@ -35,11 +35,16 @@ export function BottomBar() {
         })}
       >
         <div
-          className={clsx("pointer-events-auto", "border rounded", {
-            "flex-1 grid grid-cols-5 grid-rows-2": config === "bottom",
-            // prettier-ignore
-            "inline-grid grid-cols-2 grid-rows-5": config === "left" || config === "right",
-          })}
+          className={clsx(
+            "bg-black/50",
+            "pointer-events-auto",
+            "border rounded",
+            {
+              "flex-1 grid grid-cols-6 grid-rows-2": config === "bottom",
+              // prettier-ignore
+              "inline-grid grid-cols-2 grid-rows-6": config === "left" || config === "right",
+            },
+          )}
         >
           <button className="p-4" onClick={toggleConfig}>
             <FontAwesomeIcon
@@ -73,7 +78,7 @@ export function BottomBar() {
           <button className="p-4">
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
-          {times(2, (i) => (
+          {times(4, (i) => (
             <button
               key={i}
               className="p-4"
