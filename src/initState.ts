@@ -19,6 +19,12 @@ export function initializeState(
     chunks: new Map(),
     action: null,
     tick: 0,
+    inventory: {
+      coal: 0,
+      copper: 0,
+      iron: 0,
+      stone: 0,
+    },
   };
 
   // Calculate and generate initial visible chunks

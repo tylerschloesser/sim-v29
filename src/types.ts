@@ -44,6 +44,7 @@ export interface AppState {
   chunks: Map<ChunkId, Chunk>;
   action: Action | null;
   tick: number;
+  inventory: Record<ResourceType, number>;
 }
 
 export function getChunkId(tileX: number, tileY: number): ChunkId {
