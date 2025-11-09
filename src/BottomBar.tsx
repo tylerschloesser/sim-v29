@@ -1,14 +1,4 @@
-import {
-  faBorderLeft,
-  faBorderRight,
-  faChartLine,
-  faDrawSquare,
-  faGear,
-  faHammer,
-  faHouse,
-  faSquareInfo,
-  faSquarePlus,
-} from "@fortawesome/pro-solid-svg-icons";
+import { faBorderLeft, faBorderRight } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import { useState } from "react";
@@ -32,33 +22,17 @@ export function BottomBar() {
           "justify-start": config === "left",
         })}
       >
-        <Panel className={clsx("pointer-events-auto")}>
+        <Panel
+          className={clsx("pointer-events-auto flex", {
+            "flex-row": config === "right",
+            "flex-row-reverse": config === "left",
+          })}
+        >
+          <MineButton />
           <button className="p-4" onClick={toggleConfig}>
             <FontAwesomeIcon
               icon={config === "left" ? faBorderLeft : faBorderRight}
             />
-          </button>
-          <MineButton />
-          <button className="p-4">
-            <FontAwesomeIcon icon={faGear} />
-          </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faHouse} />
-          </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faHammer} />
-          </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faDrawSquare} />
-          </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faSquareInfo} />
-          </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faSquarePlus} />
-          </button>
-          <button className="p-4">
-            <FontAwesomeIcon icon={faChartLine} />
           </button>
         </Panel>
       </div>

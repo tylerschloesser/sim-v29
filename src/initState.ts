@@ -16,7 +16,15 @@ const INITIAL_RESOURCES: Record<
   ResourceType,
   Array<{ x: number; y: number }>
 > = {
-  coal: [{ x: -3, y: -3 }],
+  coal: [
+    { x: -3, y: -3 },
+    { x: -4, y: -3 },
+    { x: -3, y: -4 },
+    { x: -4, y: -4 },
+    { x: -5, y: -4 },
+    { x: -4, y: -5 },
+    { x: -5, y: -5 },
+  ],
   copper: [{ x: -8, y: 3 }],
   iron: [{ x: 3, y: 2 }],
   stone: [{ x: 1, y: -3 }],
