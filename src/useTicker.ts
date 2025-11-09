@@ -6,6 +6,7 @@ import { getTileLocation } from "./tileUtils";
 
 const TICK_RATE = 60; // ticks per second
 const TICK_INTERVAL = 1000 / TICK_RATE; // ms per tick (~16.67ms)
+const MINE_DURATION_TICKS = 2 * TICK_RATE; // 2 seconds
 
 /**
  * Process the current action for one tick.
@@ -13,8 +14,8 @@ const TICK_INTERVAL = 1000 / TICK_RATE; // ms per tick (~16.67ms)
  */
 function tickAction(draft: AppState) {
   if (draft.action?.type === "mine") {
-    // Auto-increment progress (1/60th per tick = 1 second to complete)
-    draft.action.progress += 1 / TICK_RATE;
+    // Auto-increment progress (1/120th per tick = 2 seconds to complete)
+    draft.action.progress += 1 / MINE_DURATION_TICKS;
 
     // Complete action when progress reaches 1
     if (draft.action.progress >= 1) {
