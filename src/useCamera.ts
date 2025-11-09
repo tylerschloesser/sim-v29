@@ -1,14 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import type { AppState } from "./App";
 
 const CAMERA_SPEED = 5; // pixels per frame for WASD movement
 
-interface CameraState {
-  x: number;
-  y: number;
-}
-
-export function useCamera(onCameraUpdate: (x: number, y: number) => void) {
-  const [camera, setCamera] = useState<CameraState>({ x: 0, y: 0 });
+export function useCamera(
+  setCamera: (updater: (state: AppState) => { x: number; y: number }) => void,
+) {
   const keysPressed = useRef<Set<string>>(new Set());
   const isDragging = useRef(false);
   const lastPointerPos = useRef({ x: 0, y: 0 });
@@ -49,14 +46,10 @@ export function useCamera(onCameraUpdate: (x: number, y: number) => void) {
       const deltaX = e.clientX - lastPointerPos.current.x;
       const deltaY = e.clientY - lastPointerPos.current.y;
 
-      setCamera((prev) => {
-        const newCamera = {
-          x: prev.x - deltaX,
-          y: prev.y - deltaY,
-        };
-        onCameraUpdate(newCamera.x, newCamera.y);
-        return newCamera;
-      });
+      setCamera((state) => ({
+        x: state.camera.x - deltaX,
+        y: state.camera.y - deltaY,
+      }));
 
       lastPointerPos.current = { x: e.clientX, y: e.clientY };
     };
@@ -74,7 +67,7 @@ export function useCamera(onCameraUpdate: (x: number, y: number) => void) {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [onCameraUpdate]);
+  }, [setCamera]);
 
   // Animation loop for WASD movement
   useEffect(() => {
@@ -82,18 +75,14 @@ export function useCamera(onCameraUpdate: (x: number, y: number) => void) {
 
     const updateCameraFromKeys = () => {
       if (keysPressed.current.size > 0) {
-        setCamera((prev) => {
-          let newX = prev.x;
-          let newY = prev.y;
-
+        setCamera((state) => {
+          let newX = state.camera.x;
+          let newY = state.camera.y;
           if (keysPressed.current.has("w")) newY -= CAMERA_SPEED;
           if (keysPressed.current.has("s")) newY += CAMERA_SPEED;
           if (keysPressed.current.has("a")) newX -= CAMERA_SPEED;
           if (keysPressed.current.has("d")) newX += CAMERA_SPEED;
-
-          const newCamera = { x: newX, y: newY };
-          onCameraUpdate(newCamera.x, newCamera.y);
-          return newCamera;
+          return { x: newX, y: newY };
         });
       }
 
@@ -105,7 +94,5 @@ export function useCamera(onCameraUpdate: (x: number, y: number) => void) {
     return () => {
       cancelAnimationFrame(animationFrame);
     };
-  }, [onCameraUpdate]);
-
-  return camera;
+  }, [setCamera]);
 }
