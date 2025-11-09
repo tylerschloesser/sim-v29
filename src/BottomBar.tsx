@@ -2,7 +2,7 @@ import { times } from "lodash-es";
 
 export function BottomBar() {
   return (
-    <div className="fixed inset-0 top-[unset]">
+    <div className="fixed inset-x-0 bottom-0">
       <div className="p-4">
         <div className="border rounded flex flex-col divide-y">
           <div className="flex divide-x">
