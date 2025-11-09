@@ -6,7 +6,7 @@ const CAMERA_SPEED = 5; // pixels per frame for WASD movement
 export function useCamera() {
   const setCamera = useSetCamera();
   const keysPressed = useRef<Set<string>>(new Set());
-  const isDragging = useRef(false);
+  const activePointerId = useRef<number | null>(null);
   const lastPointerPos = useRef({ x: 0, y: 0 });
 
   // WASD keyboard controls
@@ -33,14 +33,19 @@ export function useCamera() {
   }, []);
 
   // Pointer drag controls (supports mouse, touch, and pen)
+  // Only tracks the first pointer to ignore multi-touch
   useEffect(() => {
     const handlePointerDown = (e: PointerEvent) => {
-      isDragging.current = true;
-      lastPointerPos.current = { x: e.clientX, y: e.clientY };
+      // Only start dragging if no pointer is already active
+      if (activePointerId.current === null) {
+        activePointerId.current = e.pointerId;
+        lastPointerPos.current = { x: e.clientX, y: e.clientY };
+      }
     };
 
     const handlePointerMove = (e: PointerEvent) => {
-      if (!isDragging.current) return;
+      // Only process movement from the active pointer
+      if (activePointerId.current !== e.pointerId) return;
 
       const deltaX = e.clientX - lastPointerPos.current.x;
       const deltaY = e.clientY - lastPointerPos.current.y;
@@ -53,18 +58,30 @@ export function useCamera() {
       lastPointerPos.current = { x: e.clientX, y: e.clientY };
     };
 
-    const handlePointerUp = () => {
-      isDragging.current = false;
+    const handlePointerUp = (e: PointerEvent) => {
+      // Only end dragging if it's the active pointer
+      if (activePointerId.current === e.pointerId) {
+        activePointerId.current = null;
+      }
+    };
+
+    const handlePointerCancel = (e: PointerEvent) => {
+      // Handle pointer cancellation (e.g., browser UI intervention)
+      if (activePointerId.current === e.pointerId) {
+        activePointerId.current = null;
+      }
     };
 
     window.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
 
     return () => {
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
     };
   }, [setCamera]);
 
