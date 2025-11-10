@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { getTilesForEntity } from "./entityUtils";
 import type { PixiController } from "./PixiController";
+import type { AppState, Build, EntityType } from "./types";
 import {
   CHUNK_SIZE,
   createEntity,
@@ -9,7 +10,6 @@ import {
   TILE_SIZE,
   tileToChunk,
 } from "./types";
-import type { AppState, EntityType } from "./types";
 
 /**
  * Hook that manages the build preview based on camera position and selected entity type.
@@ -19,13 +19,11 @@ export function useBuildPreview(
   selectedEntityType: EntityType | undefined,
   state: AppState,
   pixiController: PixiController,
-) {
+): Build | null {
   // Update build preview based on camera and selected entity type
-  useEffect(() => {
+  const build = useMemo<Build | null>(() => {
     if (!selectedEntityType) {
-      // Clear build preview when no entity type selected
-      pixiController.updateBuild(null);
-      return;
+      return null;
     }
 
     // Create entity with empty ID at camera position
@@ -61,8 +59,12 @@ export function useBuildPreview(
       return !tileData.entityId;
     });
 
-    pixiController.updateBuild({ entity, valid });
-  }, [state.camera, state.chunks, selectedEntityType, pixiController]);
+    return { entity, valid };
+  }, [state.camera, state.chunks, selectedEntityType]);
+
+  useEffect(() => {
+    pixiController.updateBuild(build);
+  }, [build, pixiController]);
 
   // Clean up build preview when component unmounts
   useEffect(() => {
@@ -70,4 +72,6 @@ export function useBuildPreview(
       pixiController.updateBuild(null);
     };
   }, [pixiController]);
+
+  return build;
 }

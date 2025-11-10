@@ -1,4 +1,4 @@
-import { faArrowLeft } from "@fortawesome/pro-solid-svg-icons";
+import { faArrowLeft, faHammer } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   createFileRoute,
@@ -55,7 +55,7 @@ function BuildComponent() {
   }, [selectedEntityType, state.inventory, navigate]);
 
   // Update build preview based on camera and selected entity type
-  useBuildPreview(selectedEntityType, state, pixiController);
+  const build = useBuildPreview(selectedEntityType, state, pixiController);
 
   const handleSelectEntity = (entityType: EntityType) => {
     navigate({ search: { selectedEntityType: entityType } });
@@ -73,8 +73,14 @@ function BuildComponent() {
           />
         )}
         <div className="flex justify-end">
-          <Panel>
-            <Link to="/" className="block p-4">
+          <Panel className="flex">
+            <button
+              className="block p-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!build?.valid}
+            >
+              <FontAwesomeIcon icon={faHammer} />
+            </button>
+            <Link to={build ? "/build" : "/"} className="block p-4">
               <FontAwesomeIcon icon={faArrowLeft} />
             </Link>
           </Panel>
