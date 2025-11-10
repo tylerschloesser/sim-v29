@@ -12,7 +12,7 @@ export interface Resource {
   count: number;
 }
 
-export type EntityType = "stone-furnace" | "home-storage";
+export type EntityType = "stone-furnace" | "home-storage" | "burner-inserter";
 
 export interface BaseEntity {
   id: EntityId;
@@ -28,7 +28,14 @@ export interface HomeStorageEntity extends BaseEntity {
   type: "home-storage";
 }
 
-export type Entity = StoneFurnaceEntity | HomeStorageEntity;
+export interface BurnerInserterEntity extends BaseEntity {
+  type: "burner-inserter";
+}
+
+export type Entity =
+  | StoneFurnaceEntity
+  | HomeStorageEntity
+  | BurnerInserterEntity;
 
 export interface Build {
   entity: Entity;
@@ -49,6 +56,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   "home-storage": {
     size: { x: 2, y: 2 },
     color: 0x4444ff, // blue
+  },
+  "burner-inserter": {
+    size: { x: 1, y: 1 },
+    color: 0xffaa66, // light orange
   },
 };
 
@@ -135,6 +146,8 @@ export function createEntity(
   const position = { x, y };
 
   if (type === "stone-furnace") {
+    return { id, type, position, size };
+  } else if (type === "burner-inserter") {
     return { id, type, position, size };
   } else {
     return { id, type, position, size };

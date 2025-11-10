@@ -53,6 +53,7 @@ export function initializeState(
       stone: 0,
       "home-storage": 0,
       "stone-furnace": 1,
+      "burner-inserter": 0,
     },
   };
 

@@ -19,7 +19,22 @@ interface BuildSearch {
   selectedEntityType?: EntityType;
 }
 
-const VALID_ENTITY_TYPES: EntityType[] = ["stone-furnace", "home-storage"];
+const VALID_ENTITY_TYPES = [
+  "stone-furnace",
+  "home-storage",
+  "burner-inserter",
+] as const satisfies readonly EntityType[];
+
+// Compile-time check that ensures all EntityType values are included
+// This will cause a type error if any EntityType is missing from the array above
+type AssertAllEntityTypes =
+  (typeof VALID_ENTITY_TYPES)[number] extends EntityType
+    ? EntityType extends (typeof VALID_ENTITY_TYPES)[number]
+      ? true
+      : "Missing entity type in VALID_ENTITY_TYPES array"
+    : "Invalid entity type in VALID_ENTITY_TYPES array";
+const _checkEntityTypes: AssertAllEntityTypes = true;
+void _checkEntityTypes; // Suppress unused variable warning
 
 function isEntityType(value: unknown): value is EntityType {
   return (
