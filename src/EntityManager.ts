@@ -42,7 +42,10 @@ export class EntityManager {
 
   private renderEntity(id: EntityId, entity: Entity) {
     const texture = this.textureManager.getTexture(entity.type);
-    const sprite = new Sprite(texture);
+    const sprite = new Sprite({
+      texture,
+      alpha: 0.7,
+    });
     sprite.x = entity.position.x * TILE_SIZE;
     sprite.y = entity.position.y * TILE_SIZE;
 
