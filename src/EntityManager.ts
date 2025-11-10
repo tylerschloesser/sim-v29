@@ -1,17 +1,19 @@
-import { Application, Container, Graphics } from "pixi.js";
+import { Application, Container, Sprite } from "pixi.js";
 import type { Entity, EntityId } from "./types";
 import { TILE_SIZE } from "./types";
-import { getEntityColor } from "./entityUtils";
+import type { TextureManager } from "./TextureManager";
 
 export class EntityManager {
   private app: Application;
   private container: Container;
-  private renderedEntities: Map<EntityId, Graphics>;
+  private renderedEntities: Map<EntityId, Sprite>;
+  private textureManager: TextureManager;
 
-  constructor(app: Application) {
+  constructor(app: Application, textureManager: TextureManager) {
     this.app = app;
     this.container = new Container();
     this.renderedEntities = new Map();
+    this.textureManager = textureManager;
 
     // Add container to stage (will be above chunks but below grid)
     this.app.stage.addChild(this.container);
@@ -19,9 +21,9 @@ export class EntityManager {
 
   updateEntities(entities: Map<EntityId, Entity>) {
     // Remove entities that no longer exist
-    for (const [id, graphics] of this.renderedEntities) {
+    for (const [id, sprite] of this.renderedEntities) {
       if (!entities.has(id)) {
-        this.destroyEntity(id, graphics);
+        this.destroyEntity(id, sprite);
       }
     }
 
@@ -29,8 +31,8 @@ export class EntityManager {
     for (const [id, entity] of entities) {
       if (this.renderedEntities.has(id)) {
         // Update existing entity (in case it moved or changed)
-        const graphics = this.renderedEntities.get(id)!;
-        this.updateEntityGraphics(graphics, entity);
+        const sprite = this.renderedEntities.get(id)!;
+        this.updateEntitySprite(sprite, entity);
       } else {
         // Render new entity
         this.renderEntity(id, entity);
@@ -39,37 +41,28 @@ export class EntityManager {
   }
 
   private renderEntity(id: EntityId, entity: Entity) {
-    const graphics = new Graphics();
-    this.drawEntity(graphics, entity);
-    this.container.addChild(graphics);
-    this.renderedEntities.set(id, graphics);
+    const texture = this.textureManager.getTexture(entity.type);
+    const sprite = new Sprite(texture);
+    sprite.x = entity.position.x * TILE_SIZE;
+    sprite.y = entity.position.y * TILE_SIZE;
+
+    this.container.addChild(sprite);
+    this.renderedEntities.set(id, sprite);
   }
 
-  private updateEntityGraphics(graphics: Graphics, entity: Entity) {
-    graphics.clear();
-    this.drawEntity(graphics, entity);
+  private updateEntitySprite(sprite: Sprite, entity: Entity) {
+    // Update position in case entity moved
+    sprite.x = entity.position.x * TILE_SIZE;
+    sprite.y = entity.position.y * TILE_SIZE;
+
+    // Update texture in case entity type changed
+    const texture = this.textureManager.getTexture(entity.type);
+    sprite.texture = texture;
   }
 
-  private drawEntity(graphics: Graphics, entity: Entity) {
-    const worldX = entity.position.x * TILE_SIZE;
-    const worldY = entity.position.y * TILE_SIZE;
-    const width = entity.size.x * TILE_SIZE;
-    const height = entity.size.y * TILE_SIZE;
-
-    const color = getEntityColor(entity.type);
-
-    // Draw filled rectangle with transparency
-    graphics.rect(worldX, worldY, width, height);
-    graphics.fill({ color, alpha: 0.7 });
-
-    // Draw border
-    graphics.rect(worldX, worldY, width, height);
-    graphics.stroke({ color: 0x000000, width: 2 });
-  }
-
-  private destroyEntity(id: EntityId, graphics: Graphics) {
-    this.container.removeChild(graphics);
-    graphics.destroy();
+  private destroyEntity(id: EntityId, sprite: Sprite) {
+    this.container.removeChild(sprite);
+    sprite.destroy();
     this.renderedEntities.delete(id);
   }
 
@@ -83,8 +76,8 @@ export class EntityManager {
   }
 
   destroy() {
-    for (const graphics of this.renderedEntities.values()) {
-      graphics.destroy();
+    for (const sprite of this.renderedEntities.values()) {
+      sprite.destroy();
     }
     this.renderedEntities.clear();
     this.container.destroy();

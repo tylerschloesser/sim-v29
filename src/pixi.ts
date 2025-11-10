@@ -1,13 +1,17 @@
 import { Application, Graphics } from "pixi.js";
-import { Grid } from "./Grid";
+import { BuildManager } from "./BuildManager";
 import { ChunkManager } from "./ChunkManager";
 import { EntityManager } from "./EntityManager";
-import { BuildManager } from "./BuildManager";
+import { Grid } from "./Grid";
+import type { PixiController } from "./PixiController";
+import { TextureManager } from "./TextureManager";
 import { TileHighlight } from "./TileHighlight";
 import type { Build, Chunk, ChunkId, Entity, EntityId } from "./types";
-import type { PixiController } from "./PixiController";
 
-export async function setupPixi(canvas: HTMLCanvasElement) {
+export async function setupPixi(
+  canvas: HTMLCanvasElement,
+  textureManager: TextureManager,
+) {
   // Create PixiJS application
   const app = new Application();
 
@@ -20,14 +24,16 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     autoDensity: true,
   });
 
+  // Initialize TextureManager after PixiJS is initialized
+
   // Create chunk manager (must be first, renders below grid)
   const chunkManager = new ChunkManager(app);
 
   // Create entity manager (renders above chunks, below grid)
-  const entityManager = new EntityManager(app);
+  const entityManager = new EntityManager(app, textureManager);
 
   // Create build manager (renders above entities, below grid)
-  const buildManager = new BuildManager(app);
+  const buildManager = new BuildManager(app, textureManager);
 
   // Create grid
   const grid = new Grid(app);
@@ -78,5 +84,5 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     updateBuild,
   };
 
-  return { app, controller };
+  return { app, controller, textureManager };
 }

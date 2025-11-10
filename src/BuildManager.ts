@@ -1,15 +1,18 @@
-import { Application, Container, Graphics } from "pixi.js";
+import { Application, Container, Sprite } from "pixi.js";
 import type { Build } from "./types";
 import { TILE_SIZE } from "./types";
+import type { TextureManager } from "./TextureManager";
 
 export class BuildManager {
   private app: Application;
   private container: Container;
-  private buildGraphics: Graphics | null = null;
+  private buildSprite: Sprite | null = null;
+  private textureManager: TextureManager;
 
-  constructor(app: Application) {
+  constructor(app: Application, textureManager: TextureManager) {
     this.app = app;
     this.container = new Container();
+    this.textureManager = textureManager;
 
     // Add container to stage (will be above entities but below grid)
     this.app.stage.addChild(this.container);
@@ -17,10 +20,10 @@ export class BuildManager {
 
   updateBuild(build: Build | null) {
     // Clear existing build preview
-    if (this.buildGraphics) {
-      this.container.removeChild(this.buildGraphics);
-      this.buildGraphics.destroy();
-      this.buildGraphics = null;
+    if (this.buildSprite) {
+      this.container.removeChild(this.buildSprite);
+      this.buildSprite.destroy();
+      this.buildSprite = null;
     }
 
     // If no build, we're done
@@ -29,28 +32,18 @@ export class BuildManager {
     }
 
     // Render new build preview
-    this.buildGraphics = new Graphics();
-    this.drawBuildPreview(this.buildGraphics, build);
-    this.container.addChild(this.buildGraphics);
-  }
+    const texture = this.textureManager.getTexture(build.entity.type);
+    this.buildSprite = new Sprite(texture);
+    this.buildSprite.x = build.entity.position.x * TILE_SIZE;
+    this.buildSprite.y = build.entity.position.y * TILE_SIZE;
 
-  private drawBuildPreview(graphics: Graphics, build: Build) {
-    const { entity, valid } = build;
-    const worldX = entity.position.x * TILE_SIZE;
-    const worldY = entity.position.y * TILE_SIZE;
-    const width = entity.size.x * TILE_SIZE;
-    const height = entity.size.y * TILE_SIZE;
+    // Use green tint for valid placement, red tint for invalid
+    this.buildSprite.tint = build.valid ? 0x00ff00 : 0xff0000;
 
-    // Use green for valid placement, red for invalid
-    const tintColor = valid ? 0x00ff00 : 0xff0000;
+    // Make it semi-transparent for preview effect
+    this.buildSprite.alpha = 0.5;
 
-    // Draw filled rectangle with transparency (more transparent than real entities)
-    graphics.rect(worldX, worldY, width, height);
-    graphics.fill({ color: tintColor, alpha: 0.5 });
-
-    // Draw border
-    graphics.rect(worldX, worldY, width, height);
-    graphics.stroke({ color: 0x000000, width: 2 });
+    this.container.addChild(this.buildSprite);
   }
 
   updatePosition(cameraX: number, cameraY: number) {
@@ -63,9 +56,9 @@ export class BuildManager {
   }
 
   destroy() {
-    if (this.buildGraphics) {
-      this.buildGraphics.destroy();
-      this.buildGraphics = null;
+    if (this.buildSprite) {
+      this.buildSprite.destroy();
+      this.buildSprite = null;
     }
     this.container.destroy();
   }

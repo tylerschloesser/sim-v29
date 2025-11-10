@@ -1,22 +1,19 @@
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { enableMapSet } from "immer";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createRouter, RouterProvider } from "@tanstack/react-router";
 import invariant from "tiny-invariant";
-import { setupPixi } from "./pixi.ts";
-import { enableMapSet } from "immer";
-import { initializeState } from "./initState.ts";
 import { AppContextProvider } from "./AppContextProvider.tsx";
-import { generateTextures } from "./TextureManager.ts";
+import { initializeState } from "./initState.ts";
+import { setupPixi } from "./pixi.ts";
 
 import "./index.css";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { initializeTextures } from "./TextureManager.ts";
 
 enableMapSet();
-
-// Generate entity textures synchronously on load
-generateTextures();
 
 async function main() {
   const canvas = document.querySelector("canvas");
@@ -25,8 +22,10 @@ async function main() {
   const container = document.getElementById("root");
   invariant(container);
 
-  // Initialize PixiJS and get controller
-  const { controller } = await setupPixi(canvas);
+  const textureManager = await initializeTextures();
+
+  // Initialize PixiJS and get controller and textureManager
+  const { controller } = await setupPixi(canvas, textureManager);
 
   // Initialize app state outside of React
   const { state: initialState, visibleChunkIds } = initializeState(
@@ -46,7 +45,11 @@ async function main() {
 
   createRoot(container).render(
     <StrictMode>
-      <AppContextProvider initialState={initialState} controller={controller}>
+      <AppContextProvider
+        initialState={initialState}
+        controller={controller}
+        textureManager={textureManager}
+      >
         <RouterProvider router={router} />
       </AppContextProvider>
     </StrictMode>,
