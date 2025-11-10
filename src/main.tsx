@@ -6,6 +6,7 @@ import { setupPixi } from "./pixi.ts";
 import { enableMapSet } from "immer";
 import { initializeState } from "./initState.ts";
 import { AppContextProvider } from "./AppContextProvider.tsx";
+import { generateTextures } from "./TextureManager.ts";
 
 import "./index.css";
 
@@ -13,6 +14,9 @@ import "./index.css";
 import { routeTree } from "./routeTree.gen";
 
 enableMapSet();
+
+// Generate entity textures synchronously on load
+generateTextures();
 
 async function main() {
   const canvas = document.querySelector("canvas");
