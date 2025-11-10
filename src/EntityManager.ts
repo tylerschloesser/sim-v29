@@ -1,7 +1,8 @@
 import { Application, Container, Sprite } from "pixi.js";
 import type { Entity, EntityId } from "./types";
-import { TILE_SIZE } from "./types";
+import { degreesToRadians } from "./types";
 import type { TextureManager } from "./TextureManager";
+import { getCenterPixelPosition, getRotatedSize } from "./entityUtils";
 
 export class EntityManager {
   private app: Application;
@@ -46,21 +47,38 @@ export class EntityManager {
       texture,
       alpha: 0.7,
     });
-    sprite.x = entity.position.x * TILE_SIZE;
-    sprite.y = entity.position.y * TILE_SIZE;
+
+    // Set anchor to center for proper rotation
+    sprite.anchor.set(0.5, 0.5);
+
+    // Calculate rotated size and center pixel position
+    const rotatedSize = getRotatedSize(entity.size, entity.rotation);
+    const centerPosition = getCenterPixelPosition(entity.position, rotatedSize);
+    sprite.x = centerPosition.x;
+    sprite.y = centerPosition.y;
+
+    // Apply rotation (convert degrees to radians)
+    sprite.rotation = degreesToRadians(entity.rotation);
 
     this.container.addChild(sprite);
     this.renderedEntities.set(id, sprite);
   }
 
   private updateEntitySprite(sprite: Sprite, entity: Entity) {
-    // Update position in case entity moved
-    sprite.x = entity.position.x * TILE_SIZE;
-    sprite.y = entity.position.y * TILE_SIZE;
+    // Calculate rotated size and center pixel position
+    const rotatedSize = getRotatedSize(entity.size, entity.rotation);
+    const centerPosition = getCenterPixelPosition(entity.position, rotatedSize);
+
+    // Update position in case entity moved (center of entity with rotated dimensions)
+    sprite.x = centerPosition.x;
+    sprite.y = centerPosition.y;
 
     // Update texture in case entity type changed
     const texture = this.textureManager.getTexture(entity.type);
     sprite.texture = texture;
+
+    // Update rotation in case entity was rotated
+    sprite.rotation = degreesToRadians(entity.rotation);
   }
 
   private destroyEntity(id: EntityId, sprite: Sprite) {

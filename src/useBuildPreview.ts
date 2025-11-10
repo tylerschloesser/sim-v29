@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { getTilesForEntity } from "./entityUtils";
+import { getRotatedSize, getTilesForEntity } from "./entityUtils";
 import type { PixiController } from "./PixiController";
 import type { AppState, Build, EntityType } from "./types";
 import {
@@ -17,6 +17,7 @@ import {
  */
 export function useBuildPreview(
   selectedEntityType: EntityType | undefined,
+  rotation: 0 | 90 | 180 | 270,
   state: AppState,
   pixiController: PixiController,
 ): Build | null {
@@ -28,11 +29,19 @@ export function useBuildPreview(
 
     // Create entity with empty ID at camera position
     // Entity position is top-left, so offset by half the entity size to center it
+    // Account for rotation: swap dimensions for 90/270 degrees
     const entitySize = ENTITY_CONFIGS[selectedEntityType].size;
-    const entityX = Math.round(state.camera.x / TILE_SIZE - entitySize.x / 2);
-    const entityY = Math.round(state.camera.y / TILE_SIZE - entitySize.y / 2);
+    const rotatedSize = getRotatedSize(entitySize, rotation);
+    const entityX = Math.round(state.camera.x / TILE_SIZE - rotatedSize.x / 2);
+    const entityY = Math.round(state.camera.y / TILE_SIZE - rotatedSize.y / 2);
 
-    const entity = createEntity("", selectedEntityType, entityX, entityY);
+    const entity = createEntity(
+      "",
+      selectedEntityType,
+      entityX,
+      entityY,
+      rotation,
+    );
 
     // Check validity: entity is valid if all tiles it covers don't have an entityId
     const entityTiles = getTilesForEntity(entity);
@@ -60,7 +69,7 @@ export function useBuildPreview(
     });
 
     return { entity, valid };
-  }, [state.camera, state.chunks, selectedEntityType]);
+  }, [state.camera, state.chunks, selectedEntityType, rotation]);
 
   useEffect(() => {
     pixiController.updateBuild(build);

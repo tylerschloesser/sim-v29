@@ -1,7 +1,8 @@
 import { Application, Container, Sprite } from "pixi.js";
 import type { Build } from "./types";
-import { TILE_SIZE } from "./types";
+import { degreesToRadians } from "./types";
 import type { TextureManager } from "./TextureManager";
+import { getCenterPixelPosition, getRotatedSize } from "./entityUtils";
 
 export class BuildManager {
   private app: Application;
@@ -34,8 +35,24 @@ export class BuildManager {
     // Render new build preview
     const texture = this.textureManager.getTexture(build.entity.type);
     this.buildSprite = new Sprite(texture);
-    this.buildSprite.x = build.entity.position.x * TILE_SIZE;
-    this.buildSprite.y = build.entity.position.y * TILE_SIZE;
+
+    // Set anchor to center for proper rotation
+    this.buildSprite.anchor.set(0.5, 0.5);
+
+    // Calculate rotated size and center pixel position
+    const rotatedSize = getRotatedSize(
+      build.entity.size,
+      build.entity.rotation,
+    );
+    const centerPosition = getCenterPixelPosition(
+      build.entity.position,
+      rotatedSize,
+    );
+    this.buildSprite.x = centerPosition.x;
+    this.buildSprite.y = centerPosition.y;
+
+    // Apply rotation (convert degrees to radians)
+    this.buildSprite.rotation = degreesToRadians(build.entity.rotation);
 
     // Use green tint for valid placement, red tint for invalid
     this.buildSprite.tint = build.valid ? 0x00ff00 : 0xff0000;

@@ -39,6 +39,7 @@ export interface BaseEntity {
   id: EntityId;
   position: { x: number; y: number }; // top-left tile coordinates
   size: { x: number; y: number }; // size in tiles
+  rotation: 0 | 90 | 180 | 270; // rotation in degrees (clockwise)
 }
 
 export interface StoneFurnaceEntity extends BaseEntity {
@@ -67,20 +68,24 @@ export interface Build {
 export interface EntityConfig {
   size: { x: number; y: number };
   color: number;
+  rotatable: boolean;
 }
 
 export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   "stone-furnace": {
     size: { x: 2, y: 2 },
     color: 0xff4444, // red
+    rotatable: false,
   },
   "home-storage": {
     size: { x: 2, y: 2 },
     color: 0x4444ff, // blue
+    rotatable: false,
   },
   "burner-inserter": {
     size: { x: 1, y: 1 },
     color: 0xffaa66, // light orange
+    rotatable: true,
   },
 };
 
@@ -162,15 +167,23 @@ export function createEntity(
   type: EntityType,
   x: number,
   y: number,
+  rotation: 0 | 90 | 180 | 270 = 0,
 ): Entity {
   const size = ENTITY_CONFIGS[type].size;
   const position = { x, y };
 
   if (type === "stone-furnace") {
-    return { id, type, position, size };
+    return { id, type, position, size, rotation };
   } else if (type === "burner-inserter") {
-    return { id, type, position, size };
+    return { id, type, position, size, rotation };
   } else {
-    return { id, type, position, size };
+    return { id, type, position, size, rotation };
   }
+}
+
+/**
+ * Converts degrees to radians
+ */
+export function degreesToRadians(degrees: number): number {
+  return (degrees * Math.PI) / 180;
 }
