@@ -1,11 +1,15 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { useAppContext } from "../appContext";
+import { useCamera } from "../useCamera";
+import { useSetEntities } from "../useSetEntities";
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
 
 function RootComponent() {
+  useCamera();
+  useSetEntities();
   const { state } = useAppContext();
   return (
     <>

@@ -1,3 +1,4 @@
+import { ENTITY_CONFIGS } from "./types";
 import type { Entity, EntityType } from "./types";
 
 /**
@@ -22,10 +23,5 @@ export function getTilesForEntity(
  * Returns the color for a given entity type
  */
 export function getEntityColor(type: EntityType): number {
-  switch (type) {
-    case "stone-furnace":
-      return 0xff4444; // red
-    case "home-storage":
-      return 0x4444ff; // blue
-  }
+  return ENTITY_CONFIGS[type].color;
 }

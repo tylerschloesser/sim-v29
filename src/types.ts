@@ -30,6 +30,32 @@ export interface HomeStorageEntity extends BaseEntity {
 
 export type Entity = StoneFurnaceEntity | HomeStorageEntity;
 
+export interface Build {
+  entity: Entity;
+  valid: boolean;
+}
+
+// Entity configuration constants
+export interface EntityConfig {
+  size: { x: number; y: number };
+  color: number;
+}
+
+export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
+  "stone-furnace": {
+    size: { x: 2, y: 2 },
+    color: 0xff4444, // red
+  },
+  "home-storage": {
+    size: { x: 2, y: 2 },
+    color: 0x4444ff, // blue
+  },
+};
+
+export function getEntityConfig(type: EntityType): EntityConfig {
+  return ENTITY_CONFIGS[type];
+}
+
 export interface Tile {
   color: number; // hex color
   resource?: Resource;
@@ -105,7 +131,7 @@ export function createEntity(
   x: number,
   y: number,
 ): Entity {
-  const size = { x: 2, y: 2 }; // both entity types are 2x2
+  const size = ENTITY_CONFIGS[type].size;
   const position = { x, y };
 
   if (type === "stone-furnace") {

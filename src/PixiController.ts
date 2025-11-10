@@ -1,4 +1,4 @@
-import type { Chunk, ChunkId, Entity, EntityId } from "./types";
+import type { Build, Chunk, ChunkId, Entity, EntityId } from "./types";
 
 export interface PixiController {
   updateCamera: (x: number, y: number) => void;
@@ -7,4 +7,5 @@ export interface PixiController {
     chunkMap: Map<ChunkId, Chunk>,
   ) => void;
   updateEntities: (entities: Map<EntityId, Entity>) => void;
+  updateBuild: (build: Build | null) => void;
 }

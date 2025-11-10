@@ -37,6 +37,7 @@ export function useCamera() {
   useEffect(() => {
     const handlePointerDown = (e: PointerEvent) => {
       // Only start dragging if no pointer is already active
+      console.log(e);
       if (activePointerId.current === null) {
         activePointerId.current = e.pointerId;
         lastPointerPos.current = { x: e.clientX, y: e.clientY };

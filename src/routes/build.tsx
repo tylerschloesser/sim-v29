@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { useAppContext } from "../appContext";
 import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
+import { createEntity, ENTITY_CONFIGS, worldToTile } from "../types";
 import type { EntityType } from "../types";
 
 interface BuildSearch {
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/build")({
 });
 
 function BuildComponent() {
-  const { state } = useAppContext();
+  const { state, pixiController } = useAppContext();
   const { selectedEntityType } = useSearch({ from: "/build" }) as BuildSearch;
   const navigate = useNavigate({ from: "/build" });
 
@@ -52,6 +53,39 @@ function BuildComponent() {
       navigate({ search: { selectedEntityType: undefined } });
     }
   }, [selectedEntityType, state.inventory, navigate]);
+
+  // Update build preview based on camera and selected entity type
+  useEffect(() => {
+    if (!selectedEntityType) {
+      // Clear build preview when no entity type selected
+      pixiController.updateBuild(null);
+      return;
+    }
+
+    // Calculate entity position: center on camera, then round to nearest tile
+    const cameraTileX = worldToTile(state.camera.x);
+    const cameraTileY = worldToTile(state.camera.y);
+
+    // Create entity with empty ID at camera position
+    // Entity position is top-left, so offset by half the entity size to center it
+    const entitySize = ENTITY_CONFIGS[selectedEntityType].size;
+    const entityX = Math.round(cameraTileX - entitySize.x / 2);
+    const entityY = Math.round(cameraTileY - entitySize.y / 2);
+
+    const entity = createEntity("", selectedEntityType, entityX, entityY);
+
+    // TODO: Add collision detection to determine validity
+    const valid = true;
+
+    pixiController.updateBuild({ entity, valid });
+  }, [state.camera, selectedEntityType, pixiController]);
+
+  // Clean up build preview when component unmounts
+  useEffect(() => {
+    return () => {
+      pixiController.updateBuild(null);
+    };
+  }, [pixiController]);
 
   const handleSelectEntity = (entityType: EntityType) => {
     navigate({ search: { selectedEntityType: entityType } });

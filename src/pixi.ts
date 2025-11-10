@@ -2,8 +2,9 @@ import { Application, Graphics } from "pixi.js";
 import { Grid } from "./Grid";
 import { ChunkManager } from "./ChunkManager";
 import { EntityManager } from "./EntityManager";
+import { BuildManager } from "./BuildManager";
 import { TileHighlight } from "./TileHighlight";
-import type { Chunk, ChunkId, Entity, EntityId } from "./types";
+import type { Build, Chunk, ChunkId, Entity, EntityId } from "./types";
 import type { PixiController } from "./PixiController";
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
@@ -25,6 +26,9 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create entity manager (renders above chunks, below grid)
   const entityManager = new EntityManager(app);
 
+  // Create build manager (renders above entities, below grid)
+  const buildManager = new BuildManager(app);
+
   // Create grid
   const grid = new Grid(app);
 
@@ -37,11 +41,12 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
-  // Create updateCamera callback with grid, chunkManager, entityManager, and tileHighlight in closure
+  // Create updateCamera callback with grid, chunkManager, entityManager, buildManager, and tileHighlight in closure
   const updateCamera = (x: number, y: number) => {
     grid.updatePosition(x, y);
     chunkManager.updatePosition(x, y);
     entityManager.updatePosition(x, y);
+    buildManager.updatePosition(x, y);
     tileHighlight.updatePosition(x, y);
   };
 
@@ -58,6 +63,11 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     entityManager.updateEntities(entities);
   };
 
+  // Create updateBuild callback
+  const updateBuild = (build: Build | null) => {
+    buildManager.updateBuild(build);
+  };
+
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
 
@@ -65,6 +75,7 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
     updateCamera,
     updateChunks,
     updateEntities,
+    updateBuild,
   };
 
   return { app, controller };
