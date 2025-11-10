@@ -5,7 +5,7 @@ import { generateChunk, getVisibleChunks } from "./chunkUtils";
 import { useAppContext } from "./appContext";
 
 export function useSetCamera() {
-  const { updateState, updateCamera, updateChunks } = useAppContext();
+  const { updateState, pixiController } = useAppContext();
 
   return useCallback(
     (updater: (state: AppState) => { x: number; y: number }) => {
@@ -14,7 +14,7 @@ export function useSetCamera() {
         if (!isEqual(draft.camera, newCamera)) {
           draft.camera.x = newCamera.x;
           draft.camera.y = newCamera.y;
-          updateCamera(draft.camera.x, draft.camera.y);
+          pixiController.updateCamera(draft.camera.x, draft.camera.y);
 
           // Calculate visible chunks based on camera position and viewport
           const visibleChunkIds = getVisibleChunks(
@@ -32,10 +32,10 @@ export function useSetCamera() {
           }
 
           // Update PixiJS with visible chunks
-          updateChunks(visibleChunkIds, draft.chunks);
+          pixiController.updateChunks(visibleChunkIds, draft.chunks);
         }
       });
     },
-    [updateState, updateCamera, updateChunks],
+    [updateState, pixiController],
   );
 }

@@ -21,9 +21,8 @@ async function main() {
   const container = document.getElementById("root");
   invariant(container);
 
-  // Initialize PixiJS and get callbacks
-  const { updateCamera, updateChunks, updateEntities } =
-    await setupPixi(canvas);
+  // Initialize PixiJS and get controller
+  const { controller } = await setupPixi(canvas);
 
   // Initialize app state outside of React
   const { state: initialState, visibleChunkIds } = initializeState(
@@ -32,9 +31,9 @@ async function main() {
   );
 
   // Render initial chunks and entities in PixiJS before React mounts
-  updateCamera(initialState.camera.x, initialState.camera.y);
-  updateChunks(visibleChunkIds, initialState.chunks);
-  updateEntities(initialState.entities);
+  controller.updateCamera(initialState.camera.x, initialState.camera.y);
+  controller.updateChunks(visibleChunkIds, initialState.chunks);
+  controller.updateEntities(initialState.entities);
 
   // Create a new router instance
   const router = createRouter({
@@ -43,12 +42,7 @@ async function main() {
 
   createRoot(container).render(
     <StrictMode>
-      <AppContextProvider
-        initialState={initialState}
-        updateCamera={updateCamera}
-        updateChunks={updateChunks}
-        updateEntities={updateEntities}
-      >
+      <AppContextProvider initialState={initialState} controller={controller}>
         <RouterProvider router={router} />
       </AppContextProvider>
     </StrictMode>,

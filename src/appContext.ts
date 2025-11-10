@@ -1,15 +1,11 @@
 import { createContext, useContext } from "react";
-import type { AppState, Chunk, ChunkId, Entity, EntityId } from "./types";
+import type { AppState } from "./types";
+import type { PixiController } from "./PixiController";
 
 export interface AppContextType {
   state: AppState;
   updateState: (updater: (draft: AppState) => void) => void;
-  updateCamera: (x: number, y: number) => void;
-  updateChunks: (
-    visibleChunkIds: ChunkId[],
-    chunkMap: Map<ChunkId, Chunk>,
-  ) => void;
-  updateEntities: (entities: Map<EntityId, Entity>) => void;
+  pixiController: PixiController;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);

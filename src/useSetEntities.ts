@@ -5,9 +5,9 @@ import { useAppContext } from "./appContext";
  * Syncs entity state changes to PixiJS rendering layer
  */
 export function useSetEntities() {
-  const { state, updateEntities } = useAppContext();
+  const { state, pixiController } = useAppContext();
 
   useEffect(() => {
-    updateEntities(state.entities);
-  }, [state.entities, updateEntities]);
+    pixiController.updateEntities(state.entities);
+  }, [state.entities, pixiController]);
 }

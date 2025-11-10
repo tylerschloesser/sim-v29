@@ -1,25 +1,19 @@
 import { type ReactNode } from "react";
 import { useImmer } from "use-immer";
-import type { AppState, Chunk, ChunkId, Entity, EntityId } from "./types";
+import type { AppState } from "./types";
 import { AppContext } from "./appContext";
 import { useTicker } from "./useTicker";
+import type { PixiController } from "./PixiController";
 
 interface AppContextProviderProps {
   initialState: AppState;
-  updateCamera: (x: number, y: number) => void;
-  updateChunks: (
-    visibleChunkIds: ChunkId[],
-    chunkMap: Map<ChunkId, Chunk>,
-  ) => void;
-  updateEntities: (entities: Map<EntityId, Entity>) => void;
+  controller: PixiController;
   children: ReactNode;
 }
 
 export function AppContextProvider({
   initialState,
-  updateCamera,
-  updateChunks,
-  updateEntities,
+  controller,
   children,
 }: AppContextProviderProps) {
   const [state, updateState] = useImmer<AppState>(initialState);
@@ -29,7 +23,7 @@ export function AppContextProvider({
 
   return (
     <AppContext.Provider
-      value={{ state, updateState, updateCamera, updateChunks, updateEntities }}
+      value={{ state, updateState, pixiController: controller }}
     >
       {children}
     </AppContext.Provider>

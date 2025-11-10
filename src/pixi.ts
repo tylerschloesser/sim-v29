@@ -4,6 +4,7 @@ import { ChunkManager } from "./ChunkManager";
 import { EntityManager } from "./EntityManager";
 import { TileHighlight } from "./TileHighlight";
 import type { Chunk, ChunkId, Entity, EntityId } from "./types";
+import type { PixiController } from "./PixiController";
 
 export async function setupPixi(canvas: HTMLCanvasElement) {
   // Create PixiJS application
@@ -60,5 +61,11 @@ export async function setupPixi(canvas: HTMLCanvasElement) {
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
 
-  return { app, updateCamera, updateChunks, updateEntities };
+  const controller: PixiController = {
+    updateCamera,
+    updateChunks,
+    updateEntities,
+  };
+
+  return { app, controller };
 }
