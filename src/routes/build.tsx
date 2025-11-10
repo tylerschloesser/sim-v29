@@ -9,9 +9,17 @@ import {
 import clsx from "clsx";
 import { useEffect } from "react";
 import { useAppContext } from "../appContext";
+import { getTilesForEntity } from "../entityUtils";
 import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
-import { createEntity, ENTITY_CONFIGS, TILE_SIZE, worldToTile } from "../types";
+import {
+  CHUNK_SIZE,
+  createEntity,
+  ENTITY_CONFIGS,
+  getChunkId,
+  TILE_SIZE,
+  tileToChunk,
+} from "../types";
 import type { EntityType } from "../types";
 
 interface BuildSearch {
@@ -70,11 +78,33 @@ function BuildComponent() {
 
     const entity = createEntity("", selectedEntityType, entityX, entityY);
 
-    // TODO: Add collision detection to determine validity
-    const valid = true;
+    // Check validity: entity is valid if all tiles it covers don't have an entityId
+    const entityTiles = getTilesForEntity(entity);
+    const valid = entityTiles.every((tile) => {
+      // Convert tile coordinates to chunk coordinates
+      const chunkX = tileToChunk(tile.x);
+      const chunkY = tileToChunk(tile.y);
+      const chunkId = getChunkId(chunkX, chunkY);
+
+      // Get the chunk
+      const chunk = state.chunks.get(chunkId);
+      if (!chunk) {
+        // If chunk doesn't exist yet, tile is valid
+        return true;
+      }
+
+      // Get tile index within chunk (0-1023 for 32x32 chunk)
+      const localTileX = tile.x - chunkX;
+      const localTileY = tile.y - chunkY;
+      const tileIndex = localTileY * CHUNK_SIZE + localTileX;
+
+      // Check if tile already has an entity
+      const tileData = chunk.tiles[tileIndex];
+      return !tileData.entityId;
+    });
 
     pixiController.updateBuild({ entity, valid });
-  }, [state.camera, selectedEntityType, pixiController]);
+  }, [state.camera, state.chunks, selectedEntityType, pixiController]);
 
   // Clean up build preview when component unmounts
   useEffect(() => {
