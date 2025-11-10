@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { useAppContext } from "../appContext";
 import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
-import { createEntity, ENTITY_CONFIGS, worldToTile } from "../types";
+import { createEntity, ENTITY_CONFIGS, TILE_SIZE, worldToTile } from "../types";
 import type { EntityType } from "../types";
 
 interface BuildSearch {
@@ -62,15 +62,11 @@ function BuildComponent() {
       return;
     }
 
-    // Calculate entity position: center on camera, then round to nearest tile
-    const cameraTileX = worldToTile(state.camera.x);
-    const cameraTileY = worldToTile(state.camera.y);
-
     // Create entity with empty ID at camera position
     // Entity position is top-left, so offset by half the entity size to center it
     const entitySize = ENTITY_CONFIGS[selectedEntityType].size;
-    const entityX = Math.round(cameraTileX - entitySize.x / 2);
-    const entityY = Math.round(cameraTileY - entitySize.y / 2);
+    const entityX = Math.round(state.camera.x / TILE_SIZE - entitySize.x / 2);
+    const entityY = Math.round(state.camera.y / TILE_SIZE - entitySize.y / 2);
 
     const entity = createEntity("", selectedEntityType, entityX, entityY);
 
