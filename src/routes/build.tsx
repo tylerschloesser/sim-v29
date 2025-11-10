@@ -13,6 +13,7 @@ import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
 import { useBuildPreview } from "../useBuildPreview";
 import type { EntityType } from "../types";
+import { useHandleBuild } from "../useHandleBuild";
 
 interface BuildSearch {
   selectedEntityType?: EntityType;
@@ -61,6 +62,8 @@ function BuildComponent() {
     navigate({ search: { selectedEntityType: entityType } });
   };
 
+  const handleBuild = useHandleBuild();
+
   return (
     <>
       <div
@@ -77,6 +80,11 @@ function BuildComponent() {
             <button
               className="block p-4 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!build?.valid}
+              onClick={() => {
+                if (build?.valid) {
+                  handleBuild(build.entity);
+                }
+              }}
             >
               <FontAwesomeIcon icon={faHammer} />
             </button>
