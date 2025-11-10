@@ -14,6 +14,27 @@ export interface Resource {
 
 export type EntityType = "stone-furnace" | "home-storage" | "burner-inserter";
 
+export const ENTITY_TYPES = [
+  "stone-furnace",
+  "home-storage",
+  "burner-inserter",
+] as const satisfies readonly EntityType[];
+
+// Compile-time check that ensures all EntityType values are included
+type AssertAllEntityTypes = (typeof ENTITY_TYPES)[number] extends EntityType
+  ? EntityType extends (typeof ENTITY_TYPES)[number]
+    ? true
+    : "Missing entity type in ENTITY_TYPES array"
+  : "Invalid entity type in ENTITY_TYPES array";
+const _checkEntityTypes: AssertAllEntityTypes = true;
+void _checkEntityTypes; // Suppress unused variable warning
+
+export function isEntityType(value: unknown): value is EntityType {
+  return (
+    typeof value === "string" && ENTITY_TYPES.includes(value as EntityType)
+  );
+}
+
 export interface BaseEntity {
   id: EntityId;
   position: { x: number; y: number }; // top-left tile coordinates

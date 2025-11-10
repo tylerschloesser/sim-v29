@@ -1,7 +1,5 @@
 import { Panel } from "./Panel";
-import type { EntityType } from "./types";
-
-const ENTITY_TYPES: EntityType[] = ["stone-furnace", "home-storage"];
+import { ENTITY_TYPES, type EntityType } from "./types";
 
 interface SelectEntityPanelProps {
   inventory: Record<EntityType, number>;
