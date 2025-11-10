@@ -1,4 +1,4 @@
-import { Assets, Texture, type UnresolvedAsset } from "pixi.js";
+import { Assets, Texture } from "pixi.js";
 import invariant from "tiny-invariant";
 import { ENTITY_CONFIGS, TILE_SIZE, type EntityType } from "./types";
 
@@ -36,37 +36,33 @@ export async function initializeTextures(): Promise<TextureManager> {
 async function generateTextures(): Promise<
   Record<EntityType, { dataUrl: string; texture: Texture }>
 > {
-  const urls = Object.entries(ENTITY_CONFIGS).map<UnresolvedAsset>(
-    ([entityType, config]) => {
-      const width = config.size.x * TILE_SIZE;
-      const height = config.size.y * TILE_SIZE;
+  const textures: Partial<
+    Record<EntityType, { dataUrl: string; texture: Texture }>
+  > = {};
 
-      // Convert hex color to CSS format
-      const colorHex = config.color.toString(16).padStart(6, "0");
+  for (const [entityType, config] of Object.entries(ENTITY_CONFIGS)) {
+    const width = config.size.x * TILE_SIZE;
+    const height = config.size.y * TILE_SIZE;
 
-      // Create SVG string with solid colored rectangle
-      const svg = `
+    // Convert hex color to CSS format
+    const colorHex = config.color.toString(16).padStart(6, "0");
+
+    // Create SVG string with solid colored rectangle
+    const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
         <rect width="${width}" height="${height}" fill="#${colorHex}" />
       </svg>
     `.trim();
 
-      // Convert SVG to data URL
-      return {
-        alias: entityType,
-        src: `data:image/svg+xml;base64,${btoa(svg)}`,
-      };
-    },
-  );
+    const dataUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
 
-  await Assets.load(urls);
+    const texture = await Assets.load({
+      alias: entityType,
+      src: dataUrl,
+    });
 
-  return Object.fromEntries(
-    urls.map(({ alias, url: dataUrl }) => {
-      invariant(typeof alias === "string", "Alias must be a string");
-      const texture = Assets.get(alias) as Texture;
-      invariant(texture instanceof Texture, "Loaded asset must be a Texture");
-      return [alias as EntityType, { dataUrl, texture }];
-    }),
-  ) as Record<EntityType, { dataUrl: string; texture: Texture }>;
+    textures[entityType as EntityType] = { dataUrl, texture };
+  }
+
+  return textures as Record<EntityType, { dataUrl: string; texture: Texture }>;
 }
