@@ -56,11 +56,7 @@ async function generateTextures(): Promise<
 
     const dataUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
 
-    const texture = await Assets.load({
-      alias: entityType,
-      src: dataUrl,
-    });
-
+    const texture = await Assets.load(dataUrl);
     textures[entityType as EntityType] = { dataUrl, texture };
   }
 
