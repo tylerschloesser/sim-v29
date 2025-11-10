@@ -11,7 +11,7 @@ import "./index.css";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-import { initializeTextures } from "./TextureManager.ts";
+import { initializeTextures } from "./TextureManager.tsx";
 
 enableMapSet();
 

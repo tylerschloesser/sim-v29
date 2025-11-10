@@ -1,6 +1,8 @@
 import { Assets, Texture } from "pixi.js";
+import { renderToStaticMarkup } from "react-dom/server";
 import invariant from "tiny-invariant";
-import { ENTITY_CONFIGS, TILE_SIZE, type EntityType } from "./types";
+import { EntitySVG } from "./components/entity-svgs";
+import { ENTITY_CONFIGS, type EntityType } from "./types";
 
 export class TextureManager {
   private textures: Record<EntityType, { dataUrl: string; texture: Texture }>;
@@ -40,24 +42,18 @@ async function generateTextures(): Promise<
     Record<EntityType, { dataUrl: string; texture: Texture }>
   > = {};
 
-  for (const [entityType, config] of Object.entries(ENTITY_CONFIGS)) {
-    const width = config.size.x * TILE_SIZE;
-    const height = config.size.y * TILE_SIZE;
+  for (const entityType of Object.keys(ENTITY_CONFIGS) as EntityType[]) {
+    // Render React component to static SVG string
+    const svgString = renderToStaticMarkup(
+      <EntitySVG entityType={entityType} />,
+    );
 
-    // Convert hex color to CSS format
-    const colorHex = config.color.toString(16).padStart(6, "0");
+    // Convert SVG string to data URL
+    const dataUrl = `data:image/svg+xml;base64,${btoa(svgString)}`;
 
-    // Create SVG string with solid colored rectangle
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-        <rect width="${width}" height="${height}" fill="#${colorHex}" />
-      </svg>
-    `.trim();
-
-    const dataUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
-
+    // Load texture for PixiJS
     const texture = await Assets.load(dataUrl);
-    textures[entityType as EntityType] = { dataUrl, texture };
+    textures[entityType] = { dataUrl, texture };
   }
 
   return textures as Record<EntityType, { dataUrl: string; texture: Texture }>;
