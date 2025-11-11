@@ -30,7 +30,7 @@ export function BottomBar() {
             "flex-row-reverse": config === "left",
           })}
         >
-          <MineButton />
+          <PrimaryButton />
           <BuildButton />
           <HomeButton />
           <button className="p-4" onClick={toggleConfig}>
@@ -42,4 +42,8 @@ export function BottomBar() {
       </div>
     </div>
   );
+}
+
+function PrimaryButton() {
+  return <MineButton />;
 }
