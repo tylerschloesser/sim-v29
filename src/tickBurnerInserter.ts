@@ -63,8 +63,7 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
 
   if (itemToDeliver) {
     // Transition to DELIVER state
-    const updatedEntity = draft.entities.get(entity.id) as BurnerInserterEntity;
-    updatedEntity.state = {
+    entity.state = {
       type: "deliver",
       itemType: itemToDeliver,
       progress: 0,
@@ -79,20 +78,19 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
 function tickDeliver(draft: AppState, entity: BurnerInserterEntity) {
   if (entity.state.type !== "deliver") return;
 
-  const updatedEntity = draft.entities.get(entity.id) as BurnerInserterEntity;
-  if (updatedEntity.state.type !== "deliver") return;
+  if (entity.state.type !== "deliver") return;
 
   // Increment progress
-  updatedEntity.state.progress += 1 / INSERTER_DELIVER_TICKS;
+  entity.state.progress += 1 / INSERTER_DELIVER_TICKS;
 
   // Cap at 1
-  if (updatedEntity.state.progress > 1) {
-    updatedEntity.state.progress = 1;
+  if (entity.state.progress > 1) {
+    entity.state.progress = 1;
   }
 
   // Attempt delivery when progress reaches 1
-  if (updatedEntity.state.progress >= 1) {
-    attemptDelivery(draft, updatedEntity);
+  if (entity.state.progress >= 1) {
+    attemptDelivery(draft, entity);
   }
 }
 
@@ -115,8 +113,7 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
   // Verify both entities still exist
   if (!sourceEntity || !targetEntity) {
     // Entities disappeared, return to idle
-    const updatedEntity = draft.entities.get(entity.id) as BurnerInserterEntity;
-    updatedEntity.state = { type: "idle" };
+    entity.state = { type: "idle" };
     return;
   }
 
@@ -131,8 +128,7 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
   transferItem(draft, sourceEntity, targetEntity, itemType);
 
   // Transition to RETURN state
-  const updatedEntity = draft.entities.get(entity.id) as BurnerInserterEntity;
-  updatedEntity.state = {
+  entity.state = {
     type: "return",
     progress: 0,
   };
@@ -142,17 +138,14 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
  * Tick logic for RETURN state.
  * Increments progress, transitions to IDLE when progress reaches 1.
  */
-function tickReturn(draft: AppState, entity: BurnerInserterEntity) {
+function tickReturn(_draft: AppState, entity: BurnerInserterEntity) {
   if (entity.state.type !== "return") return;
 
-  const updatedEntity = draft.entities.get(entity.id) as BurnerInserterEntity;
-  if (updatedEntity.state.type !== "return") return;
-
   // Increment progress
-  updatedEntity.state.progress += 1 / INSERTER_RETURN_TICKS;
+  entity.state.progress += 1 / INSERTER_RETURN_TICKS;
 
   // When progress reaches or exceeds 1, transition to IDLE
-  if (updatedEntity.state.progress >= 1) {
-    updatedEntity.state = { type: "idle" };
+  if (entity.state.progress >= 1) {
+    entity.state = { type: "idle" };
   }
 }
