@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { getRotatedSize, getTilesForEntity } from "./entityUtils";
 import type { PixiController } from "./PixiController";
-import type { AppState, Build, EntityType } from "./types";
+import type { AppState, BeltTurn, Build, EntityType } from "./types";
 import {
   CHUNK_SIZE,
   createEntity,
@@ -18,6 +18,7 @@ import {
 export function useBuildPreview(
   selectedEntityType: EntityType | undefined,
   rotation: 0 | 90 | 180 | 270,
+  turn: BeltTurn,
   state: AppState,
   pixiController: PixiController,
 ): Build | null {
@@ -41,6 +42,7 @@ export function useBuildPreview(
       entityX,
       entityY,
       rotation,
+      turn,
     );
 
     // Check validity: entity is valid if all tiles it covers don't have an entityId
@@ -69,7 +71,7 @@ export function useBuildPreview(
     });
 
     return { entity, valid };
-  }, [state.camera, state.chunks, selectedEntityType, rotation]);
+  }, [state.camera, state.chunks, selectedEntityType, rotation, turn]);
 
   useEffect(() => {
     pixiController.updateBuild(build);

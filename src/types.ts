@@ -282,6 +282,7 @@ export function createEntity(
   x: number,
   y: number,
   rotation: 0 | 90 | 180 | 270 = 0,
+  turn: BeltTurn = "none",
 ): Entity {
   const size = ENTITY_CONFIGS[type].size;
   const position = { x, y };
@@ -324,7 +325,7 @@ export function createEntity(
       position,
       size,
       rotation,
-      turn: "none",
+      turn,
     };
   } else {
     // home-storage

@@ -42,7 +42,7 @@ export class EntityManager {
   }
 
   private renderEntity(id: EntityId, entity: Entity) {
-    const texture = this.textureManager.getTexture(entity.type);
+    const texture = this.textureManager.getTexture(entity);
     const sprite = new Sprite({
       texture,
       alpha: 0.7,
@@ -74,7 +74,7 @@ export class EntityManager {
     sprite.y = centerPosition.y;
 
     // Update texture in case entity type changed
-    const texture = this.textureManager.getTexture(entity.type);
+    const texture = this.textureManager.getTexture(entity);
     sprite.texture = texture;
 
     // Update rotation in case entity was rotated

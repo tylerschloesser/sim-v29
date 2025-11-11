@@ -33,7 +33,7 @@ export class BuildManager {
     }
 
     // Render new build preview
-    const texture = this.textureManager.getTexture(build.entity.type);
+    const texture = this.textureManager.getTexture(build.entity);
     this.buildSprite = new Sprite(texture);
 
     // Set anchor to center for proper rotation

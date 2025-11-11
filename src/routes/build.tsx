@@ -2,6 +2,9 @@ import {
   faArrowLeft,
   faHammer,
   faRotateRight,
+  faTurnLeft,
+  faTurnRight,
+  faUp,
 } from "@fortawesome/pro-solid-svg-icons";
 import {
   createFileRoute,
@@ -13,16 +16,22 @@ import { useEffect } from "react";
 import { useAppContext } from "../appContext";
 import { IconButton } from "../IconButton";
 import { IconLink } from "../IconLink";
+import { inventoryHas } from "../inventoryUtils";
 import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
-import { ENTITY_CONFIGS, isEntityType, type EntityType } from "../types";
+import {
+  ENTITY_CONFIGS,
+  isEntityType,
+  type BeltTurn,
+  type EntityType,
+} from "../types";
 import { useBuildPreview } from "../useBuildPreview";
 import { useHandleBuild } from "../useHandleBuild";
-import { inventoryHas } from "../inventoryUtils";
 
 interface BuildSearch {
   selectedEntityType?: EntityType;
   rotation?: 0 | 90 | 180 | 270;
+  turn?: BeltTurn;
 }
 
 export const Route = createFileRoute("/build")({
@@ -30,21 +39,25 @@ export const Route = createFileRoute("/build")({
   validateSearch: (search: Record<string, unknown>): BuildSearch => {
     const selectedEntityType = search.selectedEntityType;
     const rotation = search.rotation;
+    const turn = search.turn;
     const isValidRotation = (value: unknown): value is 0 | 90 | 180 | 270 =>
       value === 0 || value === 90 || value === 180 || value === 270;
+    const isValidTurn = (value: unknown): value is BeltTurn =>
+      value === "none" || value === "left" || value === "right";
 
     return {
       selectedEntityType: isEntityType(selectedEntityType)
         ? selectedEntityType
         : undefined,
       rotation: isValidRotation(rotation) ? rotation : 0,
+      turn: isValidTurn(turn) ? turn : "none",
     };
   },
 });
 
 function BuildComponent() {
   const { state, pixiController } = useAppContext();
-  const { selectedEntityType, rotation } = useSearch({
+  const { selectedEntityType, rotation, turn } = useSearch({
     from: "/build",
   }) as BuildSearch;
   const navigate = useNavigate({ from: "/build" });
@@ -55,25 +68,43 @@ function BuildComponent() {
       selectedEntityType !== undefined &&
       !inventoryHas(state.inventory, selectedEntityType)
     ) {
-      navigate({ search: { selectedEntityType: undefined, rotation: 0 } });
+      navigate({
+        search: { selectedEntityType: undefined, rotation: 0, turn: "none" },
+      });
     }
   }, [selectedEntityType, state.inventory, navigate]);
 
-  // Update build preview based on camera, selected entity type, and rotation
+  // Update build preview based on camera, selected entity type, rotation, and turn
   const build = useBuildPreview(
     selectedEntityType,
     rotation ?? 0,
+    turn ?? "none",
     state,
     pixiController,
   );
 
   const handleSelectEntity = (entityType: EntityType) => {
-    navigate({ search: { selectedEntityType: entityType, rotation: 0 } });
+    navigate({
+      search: { selectedEntityType: entityType, rotation: 0, turn: "none" },
+    });
   };
 
   const handleRotate = () => {
     const nextRotation = (((rotation ?? 0) + 90) % 360) as 0 | 90 | 180 | 270;
-    navigate({ search: { selectedEntityType, rotation: nextRotation } });
+    navigate({ search: { selectedEntityType, rotation: nextRotation, turn } });
+  };
+
+  const handleTurn = () => {
+    const currentTurn = turn ?? "none";
+    let nextTurn: BeltTurn;
+    if (currentTurn === "none") {
+      nextTurn = "right";
+    } else if (currentTurn === "right") {
+      nextTurn = "left";
+    } else {
+      nextTurn = "none";
+    }
+    navigate({ search: { selectedEntityType, rotation, turn: nextTurn } });
   };
 
   const handleBuild = useHandleBuild();
@@ -82,6 +113,9 @@ function BuildComponent() {
   const isRotatable =
     selectedEntityType !== undefined &&
     ENTITY_CONFIGS[selectedEntityType].rotatable;
+
+  // Check if the selected entity is a belt (for turn button)
+  const isBelt = selectedEntityType === "belt";
 
   return (
     <>
@@ -101,6 +135,19 @@ function BuildComponent() {
               disabled={!isRotatable}
               onClick={handleRotate}
               title="Rotate (90° clockwise)"
+              className="block"
+            />
+            <IconButton
+              faIcon={
+                turn === "none"
+                  ? faUp
+                  : turn === "right"
+                    ? faTurnRight
+                    : faTurnLeft
+              }
+              disabled={!isBelt}
+              onClick={handleTurn}
+              title="Change belt turn"
               className="block"
             />
             <IconButton
