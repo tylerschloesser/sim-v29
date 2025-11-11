@@ -15,6 +15,18 @@ import { initializeTextures } from "./TextureManager.tsx";
 
 enableMapSet();
 
+// Create router instance at top level for type registration
+const router = createRouter({
+  routeTree,
+});
+
+// Register the router for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
 async function main() {
   const canvas = document.querySelector("canvas");
   invariant(canvas);
@@ -37,11 +49,6 @@ async function main() {
   controller.updateCamera(initialState.camera.x, initialState.camera.y);
   controller.updateChunks(visibleChunkIds, initialState.chunks);
   controller.updateEntities(initialState.entities);
-
-  // Create a new router instance
-  const router = createRouter({
-    routeTree,
-  });
 
   createRoot(container).render(
     <StrictMode>

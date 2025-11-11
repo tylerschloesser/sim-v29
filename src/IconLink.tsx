@@ -20,5 +20,5 @@ const IconLinkComponent = React.forwardRef<HTMLAnchorElement, IconLinkProps>(
 const CreatedIconLinkComponent = createLink(IconLinkComponent);
 
 export const IconLink: LinkComponent<typeof IconLinkComponent> = (props) => {
-  return <CreatedIconLinkComponent payload="intent" {...props} />;
+  return <CreatedIconLinkComponent preload="intent" {...props} />;
 };

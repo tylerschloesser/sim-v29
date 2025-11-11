@@ -54,7 +54,11 @@ function PrimaryButton() {
   const { tile } = useHighlightedTile();
   if (tile?.entityId) {
     return (
-      <IconLink faIcon={faSliders} to="/Library" params={{ foo: "bar" }} />
+      <IconLink
+        faIcon={faSliders}
+        to="/entity/$id"
+        params={{ id: tile.entityId }}
+      />
     );
   }
   if (tile?.resource) {
