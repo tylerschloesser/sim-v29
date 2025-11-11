@@ -61,8 +61,8 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
     return;
   }
 
-  const inputInventory = getEntityInputInventory(draft, sourceEntity);
-  if (!inputInventory) {
+  const outputInventory = getEntityOutputInventory(draft, sourceEntity);
+  if (!outputInventory) {
     return;
   }
 
@@ -70,10 +70,10 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
   const requestedItems = getRequestedItems(draft, targetEntity);
 
   // Find first requested item that's available
-  const itemToDeliver = getItemToDeliver(requestedItems, inputInventory);
+  const itemToDeliver = getItemToDeliver(requestedItems, outputInventory);
 
   if (itemToDeliver) {
-    decrementInventory(inputInventory, itemToDeliver);
+    decrementInventory(outputInventory, itemToDeliver);
 
     // Transition to DELIVER state
     entity.state = {
@@ -149,10 +149,10 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
     return;
   }
 
-  const outputInventory = getEntityOutputInventory(draft, targetEntity);
-  invariant(outputInventory, "Target entity must have an output inventory");
+  const inputInventory = getEntityInputInventory(draft, targetEntity);
+  invariant(inputInventory, "Target entity must have an input inventory");
 
-  incrementInventory(outputInventory, itemType);
+  incrementInventory(inputInventory, itemType);
 
   // Transition to RETURN state
   entity.state = {

@@ -14,7 +14,7 @@ export interface Resource {
 
 export type EntityType = "stone-furnace" | "home-storage" | "burner-inserter";
 
-export type ItemType = ResourceType | EntityType;
+export type ItemType = ResourceType | EntityType | "iron-plate";
 
 export const ENTITY_TYPES = [
   "stone-furnace",
@@ -46,11 +46,16 @@ export interface BaseEntity {
 
 export type Inventory = Partial<Record<ItemType, number>>;
 
+export type StoneFurnaceState =
+  | { type: "idle" }
+  | { type: "smelting"; itemType: ItemType; progress: number };
+
 export interface StoneFurnaceEntity extends BaseEntity {
   type: "stone-furnace";
   inputInventory: Inventory;
   outputInventory: Inventory;
   requestedItems: ItemType[];
+  state: StoneFurnaceState;
 }
 
 export interface HomeStorageEntity extends BaseEntity {
@@ -223,6 +228,7 @@ export function createEntity(
       inputInventory: {},
       outputInventory: {},
       requestedItems: ["iron"],
+      state: { type: "idle" },
     };
   } else if (type === "burner-inserter") {
     return {

@@ -33,14 +33,9 @@ function EntityComponent() {
     <div className="fixed inset-0 p-4 flex flex-col justify-start gap-4">
       <div className="text-white">
         <h1 className="text-xl font-bold">Entity: {entity.type}</h1>
-        <p>ID: {entity.id}</p>
-        <p>
-          Position: ({entity.position.x}, {entity.position.y})
-        </p>
-        <p>
-          Size: {entity.size.x} × {entity.size.y}
-        </p>
-        <p>Rotation: {entity.rotation}°</p>
+        <pre className="font-mono text-xs">
+          {JSON.stringify(entity, null, 2)}
+        </pre>
       </div>
     </div>
   );

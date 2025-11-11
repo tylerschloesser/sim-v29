@@ -1,5 +1,10 @@
 import { Application, Container, Graphics } from "pixi.js";
-import type { Entity, EntityId, BurnerInserterEntity } from "./types";
+import type {
+  Entity,
+  EntityId,
+  BurnerInserterEntity,
+  StoneFurnaceEntity,
+} from "./types";
 import { TILE_SIZE } from "./types";
 import { getRotatedSize } from "./entityUtils";
 
@@ -25,15 +30,20 @@ export class ProgressBarManager {
     }
     this.progressBars.clear();
 
-    // Render progress bars for burner inserters
+    // Render progress bars for burner inserters and stone furnaces
     for (const [id, entity] of entities) {
       if (entity.type === "burner-inserter") {
-        this.renderProgressBar(id, entity);
+        this.renderBurnerInserterProgressBar(id, entity);
+      } else if (entity.type === "stone-furnace") {
+        this.renderStoneFurnaceProgressBar(id, entity);
       }
     }
   }
 
-  private renderProgressBar(id: EntityId, entity: BurnerInserterEntity) {
+  private renderBurnerInserterProgressBar(
+    id: EntityId,
+    entity: BurnerInserterEntity,
+  ) {
     const { state, position, size, rotation } = entity;
 
     // Calculate entity center X in world pixels
@@ -75,6 +85,58 @@ export class ProgressBarManager {
       case "return":
         // Returning - blue
         fillColor = 0x0000ff; // blue
+        progress = state.progress;
+        break;
+    }
+
+    // Draw background (dark gray)
+    graphics.rect(barX - barWidth / 2, barY, barWidth, barHeight);
+    graphics.fill(0x333333);
+
+    // Draw filled portion if progress > 0
+    if (progress > 0) {
+      const fillWidth = barWidth * Math.min(progress, 1);
+      graphics.rect(barX - barWidth / 2, barY, fillWidth, barHeight);
+      graphics.fill(fillColor);
+    }
+
+    this.container.addChild(graphics);
+    this.progressBars.set(id, graphics);
+  }
+
+  private renderStoneFurnaceProgressBar(
+    id: EntityId,
+    entity: StoneFurnaceEntity,
+  ) {
+    const { state, position, size } = entity;
+
+    // Calculate entity center X in world pixels
+    const centerX = (position.x + size.x / 2) * TILE_SIZE;
+
+    // Progress bar dimensions
+    const barWidth = TILE_SIZE * 0.8; // 80% of tile size
+    const barHeight = 4; // 4 pixels tall
+
+    // Position bar at visual top (north) of entity
+    const barX = centerX;
+    const barY = position.y * TILE_SIZE - barHeight - 2; // 2 pixels above entity
+
+    // Create graphics object
+    const graphics = new Graphics();
+
+    // Determine color and fill amount based on state
+    let fillColor: number;
+    let progress: number;
+
+    switch (state.type) {
+      case "idle":
+        // Gray, no fill
+        fillColor = 0x808080; // gray
+        progress = 0;
+        break;
+      case "smelting":
+        // Green progress bar during smelting
+        fillColor = 0x00ff00; // green
         progress = state.progress;
         break;
     }

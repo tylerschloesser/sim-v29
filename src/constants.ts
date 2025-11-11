@@ -19,6 +19,9 @@ export const INSERTER_DELIVER_TICKS = 1 * TICK_RATE;
 /** Duration of burner inserter return action in ticks (1 second) */
 export const INSERTER_RETURN_TICKS = 1 * TICK_RATE;
 
+/** Duration of stone furnace smelting action in ticks (1 second) */
+export const SMELT_DURATION_TICKS = 1 * TICK_RATE;
+
 // === Camera Constants ===
 /** Pixels per frame for WASD camera movement */
 export const CAMERA_SPEED = 5;
