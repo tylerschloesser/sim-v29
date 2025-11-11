@@ -13,6 +13,12 @@ export const TICK_INTERVAL = 1000 / TICK_RATE;
 /** Duration of mining action in ticks (2 seconds) */
 export const MINE_DURATION_TICKS = 2 * TICK_RATE;
 
+/** Duration of burner inserter deliver action in ticks (1 second) */
+export const INSERTER_DELIVER_TICKS = 1 * TICK_RATE;
+
+/** Duration of burner inserter return action in ticks (1 second) */
+export const INSERTER_RETURN_TICKS = 1 * TICK_RATE;
+
 // === Camera Constants ===
 /** Pixels per frame for WASD camera movement */
 export const CAMERA_SPEED = 5;

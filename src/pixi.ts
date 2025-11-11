@@ -4,6 +4,7 @@ import { ChunkManager } from "./ChunkManager";
 import { EntityManager } from "./EntityManager";
 import { Grid } from "./Grid";
 import type { PixiController } from "./PixiController";
+import { ProgressBarManager } from "./ProgressBarManager";
 import { TextureManager } from "./TextureManager";
 import { TileHighlight } from "./TileHighlight";
 import type { Build, Chunk, ChunkId, Entity, EntityId } from "./types";
@@ -35,6 +36,9 @@ export async function setupPixi(
   // Create build manager (renders above entities, below grid)
   const buildManager = new BuildManager(app, textureManager);
 
+  // Create progress bar manager (renders above entities, below grid)
+  const progressBarManager = new ProgressBarManager(app);
+
   // Create grid
   const grid = new Grid(app);
 
@@ -47,12 +51,13 @@ export async function setupPixi(
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
-  // Create updateCamera callback with grid, chunkManager, entityManager, buildManager, and tileHighlight in closure
+  // Create updateCamera callback with grid, chunkManager, entityManager, buildManager, progressBarManager, and tileHighlight in closure
   const updateCamera = (x: number, y: number) => {
     grid.updatePosition(x, y);
     chunkManager.updatePosition(x, y);
     entityManager.updatePosition(x, y);
     buildManager.updatePosition(x, y);
+    progressBarManager.updatePosition(x, y);
     tileHighlight.updatePosition(x, y);
   };
 
@@ -74,6 +79,11 @@ export async function setupPixi(
     buildManager.updateBuild(build);
   };
 
+  // Create updateProgressBars callback
+  const updateProgressBars = (entities: Map<EntityId, Entity>) => {
+    progressBarManager.updateProgressBars(entities);
+  };
+
   // Initialize camera at (0,0) - centered
   updateCamera(0, 0);
 
@@ -82,6 +92,7 @@ export async function setupPixi(
     updateChunks,
     updateEntities,
     updateBuild,
+    updateProgressBars,
   };
 
   return { app, controller, textureManager };

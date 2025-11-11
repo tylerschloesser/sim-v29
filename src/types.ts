@@ -12,6 +12,10 @@ export interface Resource {
   count: number;
 }
 
+// ItemType represents transferable items in the game
+// Currently maps to ResourceType but separate for future expansion
+export type ItemType = ResourceType;
+
 export type EntityType = "stone-furnace" | "home-storage" | "burner-inserter";
 
 export const ENTITY_TYPES = [
@@ -44,14 +48,22 @@ export interface BaseEntity {
 
 export interface StoneFurnaceEntity extends BaseEntity {
   type: "stone-furnace";
+  inventory: Record<ItemType, number>;
+  requestedItems: ItemType[];
 }
 
 export interface HomeStorageEntity extends BaseEntity {
   type: "home-storage";
 }
 
+export type BurnerInserterState =
+  | { type: "idle" }
+  | { type: "deliver"; itemType: ItemType; progress: number }
+  | { type: "return"; progress: number };
+
 export interface BurnerInserterEntity extends BaseEntity {
   type: "burner-inserter";
+  state: BurnerInserterState;
 }
 
 export type Entity =
@@ -129,7 +141,7 @@ export interface AppState {
   nextEntityId: number;
   action: Action | null;
   tick: number;
-  inventory: Record<ResourceType | EntityType, number>;
+  inventory: Record<ItemType | EntityType, number>;
 }
 
 export function getChunkId(tileX: number, tileY: number): ChunkId {
@@ -173,11 +185,33 @@ export function createEntity(
   const position = { x, y };
 
   if (type === "stone-furnace") {
-    return { id, type, position, size, rotation };
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
+      inventory: { coal: 0, copper: 0, iron: 0, stone: 0 },
+      requestedItems: ["iron"],
+    };
   } else if (type === "burner-inserter") {
-    return { id, type, position, size, rotation };
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
+      state: { type: "idle" },
+    };
   } else {
-    return { id, type, position, size, rotation };
+    // home-storage
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
+    };
   }
 }
 

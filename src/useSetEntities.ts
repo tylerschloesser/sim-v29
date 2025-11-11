@@ -9,5 +9,6 @@ export function useSetEntities() {
 
   useEffect(() => {
     pixiController.updateEntities(state.entities);
+    pixiController.updateProgressBars(state.entities);
   }, [state.entities, pixiController]);
 }

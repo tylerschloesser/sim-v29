@@ -8,4 +8,5 @@ export interface PixiController {
   ) => void;
   updateEntities: (entities: Map<EntityId, Entity>) => void;
   updateBuild: (build: Build | null) => void;
+  updateProgressBars: (entities: Map<EntityId, Entity>) => void;
 }
