@@ -1,9 +1,7 @@
 import invariant from "tiny-invariant";
 import type { AppState } from "./types";
 import { getTileLocation } from "./tileUtils";
-
-const TICK_RATE = 60; // ticks per second
-const MINE_DURATION_TICKS = 2 * TICK_RATE; // 2 seconds
+import { MINE_DURATION_TICKS } from "./constants";
 
 /**
  * Process the current action for one tick.

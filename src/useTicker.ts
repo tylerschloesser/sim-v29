@@ -2,9 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Updater } from "use-immer";
 import type { AppState } from "./types";
 import { tickAction } from "./tickAction";
-
-const TICK_RATE = 60; // ticks per second
-const TICK_INTERVAL = 1000 / TICK_RATE; // ms per tick (~16.67ms)
+import { TICK_INTERVAL } from "./constants";
 
 /**
  * Hook that initializes a fixed timestep ticker for the world simulation.

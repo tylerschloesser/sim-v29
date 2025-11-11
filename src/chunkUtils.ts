@@ -8,9 +8,9 @@ import {
   tileToChunk,
   worldToTile,
 } from "./types";
+import { WORLD_SEED } from "./constants";
 
 // Shared noise instance for consistent terrain across all chunks
-const WORLD_SEED = "sim-v29-world";
 const rng = new Prando(WORLD_SEED);
 const noise2D = createNoise2D(() => rng.next());
 

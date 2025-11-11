@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSetCamera } from "./useSetCamera";
-
-const CAMERA_SPEED = 5; // pixels per frame for WASD movement
+import { CAMERA_SPEED } from "./constants";
 
 export function useCamera() {
   const setCamera = useSetCamera();
