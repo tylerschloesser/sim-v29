@@ -13,6 +13,18 @@ export function BurnerInserterSVG({ config }: BurnerInserterSVGProps) {
     <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height}>
       {/* Solid color background */}
       <rect width={width} height={height} fill={`#${colorHex}`} />
+
+      {/* Centered arrow */}
+      <text
+        x={width / 2}
+        y={height / 2}
+        fill="#000000"
+        fontSize="24"
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        ↦
+      </text>
     </svg>
   );
 }

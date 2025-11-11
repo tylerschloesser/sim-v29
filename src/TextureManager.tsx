@@ -48,8 +48,8 @@ async function generateTextures(): Promise<
       <EntitySVG entityType={entityType} />,
     );
 
-    // Convert SVG string to data URL
-    const dataUrl = `data:image/svg+xml;base64,${btoa(svgString)}`;
+    // Convert SVG string to data URL (using URI encoding to support UTF-8 characters)
+    const dataUrl = `data:image/svg+xml,${encodeURIComponent(svgString)}`;
 
     // Load texture for PixiJS
     const texture = await Assets.load(dataUrl);
