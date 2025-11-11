@@ -14,17 +14,13 @@ export function BurnerInserterSVG({ config }: BurnerInserterSVGProps) {
       {/* Solid color background */}
       <rect width={width} height={height} fill={`#${colorHex}`} />
 
-      {/* Centered arrow */}
-      <text
-        x={width / 2}
-        y={height / 2}
-        fill="#000000"
-        fontSize="24"
-        textAnchor="middle"
-        dominantBaseline="central"
-      >
-        ↦
-      </text>
+      {/* Right arrow */}
+      <g transform={`translate(${width / 2}, ${height / 2})`}>
+        {/* Arrow shaft */}
+        <rect x="-8" y="-1.5" width="10" height="3" fill="#000000" />
+        {/* Arrow head */}
+        <path d="M 2,-4 L 8,0 L 2,4 Z" fill="#000000" />
+      </g>
     </svg>
   );
 }
