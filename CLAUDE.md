@@ -18,6 +18,16 @@ Always use `bun` instead of `npm` for all package management and script executio
 
 **Note**: Never run `bun run dev` yourself - the user will handle development server.
 
+## Testing
+
+- **Run tests**: `bun run test` (run all tests once)
+- **Watch mode**: `bun run test:watch` (run tests in watch mode)
+- **Coverage**: `bun run test:coverage` (run tests with coverage report)
+
+**CRITICAL**: Always use `bun run test` (NOT `bun test`) to avoid Bun's own test runner. Using `bun test` will invoke Bun's native test runner instead of Vitest.
+
+**Testing framework**: Vitest (configured in `vite.config.ts` under the `test` section)
+
 ## Technology Stack
 
 - **Framework**: React 19 with TypeScript

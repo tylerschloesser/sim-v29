@@ -284,17 +284,9 @@ function findBeltNetwork(
 ): BeltNetwork {
   const visited = new Set<string>();
   const beltsInNetwork: BeltEntity[] = [];
-  let hasCycle = false;
 
-  // DFS to find all connected belts
-  function explore(belt: BeltEntity, path: Set<string>) {
-    // Check if we've found a cycle
-    if (path.has(belt.id)) {
-      hasCycle = true;
-      return;
-    }
-
-    // Check if already visited in this exploration
+  // First pass: collect all connected belts (explore both directions)
+  function collectBelts(belt: BeltEntity) {
     if (visited.has(belt.id)) {
       return;
     }
@@ -303,34 +295,68 @@ function findBeltNetwork(
     assignedBelts.add(belt.id);
     beltsInNetwork.push(belt);
 
-    // Add to current path
-    const newPath = new Set(path);
-    newPath.add(belt.id);
-
-    // Explore input belt (belt that feeds into this one)
+    // Explore both input and output to find all connected belts
     const inputBelt = getInputBelt(belt, state);
     if (inputBelt) {
-      explore(inputBelt, newPath);
+      collectBelts(inputBelt);
     }
 
-    // Explore output belt (belt that this one feeds into)
     const outputBelt = getOutputBelt(belt, state);
     if (outputBelt) {
-      explore(outputBelt, newPath);
+      collectBelts(outputBelt);
     }
   }
 
-  explore(startBelt, new Set());
+  collectBelts(startBelt);
+
+  // Second pass: detect if there's a cycle by following output chain
+  const hasCycle = detectCycle(beltsInNetwork, state);
 
   // If there's no cycle, order belts from output to input (for proper ticking)
   if (!hasCycle) {
-    beltsInNetwork.reverse();
-    // Sort topologically: find terminal belt, then work backwards
     const orderedBelts = topologicalSort(beltsInNetwork, state);
     return { belts: orderedBelts, hasCycle: false };
   }
 
   return { belts: beltsInNetwork, hasCycle: true };
+}
+
+/**
+ * Detects if there's a cycle in the belt network by following output connections.
+ */
+function detectCycle(belts: BeltEntity[], state: AppState): boolean {
+  const beltIds = new Set(belts.map((b) => b.id));
+  const visited = new Set<string>();
+  const recStack = new Set<string>();
+
+  function hasCycleDFS(belt: BeltEntity): boolean {
+    visited.add(belt.id);
+    recStack.add(belt.id);
+
+    const outputBelt = getOutputBelt(belt, state);
+    if (outputBelt && beltIds.has(outputBelt.id)) {
+      if (recStack.has(outputBelt.id)) {
+        return true; // Found a cycle
+      }
+      if (!visited.has(outputBelt.id) && hasCycleDFS(outputBelt)) {
+        return true;
+      }
+    }
+
+    recStack.delete(belt.id);
+    return false;
+  }
+
+  // Check from each belt in the network
+  for (const belt of belts) {
+    if (!visited.has(belt.id)) {
+      if (hasCycleDFS(belt)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 /**
