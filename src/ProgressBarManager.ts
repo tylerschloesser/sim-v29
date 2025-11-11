@@ -3,6 +3,7 @@ import type {
   Entity,
   EntityId,
   BurnerInserterEntity,
+  BurnerMiningDrillEntity,
   StoneFurnaceEntity,
 } from "./types";
 import { TILE_SIZE } from "./types";
@@ -36,6 +37,8 @@ export class ProgressBarManager {
         this.renderBurnerInserterProgressBar(id, entity);
       } else if (entity.type === "stone-furnace") {
         this.renderStoneFurnaceProgressBar(id, entity);
+      } else if (entity.type === "burner-mining-drill") {
+        this.renderBurnerMiningDrillProgressBar(id, entity);
       }
     }
   }
@@ -138,6 +141,53 @@ export class ProgressBarManager {
         // Green progress bar during smelting
         fillColor = 0x00ff00; // green
         progress = state.progress;
+        break;
+    }
+
+    // Draw background (dark gray)
+    graphics.rect(barX - barWidth / 2, barY, barWidth, barHeight);
+    graphics.fill(0x333333);
+
+    // Draw filled portion if progress > 0
+    if (progress > 0) {
+      const fillWidth = barWidth * Math.min(progress, 1);
+      graphics.rect(barX - barWidth / 2, barY, fillWidth, barHeight);
+      graphics.fill(fillColor);
+    }
+
+    this.container.addChild(graphics);
+    this.progressBars.set(id, graphics);
+  }
+
+  private renderBurnerMiningDrillProgressBar(
+    id: EntityId,
+    entity: BurnerMiningDrillEntity,
+  ) {
+    const { state, position, size } = entity;
+
+    // Calculate entity center X in world pixels
+    const centerX = (position.x + size.x / 2) * TILE_SIZE;
+
+    // Progress bar dimensions
+    const barWidth = TILE_SIZE * 0.8; // 80% of tile size
+    const barHeight = 4; // 4 pixels tall
+
+    // Position bar at visual top (north) of entity
+    const barX = centerX;
+    const barY = position.y * TILE_SIZE - barHeight - 2; // 2 pixels above entity
+
+    // Create graphics object
+    const graphics = new Graphics();
+
+    // Determine color and fill amount based on state
+    let fillColor: number;
+    let progress: number;
+
+    switch (state.type) {
+      case "idle":
+        // Gray, no fill
+        fillColor = 0x808080; // gray
+        progress = 0;
         break;
     }
 

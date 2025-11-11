@@ -3,6 +3,7 @@ import type { Updater } from "use-immer";
 import type { AppState } from "./types";
 import { tickAction } from "./tickAction";
 import { tickBurnerInserter } from "./tickBurnerInserter";
+import { tickBurnerMiningDrill } from "./tickBurnerMiningDrill";
 import { tickStoneFurnace } from "./tickStoneFurnace";
 import { TICK_INTERVAL } from "./constants";
 
@@ -44,6 +45,9 @@ export function useTicker(updateState: Updater<AppState>) {
                 break;
               case "stone-furnace":
                 tickStoneFurnace(draft, entity);
+                break;
+              case "burner-mining-drill":
+                tickBurnerMiningDrill(draft, entity);
                 break;
               case "home-storage":
                 // No tick logic for home-storage

@@ -12,7 +12,11 @@ export interface Resource {
   count: number;
 }
 
-export type EntityType = "stone-furnace" | "home-storage" | "burner-inserter";
+export type EntityType =
+  | "stone-furnace"
+  | "home-storage"
+  | "burner-inserter"
+  | "burner-mining-drill";
 
 export type ItemType = ResourceType | EntityType | "iron-plate";
 
@@ -20,6 +24,7 @@ export const ENTITY_TYPES = [
   "stone-furnace",
   "home-storage",
   "burner-inserter",
+  "burner-mining-drill",
 ] as const satisfies readonly EntityType[];
 
 // Compile-time check that ensures all EntityType values are included
@@ -45,6 +50,7 @@ const ITEM_TYPES_ARRAY = [
   "stone-furnace",
   "home-storage",
   "burner-inserter",
+  "burner-mining-drill",
   "iron-plate",
 ] as const satisfies readonly ItemType[];
 
@@ -97,10 +103,20 @@ export interface BurnerInserterEntity extends BaseEntity {
   state: BurnerInserterState;
 }
 
+export type BurnerMiningDrillState = { type: "idle" };
+
+export interface BurnerMiningDrillEntity extends BaseEntity {
+  type: "burner-mining-drill";
+  inputInventory: Inventory;
+  outputInventory: Inventory;
+  state: BurnerMiningDrillState;
+}
+
 export type Entity =
   | StoneFurnaceEntity
   | HomeStorageEntity
-  | BurnerInserterEntity;
+  | BurnerInserterEntity
+  | BurnerMiningDrillEntity;
 
 export function getEntityInputInventory(
   state: AppState,
@@ -108,6 +124,8 @@ export function getEntityInputInventory(
 ): Inventory | null {
   switch (entity.type) {
     case "stone-furnace":
+      return entity.inputInventory;
+    case "burner-mining-drill":
       return entity.inputInventory;
     case "home-storage":
       return state.inventory;
@@ -122,6 +140,8 @@ export function getEntityOutputInventory(
 ): Inventory | null {
   switch (entity.type) {
     case "stone-furnace":
+      return entity.outputInventory;
+    case "burner-mining-drill":
       return entity.outputInventory;
     case "home-storage":
       return state.inventory;
@@ -157,6 +177,11 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     size: { x: 1, y: 1 },
     color: 0xffaa66, // light orange
     rotatable: true,
+  },
+  "burner-mining-drill": {
+    size: { x: 2, y: 2 },
+    color: 0xffaa00, // yellow-orange
+    rotatable: false,
   },
 };
 
@@ -261,6 +286,17 @@ export function createEntity(
       position,
       size,
       rotation,
+      state: { type: "idle" },
+    };
+  } else if (type === "burner-mining-drill") {
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
+      inputInventory: {},
+      outputInventory: {},
       state: { type: "idle" },
     };
   } else {

@@ -54,6 +54,7 @@ export function initializeState(
       "home-storage": 0,
       "stone-furnace": 1,
       "burner-inserter": 2,
+      "burner-mining-drill": 2,
     },
   };
 
