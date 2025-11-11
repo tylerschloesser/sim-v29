@@ -1,4 +1,9 @@
-import { faBorderLeft, faBorderRight } from "@fortawesome/pro-solid-svg-icons";
+import {
+  faBorderLeft,
+  faBorderRight,
+  faSliders,
+  faSnooze,
+} from "@fortawesome/pro-solid-svg-icons";
 import clsx from "clsx";
 import { useState } from "react";
 import { MineButton } from "./MineButton";
@@ -6,6 +11,8 @@ import { Panel } from "./Panel";
 import { HomeButton } from "./HomeButton";
 import { BuildButton } from "./BuildButton";
 import { IconButton } from "./IconButton";
+import { useAppContext } from "./appContext";
+import { useHighlightedTile } from "./useHighlightedTile";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"left" | "right">("right");
@@ -44,5 +51,12 @@ export function BottomBar() {
 }
 
 function PrimaryButton() {
-  return <MineButton />;
+  const { tile } = useHighlightedTile();
+  if (tile?.entityId) {
+    return <IconButton faIcon={faSliders} disabled />;
+  }
+  if (tile?.resource) {
+    return <MineButton />;
+  }
+  return <IconButton faIcon={faSnooze} disabled />;
 }
