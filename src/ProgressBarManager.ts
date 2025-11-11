@@ -189,6 +189,11 @@ export class ProgressBarManager {
         fillColor = 0x808080; // gray
         progress = 0;
         break;
+      case "mining":
+        // Green progress bar during mining
+        fillColor = 0x00ff00; // green
+        progress = state.progress;
+        break;
     }
 
     // Draw background (dark gray)

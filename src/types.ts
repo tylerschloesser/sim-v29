@@ -103,7 +103,9 @@ export interface BurnerInserterEntity extends BaseEntity {
   state: BurnerInserterState;
 }
 
-export type BurnerMiningDrillState = { type: "idle" };
+export type BurnerMiningDrillState =
+  | { type: "idle" }
+  | { type: "mining"; itemType: ResourceType; progress: number };
 
 export interface BurnerMiningDrillEntity extends BaseEntity {
   type: "burner-mining-drill";
