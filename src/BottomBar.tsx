@@ -1,11 +1,11 @@
 import { faBorderLeft, faBorderRight } from "@fortawesome/pro-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 import { useState } from "react";
 import { MineButton } from "./MineButton";
 import { Panel } from "./Panel";
 import { HomeButton } from "./HomeButton";
 import { BuildButton } from "./BuildButton";
+import { IconButton } from "./IconButton";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"left" | "right">("right");
@@ -33,11 +33,10 @@ export function BottomBar() {
           <PrimaryButton />
           <BuildButton />
           <HomeButton />
-          <button className="p-4" onClick={toggleConfig}>
-            <FontAwesomeIcon
-              icon={config === "left" ? faBorderLeft : faBorderRight}
-            />
-          </button>
+          <IconButton
+            faIcon={config === "left" ? faBorderLeft : faBorderRight}
+            onClick={toggleConfig}
+          />
         </Panel>
       </div>
     </div>

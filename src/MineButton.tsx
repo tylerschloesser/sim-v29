@@ -1,8 +1,8 @@
 import { faPickaxe } from "@fortawesome/pro-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useHighlightedTile } from "./useHighlightedTile";
 import { useAppContext } from "./appContext";
 import { getTileId } from "./types";
+import { IconButton } from "./IconButton";
 
 export function MineButton() {
   const { tileX, tileY, resource } = useHighlightedTile();
@@ -24,12 +24,10 @@ export function MineButton() {
   };
 
   return (
-    <button
-      className="p-4 disabled:opacity-50 disabled:cursor-not-allowed"
+    <IconButton
+      faIcon={faPickaxe}
       disabled={isDisabled}
       onClick={handleClick}
-    >
-      <FontAwesomeIcon icon={faPickaxe} />
-    </button>
+    />
   );
 }

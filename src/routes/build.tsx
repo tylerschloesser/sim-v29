@@ -3,16 +3,15 @@ import {
   faHammer,
   faRotateRight,
 } from "@fortawesome/pro-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   createFileRoute,
-  Link,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useEffect } from "react";
 import { useAppContext } from "../appContext";
+import { IconButton } from "../IconButton";
 import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
 import { useBuildPreview } from "../useBuildPreview";
@@ -95,28 +94,28 @@ function BuildComponent() {
         )}
         <div className="flex justify-end">
           <Panel className="flex">
-            <button
-              className="block p-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            <IconButton
+              faIcon={faRotateRight}
               disabled={!isRotatable}
               onClick={handleRotate}
               title="Rotate (90° clockwise)"
-            >
-              <FontAwesomeIcon icon={faRotateRight} />
-            </button>
-            <button
-              className="block p-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="block"
+            />
+            <IconButton
+              faIcon={faHammer}
               disabled={!build?.valid}
               onClick={() => {
                 if (build?.valid) {
                   handleBuild(build.entity);
                 }
               }}
-            >
-              <FontAwesomeIcon icon={faHammer} />
-            </button>
-            <Link to={build ? "/build" : "/"} className="block p-4">
-              <FontAwesomeIcon icon={faArrowLeft} />
-            </Link>
+              className="block"
+            />
+            <IconButton
+              faIcon={faArrowLeft}
+              to={build ? "/build" : "/"}
+              className="block"
+            />
           </Panel>
         </div>
       </div>
