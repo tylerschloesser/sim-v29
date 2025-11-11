@@ -117,8 +117,11 @@ export interface BurnerMiningDrillEntity extends BaseEntity {
   state: BurnerMiningDrillState;
 }
 
+export type BeltTurn = "left" | "right" | "none";
+
 export interface BeltEntity extends BaseEntity {
   type: "belt";
+  turn: BeltTurn;
 }
 
 export type Entity =
@@ -321,6 +324,7 @@ export function createEntity(
       position,
       size,
       rotation,
+      turn: "none",
     };
   } else {
     // home-storage
