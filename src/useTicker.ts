@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import type { Updater } from "use-immer";
 import type { AppState } from "./types";
 import { tickAction } from "./tickAction";
+import { tickBurnerInserter } from "./tickBurnerInserter";
+import { tickStoneFurnace } from "./tickStoneFurnace";
 import { TICK_INTERVAL } from "./constants";
 
 /**
@@ -33,6 +35,21 @@ export function useTicker(updateState: Updater<AppState>) {
 
           // Process action
           tickAction(draft);
+
+          // Process entities
+          for (const entity of draft.entities.values()) {
+            switch (entity.type) {
+              case "burner-inserter":
+                tickBurnerInserter(draft, entity);
+                break;
+              case "stone-furnace":
+                tickStoneFurnace(draft, entity);
+                break;
+              case "home-storage":
+                // No tick logic for home-storage
+                break;
+            }
+          }
         });
 
         // Subtract one tick interval from accumulator
