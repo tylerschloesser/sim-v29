@@ -1,5 +1,6 @@
 import invariant from "tiny-invariant";
 import { useAppContext } from "./appContext";
+import { getBeltConnections } from "./beltUtils";
 import { getTilesForEntity } from "./entityUtils";
 import { decrementInventory } from "./inventoryUtils";
 import type { Entity } from "./types";
@@ -28,6 +29,34 @@ export function useHandleBuild(): (entity: Entity) => void {
 
       // Add entity to entities Map
       draft.entities.set(entityId, updatedEntity);
+
+      // Log belt connections if this is a belt
+      if (updatedEntity.type === "belt") {
+        const connections = getBeltConnections(updatedEntity, draft);
+        console.log("Belt placed:", {
+          position: updatedEntity.position,
+          rotation: updatedEntity.rotation,
+          turn: updatedEntity.turn,
+          incomingTile: connections.incomingTile,
+          incomingBelt: connections.incomingBelt
+            ? {
+                id: connections.incomingBelt.id,
+                position: connections.incomingBelt.position,
+                rotation: connections.incomingBelt.rotation,
+                turn: connections.incomingBelt.turn,
+              }
+            : null,
+          outgoingTile: connections.outgoingTile,
+          outgoingBelt: connections.outgoingBelt
+            ? {
+                id: connections.outgoingBelt.id,
+                position: connections.outgoingBelt.position,
+                rotation: connections.outgoingBelt.rotation,
+                turn: connections.outgoingBelt.turn,
+              }
+            : null,
+        });
+      }
 
       // Update all tiles occupied by entity to reference it
       for (const { x, y } of getTilesForEntity(updatedEntity)) {
