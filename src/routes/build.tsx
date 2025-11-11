@@ -18,6 +18,7 @@ import { SelectEntityPanel } from "../SelectEntityPanel";
 import { ENTITY_CONFIGS, isEntityType, type EntityType } from "../types";
 import { useBuildPreview } from "../useBuildPreview";
 import { useHandleBuild } from "../useHandleBuild";
+import { inventoryHas } from "../inventoryUtils";
 
 interface BuildSearch {
   selectedEntityType?: EntityType;
@@ -52,7 +53,7 @@ function BuildComponent() {
   useEffect(() => {
     if (
       selectedEntityType !== undefined &&
-      state.inventory[selectedEntityType] === 0
+      !inventoryHas(state.inventory, selectedEntityType)
     ) {
       navigate({ search: { selectedEntityType: undefined, rotation: 0 } });
     }

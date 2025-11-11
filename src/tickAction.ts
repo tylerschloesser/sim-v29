@@ -1,7 +1,8 @@
 import invariant from "tiny-invariant";
-import type { AppState } from "./types";
-import { getTileLocation } from "./tileUtils";
 import { MINE_DURATION_TICKS } from "./constants";
+import { incrementInventory } from "./inventoryUtils";
+import { getTileLocation } from "./tileUtils";
+import type { AppState } from "./types";
 
 /**
  * Process the current action for one tick.
@@ -32,7 +33,7 @@ export function tickAction(draft: AppState) {
 
       // Mine 1 unit of resource
       const minedAmount = 1;
-      draft.inventory[tile.resource.type] += minedAmount;
+      incrementInventory(draft.inventory, tile.resource.type, minedAmount);
 
       // Decrement resource count
       tile.resource.count -= minedAmount;

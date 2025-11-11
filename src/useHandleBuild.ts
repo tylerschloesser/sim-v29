@@ -1,6 +1,7 @@
 import invariant from "tiny-invariant";
 import { useAppContext } from "./appContext";
 import { getTilesForEntity } from "./entityUtils";
+import { decrementInventory } from "./inventoryUtils";
 import type { Entity } from "./types";
 import { CHUNK_SIZE, getChunkId, getEntityId, tileToChunk } from "./types";
 
@@ -54,11 +55,7 @@ export function useHandleBuild(): (entity: Entity) => void {
         tile.entityId = entityId;
       }
 
-      invariant(
-        draft.inventory[entity.type] > 0,
-        "Inventory count must be positive",
-      );
-      draft.inventory[entity.type] -= 1;
+      decrementInventory(draft.inventory, entity.type, 1);
     });
   };
 }

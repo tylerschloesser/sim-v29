@@ -1,11 +1,11 @@
-import { ENTITY_CONFIGS, TILE_SIZE } from "./types";
 import type {
+  AppState,
+  BurnerInserterEntity,
   Entity,
   EntityType,
-  BurnerInserterEntity,
   ItemType,
-  AppState,
 } from "./types";
+import { ENTITY_CONFIGS, TILE_SIZE } from "./types";
 
 /**
  * Returns the rotated size of an entity (swaps dimensions for 90/270 degree rotations)
@@ -137,22 +137,36 @@ export function getEntityAtTile(
   return state.entities.get(tile.entityId);
 }
 
+const ALL_ITEM_TYPES: Set<ItemType> = new Set([
+  "coal",
+  "copper",
+  "iron",
+  "stone",
+  "stone-furnace",
+  "home-storage",
+  "burner-inserter",
+]);
+
+const EMPTY_SET: Set<ItemType> = new Set();
+
 /**
  * Returns the items that an entity is requesting.
  * For home-storage: accepts all item types (returns all ItemTypes).
  * For stone-furnace: returns requestedItems array.
  * TODO: Implement proper request logic based on entity type and state.
  */
-export function getRequestedItems(state: AppState, entity: Entity): ItemType[] {
+export function getRequestedItems(
+  state: AppState,
+  entity: Entity,
+): Set<ItemType> {
   void state; // May be used in future for more complex logic
 
   if (entity.type === "home-storage") {
-    // Home-storage accepts all items
-    return ["coal", "copper", "iron", "stone"];
+    return ALL_ITEM_TYPES;
   } else if (entity.type === "stone-furnace") {
-    return entity.requestedItems;
+    return new Set(["iron"]);
   }
-  return [];
+  return EMPTY_SET;
 }
 
 /**
@@ -161,45 +175,14 @@ export function getRequestedItems(state: AppState, entity: Entity): ItemType[] {
  * For stone-furnace: checks entity's own inventory.
  * TODO: Implement proper availability logic based on entity type and inventory.
  */
-export function getAvailableItems(state: AppState, entity: Entity): ItemType[] {
-  if (entity.type === "home-storage") {
-    // Check top-level inventory for available items
-    return (Object.keys(state.inventory) as (ItemType | EntityType)[])
-      .filter((key): key is ItemType => {
-        // Filter out EntityType keys, only keep ItemType
-        return ["coal", "copper", "iron", "stone"].includes(key);
-      })
-      .filter((itemType) => state.inventory[itemType] > 0);
-  } else if (entity.type === "stone-furnace") {
-    // Return items that have count > 0 in entity's own inventory
-    return (Object.keys(entity.inventory) as ItemType[]).filter(
-      (itemType) => entity.inventory[itemType] > 0,
-    );
-  }
-  return [];
-}
-
-/**
- * Transfers one item from source entity to target entity.
- * Special handling for home-storage: modifies top-level inventory instead of entity inventory.
- * TODO: Implement actual inventory modification logic.
- */
-export function transferItem(
+export function getAvailableItems(
   state: AppState,
-  fromEntity: Entity,
-  toEntity: Entity,
-  itemType: ItemType,
-): void {
-  // Stub implementation - will be implemented later
-  void state;
-  void fromEntity;
-  void toEntity;
-  void itemType;
-
-  // TODO: Implement transfer logic
-  // If fromEntity is home-storage: decrement state.inventory[itemType]
-  // Else if fromEntity is stone-furnace: decrement fromEntity.inventory[itemType]
-  //
-  // If toEntity is home-storage: increment state.inventory[itemType]
-  // Else if toEntity is stone-furnace: increment toEntity.inventory[itemType]
+  entity: Entity,
+): Set<ItemType> {
+  if (entity.type === "home-storage") {
+    return new Set(Object.keys(state.inventory) as ItemType[]);
+  } else if (entity.type === "stone-furnace") {
+    return new Set(Object.keys(entity.outputInventory) as ItemType[]);
+  }
+  return EMPTY_SET;
 }

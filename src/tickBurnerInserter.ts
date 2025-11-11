@@ -1,13 +1,24 @@
-import type { AppState, BurnerInserterEntity } from "./types";
+import invariant from "tiny-invariant";
 import { INSERTER_DELIVER_TICKS, INSERTER_RETURN_TICKS } from "./constants";
 import {
-  getSourceTileForInserter,
-  getTargetTileForInserter,
   getEntityAtTile,
   getRequestedItems,
-  getAvailableItems,
-  transferItem,
+  getSourceTileForInserter,
+  getTargetTileForInserter,
 } from "./entityUtils";
+import {
+  decrementInventory,
+  incrementInventory,
+  inventoryHas,
+} from "./inventoryUtils";
+import {
+  getEntityInputInventory,
+  getEntityOutputInventory,
+  type AppState,
+  type BurnerInserterEntity,
+  type Inventory,
+  type ItemType,
+} from "./types";
 
 /**
  * Process one tick for a burner inserter entity.
@@ -50,18 +61,20 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
     return;
   }
 
+  const inputInventory = getEntityInputInventory(draft, sourceEntity);
+  if (!inputInventory) {
+    return;
+  }
+
   // Get items that target is requesting
   const requestedItems = getRequestedItems(draft, targetEntity);
 
-  // Get items that source has available
-  const availableItems = getAvailableItems(draft, sourceEntity);
-
   // Find first requested item that's available
-  const itemToDeliver = requestedItems.find((item) =>
-    availableItems.includes(item),
-  );
+  const itemToDeliver = getItemToDeliver(requestedItems, inputInventory);
 
   if (itemToDeliver) {
+    decrementInventory(inputInventory, itemToDeliver);
+
     // Transition to DELIVER state
     entity.state = {
       type: "deliver",
@@ -69,6 +82,18 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
       progress: 0,
     };
   }
+}
+
+function getItemToDeliver(
+  requestedItems: Set<ItemType>,
+  inventory: Inventory,
+): ItemType | null {
+  for (const item of requestedItems) {
+    if (inventoryHas(inventory, item)) {
+      return item;
+    }
+  }
+  return null;
 }
 
 /**
@@ -119,13 +144,15 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
 
   // Check if target still requests this item
   const requestedItems = getRequestedItems(draft, targetEntity);
-  if (!requestedItems.includes(itemType)) {
+  if (!requestedItems.has(itemType)) {
     // Item no longer requested, stay stuck in DELIVER state
     return;
   }
 
-  // Transfer the item (stub for now)
-  transferItem(draft, sourceEntity, targetEntity, itemType);
+  const outputInventory = getEntityOutputInventory(draft, targetEntity);
+  invariant(outputInventory, "Target entity must have an output inventory");
+
+  incrementInventory(outputInventory, itemType);
 
   // Transition to RETURN state
   entity.state = {

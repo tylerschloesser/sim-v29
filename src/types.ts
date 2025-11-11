@@ -12,11 +12,9 @@ export interface Resource {
   count: number;
 }
 
-// ItemType represents transferable items in the game
-// Currently maps to ResourceType but separate for future expansion
-export type ItemType = ResourceType;
-
 export type EntityType = "stone-furnace" | "home-storage" | "burner-inserter";
+
+export type ItemType = ResourceType | EntityType;
 
 export const ENTITY_TYPES = [
   "stone-furnace",
@@ -46,9 +44,12 @@ export interface BaseEntity {
   rotation: 0 | 90 | 180 | 270; // rotation in degrees (clockwise)
 }
 
+export type Inventory = Partial<Record<ItemType, number>>;
+
 export interface StoneFurnaceEntity extends BaseEntity {
   type: "stone-furnace";
-  inventory: Record<ItemType, number>;
+  inputInventory: Inventory;
+  outputInventory: Inventory;
   requestedItems: ItemType[];
 }
 
@@ -70,6 +71,34 @@ export type Entity =
   | StoneFurnaceEntity
   | HomeStorageEntity
   | BurnerInserterEntity;
+
+export function getEntityInputInventory(
+  state: AppState,
+  entity: Entity,
+): Inventory | null {
+  switch (entity.type) {
+    case "stone-furnace":
+      return entity.inputInventory;
+    case "home-storage":
+      return state.inventory;
+    default:
+      return null;
+  }
+}
+
+export function getEntityOutputInventory(
+  state: AppState,
+  entity: Entity,
+): Inventory | null {
+  switch (entity.type) {
+    case "stone-furnace":
+      return entity.outputInventory;
+    case "home-storage":
+      return state.inventory;
+    default:
+      return null;
+  }
+}
 
 export interface Build {
   entity: Entity;
@@ -141,7 +170,7 @@ export interface AppState {
   nextEntityId: number;
   action: Action | null;
   tick: number;
-  inventory: Record<ItemType | EntityType, number>;
+  inventory: Inventory;
 }
 
 export function getChunkId(tileX: number, tileY: number): ChunkId {
@@ -191,7 +220,8 @@ export function createEntity(
       position,
       size,
       rotation,
-      inventory: { coal: 0, copper: 0, iron: 0, stone: 0 },
+      inputInventory: {},
+      outputInventory: {},
       requestedItems: ["iron"],
     };
   } else if (type === "burner-inserter") {
