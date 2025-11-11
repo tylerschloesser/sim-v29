@@ -1,5 +1,6 @@
-import type { AppState, BeltEntity, ChunkId } from "./types";
+import type { AppState, BeltEntity, BeltItem, ChunkId } from "./types";
 import { CHUNK_SIZE, getChunkId, tileToChunk } from "./types";
+import { BELT_ITEM_SPACING, BELT_LENGTH } from "./constants";
 
 export interface AdjacentTile {
   tile: { x: number; y: number };
@@ -87,4 +88,296 @@ function getBeltAtTile(
   }
 
   return null;
+}
+
+/**
+ * Gets the input tile for a belt based on its rotation.
+ * The input is always from the opposite direction of the belt's rotation.
+ */
+export function getInputTile(belt: BeltEntity): { x: number; y: number } {
+  const { position, rotation } = belt;
+
+  switch (rotation) {
+    case 0: // Facing right, input from left
+      return { x: position.x - 1, y: position.y };
+    case 90: // Facing down, input from top
+      return { x: position.x, y: position.y - 1 };
+    case 180: // Facing left, input from right
+      return { x: position.x + 1, y: position.y };
+    case 270: // Facing up, input from bottom
+      return { x: position.x, y: position.y + 1 };
+  }
+}
+
+/**
+ * Gets the output tile for a belt based on its rotation and turn value.
+ * - turn "none": output in the direction of rotation
+ * - turn "left": output 90 degrees counter-clockwise from rotation
+ * - turn "right": output 90 degrees clockwise from rotation
+ */
+export function getOutputTile(belt: BeltEntity): { x: number; y: number } {
+  const { position, rotation, turn } = belt;
+
+  // Calculate effective output direction based on rotation and turn
+  let outputRotation = rotation;
+
+  if (turn === "left") {
+    // Turn left: subtract 90 degrees (counter-clockwise)
+    outputRotation = ((rotation - 90 + 360) % 360) as 0 | 90 | 180 | 270;
+  } else if (turn === "right") {
+    // Turn right: add 90 degrees (clockwise)
+    outputRotation = ((rotation + 90) % 360) as 0 | 90 | 180 | 270;
+  }
+
+  // Return tile in the output direction
+  switch (outputRotation) {
+    case 0: // Output to right
+      return { x: position.x + 1, y: position.y };
+    case 90: // Output to bottom
+      return { x: position.x, y: position.y + 1 };
+    case 180: // Output to left
+      return { x: position.x - 1, y: position.y };
+    case 270: // Output to top
+      return { x: position.x, y: position.y - 1 };
+  }
+}
+
+/**
+ * Gets the belt entity at the input tile, or null if none exists.
+ */
+export function getInputBelt(
+  belt: BeltEntity,
+  state: AppState,
+): BeltEntity | null {
+  const inputTile = getInputTile(belt);
+  return getBeltAtTile(inputTile, state);
+}
+
+/**
+ * Gets the belt entity at the output tile, or null if none exists.
+ */
+export function getOutputBelt(
+  belt: BeltEntity,
+  state: AppState,
+): BeltEntity | null {
+  const outputTile = getOutputTile(belt);
+  return getBeltAtTile(outputTile, state);
+}
+
+/**
+ * Checks if an item on a belt can move forward by the specified distance.
+ * Ensures proper spacing between items and checks if the next belt can accept the item.
+ *
+ * @param _belt The belt containing the item (unused, kept for API consistency)
+ * @param lane The lane containing the item
+ * @param fromPosition Current position of the item (0-63)
+ * @param distance Distance to move (typically BELT_SPEED = 1)
+ * @param outputBelt Optional output belt to check if item would transfer
+ * @returns true if the item can move, false otherwise
+ */
+export function canItemMove(
+  _belt: BeltEntity,
+  lane: BeltItem[],
+  fromPosition: number,
+  distance: number,
+  outputBelt: BeltEntity | null,
+): boolean {
+  const newPosition = fromPosition + distance;
+
+  // Check if item would transfer to next belt
+  if (newPosition >= BELT_LENGTH) {
+    // If there's no output belt, item cannot move past end
+    if (!outputBelt) {
+      return false;
+    }
+
+    // Check if output belt's left lane has space at position 0
+    // (We only use left lane for now)
+    const outputLane = outputBelt.leftLane;
+    const blockingItem = outputLane.find(
+      (item) => item.position < BELT_ITEM_SPACING + distance,
+    );
+
+    return !blockingItem; // Can move if no blocking item
+  }
+
+  // Check if there's another item blocking on the same belt
+  const blockingItem = lane.find((item) => {
+    if (item.position <= fromPosition) {
+      return false; // Item is behind, not blocking
+    }
+    // Check if item is within the minimum spacing distance
+    return item.position < fromPosition + BELT_ITEM_SPACING + distance;
+  });
+
+  return !blockingItem; // Can move if no blocking item
+}
+
+/**
+ * Represents a belt network - a connected group of belts
+ */
+export interface BeltNetwork {
+  /** Belts in this network, ordered from output to input (tick order) */
+  belts: BeltEntity[];
+  /** Whether this network contains a cycle */
+  hasCycle: boolean;
+}
+
+/**
+ * Result of computing belt networks
+ */
+export interface BeltNetworks {
+  /** Networks that end in a terminal belt (no output) */
+  terminalNetworks: BeltNetwork[];
+  /** Networks that contain cycles */
+  cycleNetworks: BeltNetwork[];
+}
+
+/**
+ * Computes all belt networks in the current state.
+ * A network is a connected group of belts.
+ * Networks either end in a terminal belt (no output) or contain a cycle.
+ */
+export function computeBeltNetworks(state: AppState): BeltNetworks {
+  const allBelts: BeltEntity[] = [];
+
+  // Collect all belt entities
+  for (const entity of state.entities.values()) {
+    if (entity.type === "belt") {
+      allBelts.push(entity);
+    }
+  }
+
+  // Track which belts have been assigned to a network
+  const assignedBelts = new Set<string>();
+
+  const terminalNetworks: BeltNetwork[] = [];
+  const cycleNetworks: BeltNetwork[] = [];
+
+  // Process each unassigned belt
+  for (const belt of allBelts) {
+    if (assignedBelts.has(belt.id)) {
+      continue; // Already assigned to a network
+    }
+
+    // Find all belts in this network using depth-first search
+    const network = findBeltNetwork(belt, state, assignedBelts);
+
+    if (network.hasCycle) {
+      cycleNetworks.push(network);
+    } else {
+      terminalNetworks.push(network);
+    }
+  }
+
+  return { terminalNetworks, cycleNetworks };
+}
+
+/**
+ * Finds all belts in a network starting from a given belt.
+ * Uses depth-first search to explore the network.
+ */
+function findBeltNetwork(
+  startBelt: BeltEntity,
+  state: AppState,
+  assignedBelts: Set<string>,
+): BeltNetwork {
+  const visited = new Set<string>();
+  const beltsInNetwork: BeltEntity[] = [];
+  let hasCycle = false;
+
+  // DFS to find all connected belts
+  function explore(belt: BeltEntity, path: Set<string>) {
+    // Check if we've found a cycle
+    if (path.has(belt.id)) {
+      hasCycle = true;
+      return;
+    }
+
+    // Check if already visited in this exploration
+    if (visited.has(belt.id)) {
+      return;
+    }
+
+    visited.add(belt.id);
+    assignedBelts.add(belt.id);
+    beltsInNetwork.push(belt);
+
+    // Add to current path
+    const newPath = new Set(path);
+    newPath.add(belt.id);
+
+    // Explore input belt (belt that feeds into this one)
+    const inputBelt = getInputBelt(belt, state);
+    if (inputBelt) {
+      explore(inputBelt, newPath);
+    }
+
+    // Explore output belt (belt that this one feeds into)
+    const outputBelt = getOutputBelt(belt, state);
+    if (outputBelt) {
+      explore(outputBelt, newPath);
+    }
+  }
+
+  explore(startBelt, new Set());
+
+  // If there's no cycle, order belts from output to input (for proper ticking)
+  if (!hasCycle) {
+    beltsInNetwork.reverse();
+    // Sort topologically: find terminal belt, then work backwards
+    const orderedBelts = topologicalSort(beltsInNetwork, state);
+    return { belts: orderedBelts, hasCycle: false };
+  }
+
+  return { belts: beltsInNetwork, hasCycle: true };
+}
+
+/**
+ * Performs topological sort on belts to determine tick order.
+ * Returns belts ordered from output to input (terminal belt first).
+ */
+function topologicalSort(belts: BeltEntity[], state: AppState): BeltEntity[] {
+  // Find terminal belt (no output or output not in network)
+  const beltIds = new Set(belts.map((b) => b.id));
+
+  const terminalBelt = belts.find((belt) => {
+    const outputBelt = getOutputBelt(belt, state);
+    return !outputBelt || !beltIds.has(outputBelt.id);
+  });
+
+  if (!terminalBelt) {
+    // No terminal belt found, return as-is (shouldn't happen for non-cycle)
+    return belts;
+  }
+
+  // Build ordered list starting from terminal belt and working backwards
+  const ordered: BeltEntity[] = [];
+  const visited = new Set<string>();
+
+  function visit(belt: BeltEntity) {
+    if (visited.has(belt.id)) {
+      return;
+    }
+
+    visited.add(belt.id);
+    ordered.push(belt);
+
+    // Find all belts that feed into this belt
+    const inputBelt = getInputBelt(belt, state);
+    if (inputBelt && beltIds.has(inputBelt.id)) {
+      visit(inputBelt);
+    }
+  }
+
+  visit(terminalBelt);
+
+  // Also visit any remaining unvisited belts (in case of disconnected components)
+  for (const belt of belts) {
+    if (!visited.has(belt.id)) {
+      visit(belt);
+    }
+  }
+
+  return ordered;
 }

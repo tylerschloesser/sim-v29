@@ -32,3 +32,13 @@ export const CAMERA_SPEED = 5;
 // === World Generation Constants ===
 /** Seed for procedural world generation */
 export const WORLD_SEED = "sim-v29-world";
+
+// === Belt Constants ===
+/** Belt movement speed in positions per tick */
+export const BELT_SPEED = 1;
+
+/** Minimum spacing between items on a belt (in positions) */
+export const BELT_ITEM_SPACING = 16;
+
+/** Total length of a belt in positions (items can be at position 0-63) */
+export const BELT_LENGTH = 64;

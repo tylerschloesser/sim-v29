@@ -119,9 +119,16 @@ export interface BurnerMiningDrillEntity extends BaseEntity {
 
 export type BeltTurn = "left" | "right" | "none";
 
+export interface BeltItem {
+  itemType: ItemType;
+  position: number; // 0-63 (inclusive)
+}
+
 export interface BeltEntity extends BaseEntity {
   type: "belt";
   turn: BeltTurn;
+  leftLane: BeltItem[];
+  rightLane: BeltItem[];
 }
 
 export type Entity =
@@ -326,6 +333,8 @@ export function createEntity(
       size,
       rotation,
       turn,
+      leftLane: [],
+      rightLane: [],
     };
   } else {
     // home-storage

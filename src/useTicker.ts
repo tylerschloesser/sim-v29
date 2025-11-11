@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Updater } from "use-immer";
 import type { AppState } from "./types";
 import { tickAction } from "./tickAction";
-import { tickBelt } from "./tickBelt";
+import { tickAllBelts } from "./tickBelt";
 import { tickBurnerInserter } from "./tickBurnerInserter";
 import { tickBurnerMiningDrill } from "./tickBurnerMiningDrill";
 import { tickStoneFurnace } from "./tickStoneFurnace";
@@ -38,7 +38,10 @@ export function useTicker(updateState: Updater<AppState>) {
           // Process action
           tickAction(draft);
 
-          // Process entities
+          // Process all belts (once per tick)
+          tickAllBelts(draft);
+
+          // Process other entities
           for (const entity of draft.entities.values()) {
             switch (entity.type) {
               case "burner-inserter":
@@ -51,7 +54,7 @@ export function useTicker(updateState: Updater<AppState>) {
                 tickBurnerMiningDrill(draft, entity);
                 break;
               case "belt":
-                tickBelt(draft, entity);
+                // Belt ticking is handled by tickAllBelts() above
                 break;
               case "home-storage":
                 // No tick logic for home-storage
