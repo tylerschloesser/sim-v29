@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Updater } from "use-immer";
 import type { AppState } from "./types";
 import { tickAction } from "./tickAction";
+import { tickBelt } from "./tickBelt";
 import { tickBurnerInserter } from "./tickBurnerInserter";
 import { tickBurnerMiningDrill } from "./tickBurnerMiningDrill";
 import { tickStoneFurnace } from "./tickStoneFurnace";
@@ -48,6 +49,9 @@ export function useTicker(updateState: Updater<AppState>) {
                 break;
               case "burner-mining-drill":
                 tickBurnerMiningDrill(draft, entity);
+                break;
+              case "belt":
+                tickBelt(draft, entity);
                 break;
               case "home-storage":
                 // No tick logic for home-storage

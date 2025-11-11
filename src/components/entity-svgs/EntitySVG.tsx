@@ -1,4 +1,5 @@
 import { ENTITY_CONFIGS, type EntityType } from "../../types";
+import { BeltSVG } from "./BeltSVG";
 import { BurnerInserterSVG } from "./BurnerInserterSVG";
 import { BurnerMiningDrillSVG } from "./BurnerMiningDrillSVG";
 import { HomeStorageSVG } from "./HomeStorageSVG";
@@ -24,6 +25,8 @@ export function EntitySVG({ entityType }: EntitySVGProps) {
       return <BurnerInserterSVG config={config} />;
     case "burner-mining-drill":
       return <BurnerMiningDrillSVG config={config} />;
+    case "belt":
+      return <BeltSVG config={config} />;
     default: {
       // TypeScript exhaustiveness check
       const _exhaustive: never = entityType;

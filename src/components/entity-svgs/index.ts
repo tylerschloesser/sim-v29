@@ -3,3 +3,4 @@ export { StoneFurnaceSVG } from "./StoneFurnaceSVG";
 export { HomeStorageSVG } from "./HomeStorageSVG";
 export { BurnerInserterSVG } from "./BurnerInserterSVG";
 export { BurnerMiningDrillSVG } from "./BurnerMiningDrillSVG";
+export { BeltSVG } from "./BeltSVG";

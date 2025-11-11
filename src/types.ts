@@ -16,7 +16,8 @@ export type EntityType =
   | "stone-furnace"
   | "home-storage"
   | "burner-inserter"
-  | "burner-mining-drill";
+  | "burner-mining-drill"
+  | "belt";
 
 export type ItemType = ResourceType | EntityType | "iron-plate";
 
@@ -25,6 +26,7 @@ export const ENTITY_TYPES = [
   "home-storage",
   "burner-inserter",
   "burner-mining-drill",
+  "belt",
 ] as const satisfies readonly EntityType[];
 
 // Compile-time check that ensures all EntityType values are included
@@ -51,6 +53,7 @@ const ITEM_TYPES_ARRAY = [
   "home-storage",
   "burner-inserter",
   "burner-mining-drill",
+  "belt",
   "iron-plate",
 ] as const satisfies readonly ItemType[];
 
@@ -114,11 +117,16 @@ export interface BurnerMiningDrillEntity extends BaseEntity {
   state: BurnerMiningDrillState;
 }
 
+export interface BeltEntity extends BaseEntity {
+  type: "belt";
+}
+
 export type Entity =
   | StoneFurnaceEntity
   | HomeStorageEntity
   | BurnerInserterEntity
-  | BurnerMiningDrillEntity;
+  | BurnerMiningDrillEntity
+  | BeltEntity;
 
 export function getEntityInputInventory(
   state: AppState,
@@ -184,6 +192,11 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     size: { x: 2, y: 2 },
     color: 0xffaa00, // yellow-orange
     rotatable: false,
+  },
+  belt: {
+    size: { x: 1, y: 1 },
+    color: 0xffff00, // yellow
+    rotatable: true,
   },
 };
 
@@ -300,6 +313,14 @@ export function createEntity(
       inputInventory: {},
       outputInventory: {},
       state: { type: "idle" },
+    };
+  } else if (type === "belt") {
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
     };
   } else {
     // home-storage

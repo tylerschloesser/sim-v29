@@ -55,6 +55,7 @@ export function initializeState(
       "stone-furnace": 1,
       "burner-inserter": 2,
       "burner-mining-drill": 2,
+      belt: 20,
     },
   };
 
