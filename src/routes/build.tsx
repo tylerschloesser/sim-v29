@@ -12,10 +12,11 @@ import clsx from "clsx";
 import { useEffect } from "react";
 import { useAppContext } from "../appContext";
 import { IconButton } from "../IconButton";
+import { IconLink } from "../IconLink";
 import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
-import { useBuildPreview } from "../useBuildPreview";
 import { ENTITY_CONFIGS, isEntityType, type EntityType } from "../types";
+import { useBuildPreview } from "../useBuildPreview";
 import { useHandleBuild } from "../useHandleBuild";
 
 interface BuildSearch {
@@ -111,7 +112,7 @@ function BuildComponent() {
               }}
               className="block"
             />
-            <IconButton
+            <IconLink
               faIcon={faArrowLeft}
               to={build ? "/build" : "/"}
               className="block"

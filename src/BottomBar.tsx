@@ -1,6 +1,7 @@
 import {
   faBorderLeft,
   faBorderRight,
+  faHammer,
   faSliders,
   faSnooze,
 } from "@fortawesome/pro-solid-svg-icons";
@@ -9,10 +10,9 @@ import { useState } from "react";
 import { MineButton } from "./MineButton";
 import { Panel } from "./Panel";
 import { HomeButton } from "./HomeButton";
-import { BuildButton } from "./BuildButton";
 import { IconButton } from "./IconButton";
-import { useAppContext } from "./appContext";
 import { useHighlightedTile } from "./useHighlightedTile";
+import { IconLink } from "./IconLink";
 
 export function BottomBar() {
   const [config, setConfig] = useState<"left" | "right">("right");
@@ -38,7 +38,7 @@ export function BottomBar() {
           })}
         >
           <PrimaryButton />
-          <BuildButton />
+          <IconLink faIcon={faHammer} to="/build" />
           <HomeButton />
           <IconButton
             faIcon={config === "left" ? faBorderLeft : faBorderRight}
@@ -53,7 +53,9 @@ export function BottomBar() {
 function PrimaryButton() {
   const { tile } = useHighlightedTile();
   if (tile?.entityId) {
-    return <IconButton faIcon={faSliders} disabled />;
+    return (
+      <IconLink faIcon={faSliders} to="/Library" params={{ foo: "bar" }} />
+    );
   }
   if (tile?.resource) {
     return <MineButton />;

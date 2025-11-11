@@ -1,6 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { Link } from "@tanstack/react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
 
 interface IconButtonProps {
@@ -8,7 +7,6 @@ interface IconButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
-  to?: string;
   title?: string;
 }
 
@@ -17,22 +15,13 @@ export function IconButton({
   onClick,
   disabled,
   className,
-  to,
   title,
 }: IconButtonProps) {
   const baseClassName = clsx(
     "p-4",
-    !to && "disabled:opacity-50 disabled:cursor-not-allowed",
+    "disabled:opacity-50 disabled:cursor-not-allowed",
     className,
   );
-
-  if (to) {
-    return (
-      <Link to={to} className={baseClassName} title={title}>
-        <FontAwesomeIcon icon={faIcon} />
-      </Link>
-    );
-  }
 
   return (
     <button
