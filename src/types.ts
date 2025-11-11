@@ -37,6 +37,32 @@ export function isEntityType(value: unknown): value is EntityType {
   );
 }
 
+const ITEM_TYPES_ARRAY = [
+  "coal",
+  "copper",
+  "iron",
+  "stone",
+  "stone-furnace",
+  "home-storage",
+  "burner-inserter",
+  "iron-plate",
+] as const satisfies readonly ItemType[];
+
+// Compile-time check that ensures all ItemType values are included
+type AssertAllItemTypes = (typeof ITEM_TYPES_ARRAY)[number] extends ItemType
+  ? ItemType extends (typeof ITEM_TYPES_ARRAY)[number]
+    ? true
+    : "Missing item type in ITEM_TYPES_ARRAY"
+  : "Invalid item type in ITEM_TYPES_ARRAY";
+const _checkItemTypes: AssertAllItemTypes = true;
+void _checkItemTypes; // Suppress unused variable warning
+
+export const ALL_ITEM_TYPES: ReadonlySet<ItemType> = new Set(ITEM_TYPES_ARRAY);
+
+export function isItemType(value: unknown): value is ItemType {
+  return typeof value === "string" && ALL_ITEM_TYPES.has(value as ItemType);
+}
+
 export interface BaseEntity {
   id: EntityId;
   position: { x: number; y: number }; // top-left tile coordinates
@@ -54,7 +80,6 @@ export interface StoneFurnaceEntity extends BaseEntity {
   type: "stone-furnace";
   inputInventory: Inventory;
   outputInventory: Inventory;
-  requestedItems: ItemType[];
   state: StoneFurnaceState;
 }
 
@@ -227,7 +252,6 @@ export function createEntity(
       rotation,
       inputInventory: {},
       outputInventory: {},
-      requestedItems: ["iron"],
       state: { type: "idle" },
     };
   } else if (type === "burner-inserter") {

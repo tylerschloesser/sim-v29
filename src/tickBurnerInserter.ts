@@ -85,7 +85,7 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
 }
 
 function getItemToDeliver(
-  requestedItems: Set<ItemType>,
+  requestedItems: ReadonlySet<ItemType>,
   inventory: Inventory,
 ): ItemType | null {
   for (const item of requestedItems) {

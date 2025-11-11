@@ -5,7 +5,7 @@ import type {
   EntityType,
   ItemType,
 } from "./types";
-import { ENTITY_CONFIGS, TILE_SIZE } from "./types";
+import { ALL_ITEM_TYPES, ENTITY_CONFIGS, TILE_SIZE } from "./types";
 
 /**
  * Returns the rotated size of an entity (swaps dimensions for 90/270 degree rotations)
@@ -137,17 +137,7 @@ export function getEntityAtTile(
   return state.entities.get(tile.entityId);
 }
 
-const ALL_ITEM_TYPES: Set<ItemType> = new Set([
-  "coal",
-  "copper",
-  "iron",
-  "stone",
-  "stone-furnace",
-  "home-storage",
-  "burner-inserter",
-]);
-
-const EMPTY_SET: Set<ItemType> = new Set();
+const EMPTY_SET: ReadonlySet<ItemType> = new Set();
 
 /**
  * Returns the items that an entity is requesting.
@@ -158,7 +148,7 @@ const EMPTY_SET: Set<ItemType> = new Set();
 export function getRequestedItems(
   state: AppState,
   entity: Entity,
-): Set<ItemType> {
+): ReadonlySet<ItemType> {
   void state; // May be used in future for more complex logic
 
   if (entity.type === "home-storage") {
@@ -178,7 +168,7 @@ export function getRequestedItems(
 export function getAvailableItems(
   state: AppState,
   entity: Entity,
-): Set<ItemType> {
+): ReadonlySet<ItemType> {
   if (entity.type === "home-storage") {
     return new Set(Object.keys(state.inventory) as ItemType[]);
   } else if (entity.type === "stone-furnace") {

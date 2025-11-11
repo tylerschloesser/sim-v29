@@ -61,10 +61,8 @@ function tickSmelting(_draft: AppState, entity: StoneFurnaceEntity) {
 
   // When smelting is complete, produce output
   if (entity.state.progress >= 1) {
-    const { outputInventory } = entity;
-
     // Add iron-plate to output inventory
-    incrementInventory(outputInventory, "iron-plate");
+    incrementInventory(entity.outputInventory, "iron-plate");
 
     // Return to IDLE state
     entity.state = { type: "idle" };
