@@ -14,7 +14,9 @@ import {
 import {
   getEntityInputInventory,
   getEntityOutputInventory,
+  getBeltItemId,
   type AppState,
+  type BeltEntity,
   type BurnerInserterEntity,
   type Inventory,
   type ItemType,
@@ -121,7 +123,9 @@ function tickDeliver(draft: AppState, entity: BurnerInserterEntity) {
 
 /**
  * Attempts to deliver the held item to the target entity.
- * If successful, transitions to RETURN. If target no longer requests the item, stays stuck.
+ * For belts: places item at position 32 if positions 17-47 are free.
+ * For other entities: uses inventory-based delivery.
+ * If successful, transitions to RETURN. If blocked, stays in DELIVER state.
  */
 function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
   if (entity.state.type !== "deliver") return;
@@ -149,6 +153,37 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
     return;
   }
 
+  // Handle belt delivery
+  if (targetEntity.type === "belt") {
+    const belt = targetEntity as BeltEntity;
+    const lane = belt.leftLane;
+
+    // Check spacing: positions 17-47 must be free (15 spaces on each side of position 32)
+    const blockingItem = lane.find(
+      (item) => item.position >= 17 && item.position <= 47,
+    );
+
+    if (blockingItem) {
+      // Belt is blocked, stay in DELIVER state and retry next tick
+      return;
+    }
+
+    // Add item to belt at position 32
+    lane.push({
+      id: getBeltItemId(draft.nextBeltItemId++),
+      itemType: itemType,
+      position: 32,
+    });
+
+    // Transition to RETURN state
+    entity.state = {
+      type: "return",
+      progress: 0,
+    };
+    return;
+  }
+
+  // Handle inventory-based delivery for non-belt entities
   const inputInventory = getEntityInputInventory(draft, targetEntity);
   invariant(inputInventory, "Target entity must have an input inventory");
 

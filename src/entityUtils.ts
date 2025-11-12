@@ -143,6 +143,7 @@ const EMPTY_SET: ReadonlySet<ItemType> = new Set();
  * Returns the items that an entity is requesting.
  * For home-storage: accepts all item types (returns all ItemTypes).
  * For stone-furnace: returns requestedItems array.
+ * For belt: accepts all item types.
  * TODO: Implement proper request logic based on entity type and state.
  */
 export function getRequestedItems(
@@ -155,6 +156,8 @@ export function getRequestedItems(
     return ALL_ITEM_TYPES;
   } else if (entity.type === "stone-furnace") {
     return new Set(["iron"]);
+  } else if (entity.type === "belt") {
+    return ALL_ITEM_TYPES;
   }
   return EMPTY_SET;
 }
