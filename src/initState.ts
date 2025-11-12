@@ -44,6 +44,7 @@ export function initializeState(
     chunks: new Map(),
     entities: new Map(),
     nextEntityId: 1,
+    nextBeltItemId: 1,
     action: null,
     tick: 0,
     inventory: {

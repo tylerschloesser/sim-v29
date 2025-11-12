@@ -231,6 +231,7 @@ describe("beltUtils", () => {
 
   describe("canItemMove", () => {
     const createItem = (position: number): BeltItem => ({
+      id: `item-test-${position}`,
       itemType: "iron",
       position,
     });

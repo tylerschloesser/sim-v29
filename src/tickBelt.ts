@@ -1,6 +1,7 @@
 import type { AppState, BeltEntity, BeltItem } from "./types";
 import { computeBeltNetworks, canItemMove, getOutputBelt } from "./beltUtils";
 import { BELT_SPEED, BELT_LENGTH } from "./constants";
+import { getBeltItemId } from "./types";
 
 /**
  * Process one tick for all belts in the world.
@@ -78,6 +79,7 @@ function tickSingleBelt(draft: AppState, belt: BeltEntity, isInCycle: boolean) {
         const transferredBelt = draft.entities.get(outputBelt.id) as BeltEntity;
         if (transferredBelt) {
           transferredBelt.leftLane.push({
+            id: getBeltItemId(draft.nextBeltItemId++),
             itemType: item.itemType,
             position: 0, // Start at position 0 on the new belt
           });

@@ -4,6 +4,7 @@ export const TILE_SIZE = 32; // pixels per tile
 export type ChunkId = string; // format: "x,y" in tile coordinates
 export type TileId = string; // format: "x,y" in global tile coordinates
 export type EntityId = string; // format: "entity-N" where N is sequential number
+export type BeltItemId = string; // format: "item-N" where N is sequential number
 
 export type ResourceType = "coal" | "copper" | "iron" | "stone";
 
@@ -120,6 +121,7 @@ export interface BurnerMiningDrillEntity extends BaseEntity {
 export type BeltTurn = "left" | "right" | "none";
 
 export interface BeltItem {
+  id: BeltItemId;
   itemType: ItemType;
   position: number; // 0-63 (inclusive)
 }
@@ -248,6 +250,7 @@ export interface AppState {
   chunks: Map<ChunkId, Chunk>;
   entities: Map<EntityId, Entity>;
   nextEntityId: number;
+  nextBeltItemId: number;
   action: Action | null;
   tick: number;
   inventory: Inventory;
@@ -281,6 +284,10 @@ export function tileToChunk(tileCoord: number): number {
 
 export function getEntityId(entityNumber: number): EntityId {
   return `entity-${entityNumber}`;
+}
+
+export function getBeltItemId(itemNumber: number): BeltItemId {
+  return `item-${itemNumber}`;
 }
 
 export function createEntity(

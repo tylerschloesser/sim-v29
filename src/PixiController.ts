@@ -7,6 +7,7 @@ export interface PixiController {
     chunkMap: Map<ChunkId, Chunk>,
   ) => void;
   updateEntities: (entities: Map<EntityId, Entity>) => void;
+  updateBeltItems: (entities: Map<EntityId, Entity>) => void;
   updateBuild: (build: Build | null) => void;
   updateProgressBars: (entities: Map<EntityId, Entity>) => void;
 }

@@ -1,4 +1,5 @@
 import { Application, Graphics } from "pixi.js";
+import { BeltItemManager } from "./BeltItemManager";
 import { BuildManager } from "./BuildManager";
 import { ChunkManager } from "./ChunkManager";
 import { EntityManager } from "./EntityManager";
@@ -33,6 +34,9 @@ export async function setupPixi(
   // Create entity manager (renders above chunks, below grid)
   const entityManager = new EntityManager(app, textureManager);
 
+  // Create belt item manager (renders above entities, below build preview)
+  const beltItemManager = new BeltItemManager(app);
+
   // Create build manager (renders above entities, below grid)
   const buildManager = new BuildManager(app, textureManager);
 
@@ -51,11 +55,12 @@ export async function setupPixi(
   circleGraphics.fill({ color: 0x0000ff });
   app.stage.addChild(circleGraphics);
 
-  // Create updateCamera callback with grid, chunkManager, entityManager, buildManager, progressBarManager, and tileHighlight in closure
+  // Create updateCamera callback with grid, chunkManager, entityManager, beltItemManager, buildManager, progressBarManager, and tileHighlight in closure
   const updateCamera = (x: number, y: number) => {
     grid.updatePosition(x, y);
     chunkManager.updatePosition(x, y);
     entityManager.updatePosition(x, y);
+    beltItemManager.updatePosition(x, y);
     buildManager.updatePosition(x, y);
     progressBarManager.updatePosition(x, y);
     tileHighlight.updatePosition(x, y);
@@ -72,6 +77,11 @@ export async function setupPixi(
   // Create updateEntities callback
   const updateEntities = (entities: Map<EntityId, Entity>) => {
     entityManager.updateEntities(entities);
+  };
+
+  // Create updateBeltItems callback
+  const updateBeltItems = (entities: Map<EntityId, Entity>) => {
+    beltItemManager.updateBeltItems(entities);
   };
 
   // Create updateBuild callback
@@ -91,6 +101,7 @@ export async function setupPixi(
     updateCamera,
     updateChunks,
     updateEntities,
+    updateBeltItems,
     updateBuild,
     updateProgressBars,
   };

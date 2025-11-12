@@ -53,6 +53,7 @@ export function createMockAppState(): AppState {
     chunks: new Map<ChunkId, Chunk>(),
     entities: new Map<EntityId, Entity>(),
     nextEntityId: 1,
+    nextBeltItemId: 1,
     action: null,
     tick: 0,
     inventory: {},
