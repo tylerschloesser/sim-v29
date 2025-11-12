@@ -1,7 +1,8 @@
-import type { AppState, BeltEntity, BeltItem } from "./types";
+import type { AppState, BeltEntity, BeltItem, BeltItemId } from "./types";
 import { computeBeltNetworks, canItemMove, getOutputBelt } from "./beltUtils";
 import { BELT_SPEED, BELT_LENGTH } from "./constants";
 import { getBeltItemId } from "./types";
+import invariant from "tiny-invariant";
 
 /**
  * Process one tick for all belts in the world.
@@ -13,18 +14,19 @@ import { getBeltItemId } from "./types";
  */
 export function tickAllBelts(draft: AppState) {
   const networks = computeBeltNetworks(draft);
+  const processedItems = new Set<BeltItemId>();
 
   // Process terminal networks (belts in correct order)
   for (const network of networks.terminalNetworks) {
     for (const belt of network.belts) {
-      tickSingleBelt(draft, belt, false);
+      tickSingleBelt(draft, belt, false, processedItems);
     }
   }
 
   // Process cycle networks (all items can move)
   for (const network of networks.cycleNetworks) {
     for (const belt of network.belts) {
-      tickSingleBelt(draft, belt, true);
+      tickSingleBelt(draft, belt, true, processedItems);
     }
   }
 }
@@ -36,8 +38,14 @@ export function tickAllBelts(draft: AppState) {
  * @param draft The draft state
  * @param belt The belt to tick
  * @param isInCycle Whether this belt is part of a cycle (items always move)
+ * @param processedItems Set of item IDs that have already been processed this tick
  */
-function tickSingleBelt(draft: AppState, belt: BeltEntity, isInCycle: boolean) {
+function tickSingleBelt(
+  draft: AppState,
+  belt: BeltEntity,
+  isInCycle: boolean,
+  processedItems: Set<BeltItemId>,
+) {
   // Get the actual belt entity from draft (to ensure we have the latest state)
   const currentBelt = draft.entities.get(belt.id) as BeltEntity;
   if (!currentBelt || currentBelt.type !== "belt") {
@@ -48,21 +56,35 @@ function tickSingleBelt(draft: AppState, belt: BeltEntity, isInCycle: boolean) {
 
   // Process left lane (we only use left lane for now)
   const lane = currentBelt.leftLane;
+
+  // Invariant: belt items are sorted by position (ascending)
+  invariant(
+    lane.every((item, i) => i === 0 || item.position >= lane[i - 1].position),
+    "Belt items must be sorted by position",
+  );
+
   const itemsToMove: Array<{ item: BeltItem; index: number }> = [];
 
-  // Check which items can move
-  for (let i = 0; i < lane.length; i++) {
+  // Check which items can move (iterate backwards so furthest items move first)
+  for (let i = lane.length - 1; i >= 0; i--) {
     const item = lane[i];
+
+    // Skip items that have already been processed this tick (prevents double-processing in loops)
+    if (processedItems.has(item.id)) {
+      continue;
+    }
 
     if (isInCycle) {
       // In a cycle, all items can move
       itemsToMove.push({ item, index: i });
+      processedItems.add(item.id);
     } else {
       // Check if item can move forward
       if (
         canItemMove(currentBelt, lane, item.position, BELT_SPEED, outputBelt)
       ) {
         itemsToMove.push({ item, index: i });
+        processedItems.add(item.id);
       }
     }
   }
