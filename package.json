@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "tsc -b --noEmit && eslint --cache --fix . && prettier --cache --write --log-level warn .",
+    "check:ci": "tsc -b --noEmit && eslint --cache . && prettier --cache --check --log-level warn .",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
