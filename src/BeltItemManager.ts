@@ -69,10 +69,11 @@ export class BeltItemManager {
   }
 
   private renderItem(id: BeltItemId, item: BeltItem, belt: BeltEntity) {
-    // Create a simple colored circle for the item
+    // Create a simple colored square for the item with black border
     const graphic = new Graphics();
-    graphic.circle(0, 0, 4); // 4px radius circle
+    graphic.rect(-4, -4, 8, 8); // 8x8 square centered at (0, 0)
     graphic.fill({ color: this.getItemColor(item.itemType), alpha: 1 });
+    graphic.stroke({ color: 0x000000, width: 1 }); // Black 1px border
 
     // Calculate and set position
     this.updateItemPosition(graphic, item, belt);
