@@ -36,7 +36,7 @@ export class BeltItemManager {
 
     for (const entity of entities.values()) {
       if (entity.type === "belt") {
-        // Process left lane (currently only lane in use)
+        // Process left lane
         for (const item of entity.leftLane) {
           currentItems.set(item.id, { item, belt: entity });
         }
@@ -98,24 +98,25 @@ export class BeltItemManager {
     const offset = progress * TILE_SIZE; // 0 to 32 pixels
 
     // Calculate final position based on belt rotation
+    // Left lane items are positioned on the left side (relative to direction of travel)
     let itemX: number;
     let itemY: number;
 
     switch (belt.rotation) {
-      case 0: // Facing right
+      case 0: // Facing right - left lane is on top (north side)
         itemX = beltPixelX + offset;
-        itemY = beltPixelY + TILE_SIZE / 2; // Center vertically
+        itemY = beltPixelY + TILE_SIZE / 4; // Top quarter
         break;
-      case 90: // Facing down
-        itemX = beltPixelX + TILE_SIZE / 2; // Center horizontally
+      case 90: // Facing down - left lane is on right (east side)
+        itemX = beltPixelX + (TILE_SIZE * 3) / 4; // Right quarter
         itemY = beltPixelY + offset;
         break;
-      case 180: // Facing left
+      case 180: // Facing left - left lane is on bottom (south side)
         itemX = beltPixelX + TILE_SIZE - offset; // Reverse direction
-        itemY = beltPixelY + TILE_SIZE / 2; // Center vertically
+        itemY = beltPixelY + (TILE_SIZE * 3) / 4; // Bottom quarter
         break;
-      case 270: // Facing up
-        itemX = beltPixelX + TILE_SIZE / 2; // Center horizontally
+      case 270: // Facing up - left lane is on left (west side)
+        itemX = beltPixelX + TILE_SIZE / 4; // Left quarter
         itemY = beltPixelY + TILE_SIZE - offset; // Reverse direction
         break;
       default:
