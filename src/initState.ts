@@ -1,10 +1,11 @@
+import invariant from "tiny-invariant";
 import {
   addResourceToTile,
   generateChunk,
   getVisibleChunks,
 } from "./chunkUtils.ts";
 import { placeEntity } from "./entityUtils.ts";
-import type { AppState, ChunkId, ResourceType } from "./types.ts";
+import type { AppState, ChunkId, Entity, ResourceType } from "./types.ts";
 import { CHUNK_SIZE, createEntity, getChunkId, getEntityId } from "./types.ts";
 
 export interface InitializedState {
@@ -30,6 +31,10 @@ const INITIAL_RESOURCES: Record<
   iron: [{ x: 3, y: 2 }],
   stone: [{ x: 1, y: -3 }],
 };
+
+const INITIAL_ENTITIES: Array<Entity> = [
+  createEntity("", "home-storage", -1, -1),
+];
 
 /**
  * Initialize the app state with camera position and visible chunks
@@ -97,10 +102,15 @@ export function initializeState(
     }
   }
 
-  // Add initial home-storage entity at (-1, -1)
-  const homeStorageId = getEntityId(state.nextEntityId++);
-  const homeStorageEntity = createEntity(homeStorageId, "home-storage", -1, -1);
-  placeEntity(state, homeStorageEntity);
+  for (const entity of INITIAL_ENTITIES) {
+    invariant(
+      entity.id === "",
+      "Initial entities should not have predefined IDs",
+    );
+    const entityId = getEntityId(state.nextEntityId++);
+    const entityWithId = { ...entity, id: entityId };
+    placeEntity(state, entityWithId);
+  }
 
   return { state, visibleChunkIds };
 }
