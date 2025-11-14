@@ -62,11 +62,12 @@ export function initializeState(
 
   // Generate initial 4x4 grid of chunks from -2,-2 to 1,1 (chunk coordinates)
   // This ensures a predictable starting area is always loaded
+  const chunkIdsToGenerate = new Set<ChunkId>();
   for (let cy = -2; cy <= 1; cy++) {
     for (let cx = -2; cx <= 1; cx++) {
       // Convert chunk coordinates to chunk IDs (multiply by CHUNK_SIZE)
       const chunkId = getChunkId(cx * CHUNK_SIZE, cy * CHUNK_SIZE);
-      state.chunks.set(chunkId, generateChunk(chunkId));
+      chunkIdsToGenerate.add(chunkId);
     }
   }
 
@@ -79,9 +80,11 @@ export function initializeState(
   );
 
   for (const chunkId of visibleChunkIds) {
-    if (!state.chunks.has(chunkId)) {
-      state.chunks.set(chunkId, generateChunk(chunkId));
-    }
+    chunkIdsToGenerate.add(chunkId);
+  }
+
+  for (const chunkId of chunkIdsToGenerate) {
+    state.chunks.set(chunkId, generateChunk(chunkId));
   }
 
   // Add resources to specific tiles (after all chunks are generated)
