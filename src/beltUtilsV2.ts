@@ -1,4 +1,4 @@
-import type { AppState, BeltEntity, EntityId } from "./types";
+import type { AppState, BeltEntity, EntityId, Rotation } from "./types";
 
 export interface LaneNode {
   type: "belt-left-lane" | "belt-right-lane";
@@ -28,10 +28,12 @@ export function computeBeltNetworks(state: AppState) {
 }
 
 export function getLeftLaneOutputs(
-  _state: AppState,
-  _belt: BeltEntity,
+  state: AppState,
+  belt: BeltEntity,
 ): LaneNode[] {
-  // let outputRotation: Rotation = belt.rotation;
-
+  const outputRotation: Rotation = belt.rotation;
+  void state;
+  void belt;
+  void outputRotation;
   return [];
 }

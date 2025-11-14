@@ -1,6 +1,13 @@
-import type { AppState, BeltEntity, BeltItem, ChunkId } from "./types";
-import { CHUNK_SIZE, getChunkId, tileToChunk } from "./types";
 import { BELT_ITEM_SPACING, BELT_LENGTH } from "./constants";
+import { getTileAtCoords } from "./tileUtils";
+import type {
+  AppState,
+  BeltEntity,
+  BeltItem,
+  ChunkId,
+  TestBeltOutputEntity,
+} from "./types";
+import { CHUNK_SIZE, getChunkId, tileToChunk } from "./types";
 
 export interface AdjacentTile {
   tile: { x: number; y: number };
@@ -156,12 +163,20 @@ export function getInputBelt(
 /**
  * Gets the belt entity at the output tile, or null if none exists.
  */
-export function getOutputBelt(
+export function getBeltOutputEntity(
   belt: BeltEntity,
   state: AppState,
-): BeltEntity | null {
-  const outputTile = getOutputTile(belt);
-  return getBeltAtTile(outputTile, state);
+): BeltEntity | TestBeltOutputEntity | null {
+  const { x: tileX, y: tileY } = getOutputTile(belt);
+  const tile = getTileAtCoords(state, tileX, tileY);
+  const entity = tile?.entityId ? state.entities.get(tile.entityId) : null;
+  if (!entity) {
+    return null;
+  }
+  if (entity.type === "belt" || entity.type === "test-belt-output") {
+    return entity;
+  }
+  return null;
 }
 
 /**
@@ -180,20 +195,24 @@ export function canItemMove(
   lane: BeltItem[],
   fromPosition: number,
   distance: number,
-  outputBelt: BeltEntity | null,
+  outputEntity: BeltEntity | TestBeltOutputEntity | null,
 ): boolean {
   const newPosition = fromPosition + distance;
 
   // Check if item would transfer to next belt
   if (newPosition >= BELT_LENGTH) {
     // If there's no output belt, item cannot move past end
-    if (!outputBelt) {
+    if (!outputEntity) {
       return false;
+    }
+
+    if (outputEntity.type === "test-belt-output") {
+      return true;
     }
 
     // Check if output belt's left lane has space at position 0
     // (We only use left lane for now)
-    const outputLane = outputBelt.leftLane;
+    const outputLane = outputEntity.leftLane;
     const blockingItem = outputLane.find(
       (item) => item.position < BELT_ITEM_SPACING + distance,
     );
@@ -301,8 +320,8 @@ function findBeltNetwork(
       collectBelts(inputBelt);
     }
 
-    const outputBelt = getOutputBelt(belt, state);
-    if (outputBelt) {
+    const outputBelt = getBeltOutputEntity(belt, state);
+    if (outputBelt?.type === "belt") {
       collectBelts(outputBelt);
     }
   }
@@ -333,8 +352,8 @@ function detectCycle(belts: BeltEntity[], state: AppState): boolean {
     visited.add(belt.id);
     recStack.add(belt.id);
 
-    const outputBelt = getOutputBelt(belt, state);
-    if (outputBelt && beltIds.has(outputBelt.id)) {
+    const outputBelt = getBeltOutputEntity(belt, state);
+    if (outputBelt?.type === "belt" && beltIds.has(outputBelt.id)) {
       if (recStack.has(outputBelt.id)) {
         return true; // Found a cycle
       }
@@ -368,7 +387,7 @@ function topologicalSort(belts: BeltEntity[], state: AppState): BeltEntity[] {
   const beltIds = new Set(belts.map((b) => b.id));
 
   const terminalBelt = belts.find((belt) => {
-    const outputBelt = getOutputBelt(belt, state);
+    const outputBelt = getBeltOutputEntity(belt, state);
     return !outputBelt || !beltIds.has(outputBelt.id);
   });
 

@@ -1,21 +1,15 @@
-import type {
-  AppState,
-  BeltEntity,
-  BeltItem,
-  BeltItemId,
-  TestBeltOutputEntity,
-} from "./types";
+import invariant from "tiny-invariant";
 import {
-  computeBeltNetworks,
   canItemMove,
-  getOutputBelt,
+  computeBeltNetworks,
+  getBeltOutputEntity,
   getOutputTile,
 } from "./beltUtils";
-import { BELT_SPEED, BELT_LENGTH } from "./constants";
-import { getBeltItemId } from "./types";
+import { BELT_LENGTH, BELT_SPEED } from "./constants";
 import { getEntityAtTile } from "./entityUtils";
 import { incrementInventory } from "./inventoryUtils";
-import invariant from "tiny-invariant";
+import type { AppState, BeltEntity, BeltItem, BeltItemId } from "./types";
+import { getBeltItemId } from "./types";
 
 /**
  * Process one tick for all belts in the world.
@@ -65,7 +59,7 @@ function tickSingleBelt(
     return;
   }
 
-  const outputBelt = getOutputBelt(currentBelt, draft);
+  const outputBelt = getBeltOutputEntity(currentBelt, draft);
 
   // Process left lane (we only use left lane for now)
   const lane = currentBelt.leftLane;
@@ -132,14 +126,13 @@ function tickSingleBelt(
         outputEntity.rotation === effectiveOutputRotation
       ) {
         // Transfer item to test-belt-output inventory
-        const testBeltOutput = outputEntity as TestBeltOutputEntity;
-        incrementInventory(testBeltOutput.inventory, item.itemType);
+        incrementInventory(outputEntity.inventory, item.itemType);
         lane.splice(index, 1);
       } else if (outputBelt) {
         // Transfer item to output belt
         const transferredBelt = draft.entities.get(outputBelt.id) as BeltEntity;
         if (transferredBelt) {
-          transferredBelt.leftLane.push({
+          transferredBelt.leftLane.unshift({
             id: getBeltItemId(draft.nextBeltItemId++),
             itemType: item.itemType,
             position: 0, // Start at position 0 on the new belt

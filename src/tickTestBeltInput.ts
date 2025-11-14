@@ -48,11 +48,7 @@ export function tickAllTestBeltInputs(
 
     // Find the output entity
     const outputTile = getOutputTile(testBeltInput);
-    const outputEntity = getEntityAtTile(
-      draft,
-      outputTile.x,
-      outputTile.y,
-    );
+    const outputEntity = getEntityAtTile(draft, outputTile.x, outputTile.y);
 
     // Check if output is a belt with same rotation
     if (!outputEntity || outputEntity.type !== "belt") continue;
@@ -70,7 +66,7 @@ export function tickAllTestBeltInputs(
     }
 
     // Add iron item to belt at position 0
-    lane.push({
+    lane.unshift({
       id: getBeltItemId(draft.nextBeltItemId++),
       itemType: "iron",
       position: 0,
