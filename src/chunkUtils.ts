@@ -78,7 +78,7 @@ export function addResourceToTile(
   const chunkId = getChunkId(chunkX, chunkY);
 
   // Get or create the chunk
-  let chunk = chunks.get(chunkId);
+  const chunk = chunks.get(chunkId);
   invariant(chunk !== undefined, "Chunk should exist when adding resources");
 
   // Calculate tile position within chunk

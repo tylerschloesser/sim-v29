@@ -1,15 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { getRotatedSize, getTilesForEntity } from "./entityUtils";
 import type { PixiController } from "./PixiController";
+import { getTileAtCoords } from "./tileUtils";
 import type { AppState, BeltTurn, Build, EntityType } from "./types";
-import {
-  CHUNK_SIZE,
-  createEntity,
-  ENTITY_CONFIGS,
-  getChunkId,
-  TILE_SIZE,
-  tileToChunk,
-} from "./types";
+import { createEntity, ENTITY_CONFIGS, TILE_SIZE } from "./types";
 
 /**
  * Hook that manages the build preview based on camera position and selected entity type.
@@ -46,32 +40,13 @@ export function useBuildPreview(
     );
 
     // Check validity: entity is valid if all tiles it covers don't have an entityId
-    const entityTiles = getTilesForEntity(entity);
-    const valid = entityTiles.every((tile) => {
-      // Convert tile coordinates to chunk coordinates
-      const chunkX = tileToChunk(tile.x);
-      const chunkY = tileToChunk(tile.y);
-      const chunkId = getChunkId(chunkX, chunkY);
-
-      // Get the chunk
-      const chunk = state.chunks.get(chunkId);
-      if (!chunk) {
-        // If chunk doesn't exist yet, tile is valid
-        return true;
-      }
-
-      // Get tile index within chunk (0-1023 for 32x32 chunk)
-      const localTileX = tile.x - chunkX;
-      const localTileY = tile.y - chunkY;
-      const tileIndex = localTileY * CHUNK_SIZE + localTileX;
-
-      // Check if tile already has an entity
-      const tileData = chunk.tiles[tileIndex];
-      return !tileData.entityId;
-    });
+    const entityTiles = getTilesForEntity(entity).map(({ x, y }) =>
+      getTileAtCoords(state, x, y),
+    );
+    const valid = entityTiles.every((tile) => !tile?.entityId);
 
     return { entity, valid };
-  }, [state.camera, state.chunks, selectedEntityType, rotation, turn]);
+  }, [state, selectedEntityType, rotation, turn]);
 
   useEffect(() => {
     pixiController.updateBuild(build);

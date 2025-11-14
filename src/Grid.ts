@@ -1,4 +1,5 @@
 import { Application, Graphics, Color } from "pixi.js";
+import { mod } from "./math";
 
 export class Grid {
   private static readonly TILE_SIZE = 32;
@@ -43,12 +44,8 @@ export class Grid {
     const centerY = this.app.screen.height / 2;
 
     this.graphics.position.x =
-      this.mod(centerX - x, Grid.TILE_SIZE) - Grid.TILE_SIZE;
+      mod(centerX - x, Grid.TILE_SIZE) - Grid.TILE_SIZE;
     this.graphics.position.y =
-      this.mod(centerY - y, Grid.TILE_SIZE) - Grid.TILE_SIZE;
-  }
-
-  private mod(n: number, m: number): number {
-    return ((n % m) + m) % m;
+      mod(centerY - y, Grid.TILE_SIZE) - Grid.TILE_SIZE;
   }
 }

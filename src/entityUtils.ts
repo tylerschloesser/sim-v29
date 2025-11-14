@@ -1,3 +1,5 @@
+import invariant from "tiny-invariant";
+import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
   BurnerInserterEntity,
@@ -178,4 +180,19 @@ export function getAvailableItems(
     return new Set(Object.keys(entity.outputInventory) as ItemType[]);
   }
   return EMPTY_SET;
+}
+
+export function placeEntity(state: AppState, entity: Entity): void {
+  invariant(
+    !state.entities.has(entity.id),
+    "Entity with this ID already exists",
+  );
+  state.entities.set(entity.id, entity);
+
+  // Update tiles occupied by the entity to reference it
+  for (const { x, y } of getTilesForEntity(entity)) {
+    const tile = getTileAtCoords(state, x, y);
+    invariant(tile, "Tile should exist when setting tile entityId");
+    tile.entityId = entity.id;
+  }
 }
