@@ -18,7 +18,9 @@ export type EntityType =
   | "home-storage"
   | "burner-inserter"
   | "burner-mining-drill"
-  | "belt";
+  | "belt"
+  | "test-belt-input"
+  | "test-belt-output";
 
 export type ItemType = ResourceType | EntityType | "iron-plate";
 
@@ -28,6 +30,8 @@ export const ENTITY_TYPES = [
   "burner-inserter",
   "burner-mining-drill",
   "belt",
+  "test-belt-input",
+  "test-belt-output",
 ] as const satisfies readonly EntityType[];
 
 // Compile-time check that ensures all EntityType values are included
@@ -55,6 +59,8 @@ const ITEM_TYPES_ARRAY = [
   "burner-inserter",
   "burner-mining-drill",
   "belt",
+  "test-belt-input",
+  "test-belt-output",
   "iron-plate",
 ] as const satisfies readonly ItemType[];
 
@@ -133,12 +139,22 @@ export interface BeltEntity extends BaseEntity {
   rightLane: BeltItem[];
 }
 
+export interface TestBeltInputEntity extends BaseEntity {
+  type: "test-belt-input";
+}
+
+export interface TestBeltOutputEntity extends BaseEntity {
+  type: "test-belt-output";
+}
+
 export type Entity =
   | StoneFurnaceEntity
   | HomeStorageEntity
   | BurnerInserterEntity
   | BurnerMiningDrillEntity
-  | BeltEntity;
+  | BeltEntity
+  | TestBeltInputEntity
+  | TestBeltOutputEntity;
 
 export function getEntityInputInventory(
   state: AppState,
@@ -208,6 +224,16 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   belt: {
     size: { x: 1, y: 1 },
     color: 0xffff00, // yellow
+    rotatable: true,
+  },
+  "test-belt-input": {
+    size: { x: 1, y: 1 },
+    color: 0x44ff44, // green
+    rotatable: true,
+  },
+  "test-belt-output": {
+    size: { x: 1, y: 1 },
+    color: 0xff44ff, // magenta
     rotatable: true,
   },
 };
@@ -342,6 +368,22 @@ export function createEntity(
       turn,
       leftLane: [],
       rightLane: [],
+    };
+  } else if (type === "test-belt-input") {
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
+    };
+  } else if (type === "test-belt-output") {
+    return {
+      id,
+      type,
+      position,
+      size,
+      rotation,
     };
   } else {
     // home-storage

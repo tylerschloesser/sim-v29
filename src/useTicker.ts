@@ -6,6 +6,8 @@ import { tickAllBelts } from "./tickBelt";
 import { tickBurnerInserter } from "./tickBurnerInserter";
 import { tickBurnerMiningDrill } from "./tickBurnerMiningDrill";
 import { tickStoneFurnace } from "./tickStoneFurnace";
+import { tickTestBeltInput } from "./tickTestBeltInput";
+import { tickTestBeltOutput } from "./tickTestBeltOutput";
 import { TICK_INTERVAL } from "./constants";
 
 /**
@@ -55,6 +57,12 @@ export function useTicker(updateState: Updater<AppState>) {
                 break;
               case "belt":
                 // Belt ticking is handled by tickAllBelts() above
+                break;
+              case "test-belt-input":
+                tickTestBeltInput(draft, entity);
+                break;
+              case "test-belt-output":
+                tickTestBeltOutput(draft, entity);
                 break;
               case "home-storage":
                 // No tick logic for home-storage

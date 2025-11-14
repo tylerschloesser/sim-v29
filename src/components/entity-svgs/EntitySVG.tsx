@@ -4,6 +4,8 @@ import { BurnerInserterSVG } from "./BurnerInserterSVG";
 import { BurnerMiningDrillSVG } from "./BurnerMiningDrillSVG";
 import { HomeStorageSVG } from "./HomeStorageSVG";
 import { StoneFurnaceSVG } from "./StoneFurnaceSVG";
+import { TestBeltInputSVG } from "./TestBeltInputSVG";
+import { TestBeltOutputSVG } from "./TestBeltOutputSVG";
 
 export interface EntitySVGProps {
   entityType: EntityType;
@@ -27,6 +29,10 @@ export function EntitySVG({ entityType }: EntitySVGProps) {
       return <BurnerMiningDrillSVG config={config} />;
     case "belt":
       return <BeltSVG config={config} />;
+    case "test-belt-input":
+      return <TestBeltInputSVG config={config} />;
+    case "test-belt-output":
+      return <TestBeltOutputSVG config={config} />;
     default: {
       // TypeScript exhaustiveness check
       const _exhaustive: never = entityType;
