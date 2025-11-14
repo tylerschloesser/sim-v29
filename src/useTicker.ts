@@ -6,7 +6,7 @@ import { tickAllBelts } from "./tickBelt";
 import { tickBurnerInserter } from "./tickBurnerInserter";
 import { tickBurnerMiningDrill } from "./tickBurnerMiningDrill";
 import { tickStoneFurnace } from "./tickStoneFurnace";
-import { tickTestBeltInput } from "./tickTestBeltInput";
+import { tickAllTestBeltInputs } from "./tickTestBeltInput";
 import { tickTestBeltOutput } from "./tickTestBeltOutput";
 import { TICK_INTERVAL } from "./constants";
 
@@ -43,6 +43,9 @@ export function useTicker(updateState: Updater<AppState>) {
           // Process all belts (once per tick)
           tickAllBelts(draft);
 
+          // Process all test-belt-inputs (once per tick)
+          tickAllTestBeltInputs(draft, draft.tick);
+
           // Process other entities
           for (const entity of draft.entities.values()) {
             switch (entity.type) {
@@ -59,7 +62,7 @@ export function useTicker(updateState: Updater<AppState>) {
                 // Belt ticking is handled by tickAllBelts() above
                 break;
               case "test-belt-input":
-                tickTestBeltInput(draft, entity);
+                // Test-belt-input ticking is handled by tickAllTestBeltInputs() above
                 break;
               case "test-belt-output":
                 tickTestBeltOutput(draft, entity);

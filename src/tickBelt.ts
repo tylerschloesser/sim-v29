@@ -1,7 +1,20 @@
-import type { AppState, BeltEntity, BeltItem, BeltItemId } from "./types";
-import { computeBeltNetworks, canItemMove, getOutputBelt } from "./beltUtils";
+import type {
+  AppState,
+  BeltEntity,
+  BeltItem,
+  BeltItemId,
+  TestBeltOutputEntity,
+} from "./types";
+import {
+  computeBeltNetworks,
+  canItemMove,
+  getOutputBelt,
+  getOutputTile,
+} from "./beltUtils";
 import { BELT_SPEED, BELT_LENGTH } from "./constants";
 import { getBeltItemId } from "./types";
+import { getEntityAtTile } from "./entityUtils";
+import { incrementInventory } from "./inventoryUtils";
 import invariant from "tiny-invariant";
 
 /**
@@ -94,9 +107,35 @@ function tickSingleBelt(
     const { item, index } = itemsToMove[i];
     const newPosition = item.position + BELT_SPEED;
 
-    // Check if item should transfer to next belt
+    // Check if item should transfer to next entity
     if (newPosition >= BELT_LENGTH) {
-      if (outputBelt) {
+      // Calculate effective output rotation (respects turn)
+      const { rotation, turn } = currentBelt;
+      let effectiveOutputRotation = rotation;
+      if (turn === "left") {
+        effectiveOutputRotation = ((rotation - 90 + 360) % 360) as
+          | 0
+          | 90
+          | 180
+          | 270;
+      } else if (turn === "right") {
+        effectiveOutputRotation = ((rotation + 90) % 360) as 0 | 90 | 180 | 270;
+      }
+
+      // Check for test-belt-output at output tile
+      const outputTile = getOutputTile(currentBelt);
+      const outputEntity = getEntityAtTile(draft, outputTile.x, outputTile.y);
+
+      if (
+        outputEntity &&
+        outputEntity.type === "test-belt-output" &&
+        outputEntity.rotation === effectiveOutputRotation
+      ) {
+        // Transfer item to test-belt-output inventory
+        const testBeltOutput = outputEntity as TestBeltOutputEntity;
+        incrementInventory(testBeltOutput.inventory, item.itemType);
+        lane.splice(index, 1);
+      } else if (outputBelt) {
         // Transfer item to output belt
         const transferredBelt = draft.entities.get(outputBelt.id) as BeltEntity;
         if (transferredBelt) {
@@ -106,9 +145,12 @@ function tickSingleBelt(
             position: 0, // Start at position 0 on the new belt
           });
         }
+        // Remove item from current belt
+        lane.splice(index, 1);
+      } else {
+        // No output entity, item is lost
+        lane.splice(index, 1);
       }
-      // Remove item from current belt (either transferred or reached end with no output)
-      lane.splice(index, 1);
     } else {
       // Update item position
       lane[index].position = newPosition;

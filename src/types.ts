@@ -79,11 +79,13 @@ export function isItemType(value: unknown): value is ItemType {
   return typeof value === "string" && ALL_ITEM_TYPES.has(value as ItemType);
 }
 
+export type Rotation = 0 | 90 | 180 | 270;
+
 export interface BaseEntity {
   id: EntityId;
   position: { x: number; y: number }; // top-left tile coordinates
   size: { x: number; y: number }; // size in tiles
-  rotation: 0 | 90 | 180 | 270; // rotation in degrees (clockwise)
+  rotation: Rotation; // rotation in degrees (clockwise)
 }
 
 export type Inventory = Partial<Record<ItemType, number>>;
@@ -141,10 +143,12 @@ export interface BeltEntity extends BaseEntity {
 
 export interface TestBeltInputEntity extends BaseEntity {
   type: "test-belt-input";
+  nextOutputTick: number;
 }
 
 export interface TestBeltOutputEntity extends BaseEntity {
   type: "test-belt-output";
+  inventory: Inventory;
 }
 
 export type Entity =
@@ -376,6 +380,7 @@ export function createEntity(
       position,
       size,
       rotation,
+      nextOutputTick: 0,
     };
   } else if (type === "test-belt-output") {
     return {
@@ -384,6 +389,7 @@ export function createEntity(
       position,
       size,
       rotation,
+      inventory: {},
     };
   } else {
     // home-storage
