@@ -9,6 +9,7 @@ import {
   worldToTile,
 } from "./types";
 import { WORLD_SEED } from "./constants";
+import invariant from "tiny-invariant";
 
 // Shared noise instance for consistent terrain across all chunks
 const rng = new Prando(WORLD_SEED);
@@ -78,10 +79,7 @@ export function addResourceToTile(
 
   // Get or create the chunk
   let chunk = chunks.get(chunkId);
-  if (!chunk) {
-    chunk = generateChunk(chunkId);
-    chunks.set(chunkId, chunk);
-  }
+  invariant(chunk !== undefined, "Chunk should exist when adding resources");
 
   // Calculate tile position within chunk
   const tileXInChunk = worldTileX - chunkX;
