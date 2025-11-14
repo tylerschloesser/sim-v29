@@ -34,6 +34,9 @@ const INITIAL_RESOURCES: Record<
 
 const INITIAL_ENTITIES: Array<Entity> = [
   createEntity("", "home-storage", -1, -1),
+  createEntity("", "test-belt-input", -1, 2),
+  createEntity("", "belt", 0, 2, 0, "none"),
+  createEntity("", "test-belt-output", 1, 2),
 ];
 
 /**
