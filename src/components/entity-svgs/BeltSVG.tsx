@@ -1,4 +1,6 @@
+import { faRight, faTurnUp } from "@fortawesome/pro-solid-svg-icons";
 import { TILE_SIZE, type BeltTurn, type EntityConfig } from "../../types";
+import { FAIconSVG } from "../../utils/faIconUtils";
 
 interface BeltSVGProps {
   config: EntityConfig;
@@ -16,30 +18,10 @@ export function BeltSVG({ config, turn = "none" }: BeltSVGProps) {
       <rect width={width} height={height} fill={`#${colorHex}`} />
 
       <g transform={`translate(${width / 2}, ${height / 2})`}>
-        {turn === "none" && (
-          <>
-            {/* Straight arrow pointing right */}
-            <rect x="-8" y="-1.5" width="10" height="3" fill="#000000" />
-            <path d="M 2,-4 L 8,0 L 2,4 Z" fill="#000000" />
-          </>
-        )}
+        {turn === "none" && <FAIconSVG icon={faRight} size={12} fill="black" />}
 
         {turn === "left" && (
-          <>
-            {/* Curved arrow turning left (right to up) */}
-            {/* Horizontal line from left */}
-            <rect x="-8" y="-1.5" width="6" height="3" fill="#000000" />
-            {/* Curved path turning up */}
-            <path
-              d="M -2,-1.5 Q 4,-1.5 4,-8"
-              stroke="#000000"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-            />
-            {/* Arrow head pointing up */}
-            <path d="M 0,-8 L 4,-14 L 8,-8 Z" fill="#000000" />
-          </>
+          <FAIconSVG icon={faTurnUp} size={12} fill="black" />
         )}
 
         {turn === "right" && (
