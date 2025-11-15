@@ -34,7 +34,9 @@ const INITIAL_RESOURCES: Record<
 
 const INITIAL_ENTITIES: Array<Entity> = [
   createEntity("", "home-storage", -1, -1),
-  createEntity("", "test-belt-input", -1, 2),
+  createEntity("", "test-belt-input", -3, 2),
+  createEntity("", "belt", -2, 2, 0, "none"),
+  createEntity("", "belt", -1, 2, 0, "none"),
   createEntity("", "belt", 0, 2, 0, "none"),
   createEntity("", "test-belt-output", 1, 2),
 ];
@@ -56,15 +58,12 @@ export function initializeState(
     action: null,
     tick: 0,
     inventory: {
-      coal: 0,
-      copper: 0,
-      iron: 0,
-      stone: 0,
-      "home-storage": 0,
       "stone-furnace": 1,
       "burner-inserter": 2,
       "burner-mining-drill": 2,
       belt: 20,
+      "test-belt-input": 10,
+      "test-belt-output": 10,
     },
   };
 
