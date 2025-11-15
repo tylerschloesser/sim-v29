@@ -1,3 +1,14 @@
+import {
+  faBoreHole,
+  faConveyorBelt,
+  faFireBurner,
+  faHouse,
+  faRightFromBracket,
+  faRightFromLine,
+  faRightToBracket,
+  type IconDefinition,
+} from "@fortawesome/pro-solid-svg-icons";
+
 export const CHUNK_SIZE = 32; // tiles per chunk
 export const TILE_SIZE = 32; // pixels per tile
 
@@ -202,6 +213,7 @@ export interface EntityConfig {
   size: { x: number; y: number };
   color: string; // HSL format: "hsl(h, s%, l%)"
   rotatable: boolean;
+  icon: IconDefinition;
 }
 
 export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
@@ -209,36 +221,43 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     size: { x: 2, y: 2 },
     color: "hsl(0, 100%, 63%)", // red
     rotatable: false,
+    icon: faFireBurner,
   },
   "home-storage": {
     size: { x: 2, y: 2 },
     color: "hsl(240, 100%, 63%)", // blue
     rotatable: false,
+    icon: faHouse,
   },
   "burner-inserter": {
     size: { x: 1, y: 1 },
     color: "hsl(27, 100%, 70%)", // light orange
     rotatable: true,
+    icon: faRightFromLine,
   },
   "burner-mining-drill": {
     size: { x: 2, y: 2 },
     color: "hsl(40, 100%, 50%)", // yellow-orange
     rotatable: false,
+    icon: faBoreHole,
   },
   belt: {
     size: { x: 1, y: 1 },
     color: "hsl(60, 100%, 50%)", // yellow
     rotatable: true,
+    icon: faConveyorBelt,
   },
   "test-belt-input": {
     size: { x: 1, y: 1 },
     color: "hsl(120, 100%, 63%)", // green
     rotatable: true,
+    icon: faRightFromBracket,
   },
   "test-belt-output": {
     size: { x: 1, y: 1 },
     color: "hsl(300, 100%, 63%)", // magenta
     rotatable: true,
+    icon: faRightToBracket,
   },
 };
 

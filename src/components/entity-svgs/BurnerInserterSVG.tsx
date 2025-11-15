@@ -1,7 +1,6 @@
-import { faRightFromLine } from "@fortawesome/pro-solid-svg-icons";
+import { hslToHex } from "../../colorUtils";
 import { TILE_SIZE, type EntityConfig } from "../../types";
 import { FAIconSVG } from "../../utils/faIconUtils";
-import { hslToHex } from "../../colorUtils";
 
 interface BurnerInserterSVGProps {
   config: EntityConfig;
@@ -19,7 +18,7 @@ export function BurnerInserterSVG({ config }: BurnerInserterSVGProps) {
 
       {/* Right arrow */}
       <g transform={`translate(${width / 2}, ${height / 2})`}>
-        <FAIconSVG icon={faRightFromLine} size={12} fill="black" />
+        <FAIconSVG icon={config.icon} size={12} fill="black" />
       </g>
     </svg>
   );

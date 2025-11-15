@@ -1,7 +1,6 @@
-import { faRightToBracket } from "@fortawesome/pro-solid-svg-icons";
+import { hslToHex } from "../../colorUtils";
 import { TILE_SIZE, type EntityConfig } from "../../types";
 import { FAIconSVG } from "../../utils/faIconUtils";
-import { hslToHex } from "../../colorUtils";
 
 interface TestBeltOutputSVGProps {
   config: EntityConfig;
@@ -18,7 +17,7 @@ export function TestBeltOutputSVG({ config }: TestBeltOutputSVGProps) {
       <rect width={width} height={height} fill={colorHex} />
 
       <g transform={`translate(${width / 2}, ${height / 2})`}>
-        <FAIconSVG icon={faRightToBracket} size={12} fill="black" />
+        <FAIconSVG icon={config.icon} size={12} fill="black" />
       </g>
     </svg>
   );
