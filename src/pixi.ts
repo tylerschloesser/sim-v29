@@ -24,6 +24,7 @@ export async function setupPixi(
     backgroundColor: 0x000000,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
+    antialias: true,
   });
 
   // Initialize TextureManager after PixiJS is initialized
@@ -34,17 +35,17 @@ export async function setupPixi(
   // Create entity manager (renders above chunks, below grid)
   const entityManager = new EntityManager(app, textureManager);
 
-  // Create belt item manager (renders above entities, below build preview)
-  const beltItemManager = new BeltItemManager(app);
-
-  // Create build manager (renders above entities, below grid)
-  const buildManager = new BuildManager(app, textureManager);
-
-  // Create progress bar manager (renders above entities, below grid)
-  const progressBarManager = new ProgressBarManager(app);
-
   // Create grid
   const grid = new Grid(app);
+
+  // Create belt item manager (renders above grid, below build preview)
+  const beltItemManager = new BeltItemManager(app);
+
+  // Create build manager (renders above belt items, below progress bars)
+  const buildManager = new BuildManager(app, textureManager);
+
+  // Create progress bar manager (renders above build preview)
+  const progressBarManager = new ProgressBarManager(app);
 
   // Create tile highlight (renders above grid)
   const tileHighlight = new TileHighlight(app);
