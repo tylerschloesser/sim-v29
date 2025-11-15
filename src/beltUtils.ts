@@ -187,7 +187,8 @@ export function getBeltOutputEntity(
  * @param lane The lane containing the item
  * @param fromPosition Current position of the item (0-63)
  * @param distance Distance to move (typically BELT_SPEED = 1)
- * @param outputBelt Optional output belt to check if item would transfer
+ * @param outputEntity Optional output belt to check if item would transfer
+ * @param laneType Which lane is being checked ("left" or "right")
  * @returns true if the item can move, false otherwise
  */
 export function canItemMove(
@@ -196,6 +197,7 @@ export function canItemMove(
   fromPosition: number,
   distance: number,
   outputEntity: BeltEntity | TestBeltOutputEntity | null,
+  laneType: "left" | "right",
 ): boolean {
   const newPosition = fromPosition + distance;
 
@@ -210,9 +212,9 @@ export function canItemMove(
       return true;
     }
 
-    // Check if output belt's left lane has space at position 0
-    // (We only use left lane for now)
-    const outputLane = outputEntity.leftLane;
+    // Check if output belt's corresponding lane has space at position 0
+    const outputLane =
+      laneType === "left" ? outputEntity.leftLane : outputEntity.rightLane;
     const blockingItem = outputLane.find(
       (item) => item.position < BELT_ITEM_SPACING + distance,
     );
