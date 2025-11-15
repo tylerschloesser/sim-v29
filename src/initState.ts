@@ -40,6 +40,9 @@ const INITIAL_ENTITIES: Array<Entity> = [
   createEntity("", "belt", 0, 2, 0, "right"),
   createEntity("", "belt", 0, 3, 90, "left"),
   createEntity("", "test-belt-output", 1, 3),
+  createEntity("", "test-belt-input", -3, 5),
+  createEntity("", "belt", -2, 5, 0, "none"),
+  createEntity("", "belt", -1, 5, 0, "right"),
 ];
 
 /**
