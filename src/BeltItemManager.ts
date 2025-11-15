@@ -98,50 +98,163 @@ export class BeltItemManager {
     const beltPixelY = belt.position.y * TILE_SIZE;
 
     // Calculate item position along belt
-    // Item position ranges from 0 to getBeltLength(belt.turn, lane)
-    // Belt tile is TILE_SIZE (32) pixels
-    // So we need to scale: position / getBeltLength(...) * TILE_SIZE
     const progress = item.position / getBeltLength(belt.turn, lane); // 0 to 1
-    const offset = progress * TILE_SIZE; // 0 to 32 pixels
 
-    // Calculate final position based on belt rotation and lane
-    // Left lane items are on the left side (relative to direction of travel)
-    // Right lane items are on the right side (relative to direction of travel)
     let itemX: number;
     let itemY: number;
 
-    switch (belt.rotation) {
-      case 0: // Facing right
-        itemX = beltPixelX + offset;
-        itemY =
-          lane === "left"
-            ? beltPixelY + TILE_SIZE / 4 // Left lane: top (north) side
-            : beltPixelY + (TILE_SIZE * 3) / 4; // Right lane: bottom (south) side
-        break;
-      case 90: // Facing down
-        itemX =
-          lane === "left"
-            ? beltPixelX + (TILE_SIZE * 3) / 4 // Left lane: right (east) side
-            : beltPixelX + TILE_SIZE / 4; // Right lane: left (west) side
-        itemY = beltPixelY + offset;
-        break;
-      case 180: // Facing left
-        itemX = beltPixelX + TILE_SIZE - offset; // Reverse direction
-        itemY =
-          lane === "left"
-            ? beltPixelY + (TILE_SIZE * 3) / 4 // Left lane: bottom (south) side
-            : beltPixelY + TILE_SIZE / 4; // Right lane: top (north) side
-        break;
-      case 270: // Facing up
-        itemX =
-          lane === "left"
-            ? beltPixelX + TILE_SIZE / 4 // Left lane: left (west) side
-            : beltPixelX + (TILE_SIZE * 3) / 4; // Right lane: right (east) side
-        itemY = beltPixelY + TILE_SIZE - offset; // Reverse direction
-        break;
-      default:
-        itemX = beltPixelX;
-        itemY = beltPixelY;
+    if (belt.turn === "none") {
+      // Straight belts: linear rendering from 0 to 32 pixels
+      const offset = progress * TILE_SIZE;
+
+      switch (belt.rotation) {
+        case 0: // Facing right
+          itemX = beltPixelX + offset;
+          itemY =
+            lane === "left"
+              ? beltPixelY + TILE_SIZE / 4 // Left lane: top (north) side
+              : beltPixelY + (TILE_SIZE * 3) / 4; // Right lane: bottom (south) side
+          break;
+        case 90: // Facing down
+          itemX =
+            lane === "left"
+              ? beltPixelX + (TILE_SIZE * 3) / 4 // Left lane: right (east) side
+              : beltPixelX + TILE_SIZE / 4; // Right lane: left (west) side
+          itemY = beltPixelY + offset;
+          break;
+        case 180: // Facing left
+          itemX = beltPixelX + TILE_SIZE - offset; // Reverse direction
+          itemY =
+            lane === "left"
+              ? beltPixelY + (TILE_SIZE * 3) / 4 // Left lane: bottom (south) side
+              : beltPixelY + TILE_SIZE / 4; // Right lane: top (north) side
+          break;
+        case 270: // Facing up
+          itemX =
+            lane === "left"
+              ? beltPixelX + TILE_SIZE / 4 // Left lane: left (west) side
+              : beltPixelX + (TILE_SIZE * 3) / 4; // Right lane: right (east) side
+          itemY = beltPixelY + TILE_SIZE - offset; // Reverse direction
+          break;
+        default:
+          itemX = beltPixelX;
+          itemY = beltPixelY;
+      }
+    } else {
+      // Turning belts: two-phase rendering
+      // Determine if this lane is the outer (longer) or inner (shorter) lane
+      // Right turn: left lane = outer (96), right lane = inner (32)
+      // Left turn: right lane = outer (96), left lane = inner (32)
+      const isOuterLane =
+        (belt.turn === "right" && lane === "left") ||
+        (belt.turn === "left" && lane === "right");
+
+      // Calculate the output rotation based on turn direction
+      let outputRotation = belt.rotation;
+      if (belt.turn === "left") {
+        outputRotation = ((belt.rotation - 90 + 360) % 360) as
+          | 0
+          | 90
+          | 180
+          | 270;
+      } else if (belt.turn === "right") {
+        outputRotation = ((belt.rotation + 90) % 360) as 0 | 90 | 180 | 270;
+      }
+
+      // Lane stays the same when transitioning to outgoing direction
+      const outgoingLane = lane;
+
+      if (progress < 0.5) {
+        // Phase 1: Render on incoming direction
+        let offset: number;
+        if (isOuterLane) {
+          // Outer lane: 0-24px for progress 0-0.5
+          offset = progress * 48; // Maps 0-0.5 to 0-24
+        } else {
+          // Inner lane: 0-8px for progress 0-0.5
+          offset = progress * 16; // Maps 0-0.5 to 0-8
+        }
+
+        // Use incoming rotation
+        switch (belt.rotation) {
+          case 0: // Facing right
+            itemX = beltPixelX + offset;
+            itemY =
+              lane === "left"
+                ? beltPixelY + TILE_SIZE / 4
+                : beltPixelY + (TILE_SIZE * 3) / 4;
+            break;
+          case 90: // Facing down
+            itemX =
+              lane === "left"
+                ? beltPixelX + (TILE_SIZE * 3) / 4
+                : beltPixelX + TILE_SIZE / 4;
+            itemY = beltPixelY + offset;
+            break;
+          case 180: // Facing left
+            itemX = beltPixelX + TILE_SIZE - offset;
+            itemY =
+              lane === "left"
+                ? beltPixelY + (TILE_SIZE * 3) / 4
+                : beltPixelY + TILE_SIZE / 4;
+            break;
+          case 270: // Facing up
+            itemX =
+              lane === "left"
+                ? beltPixelX + TILE_SIZE / 4
+                : beltPixelX + (TILE_SIZE * 3) / 4;
+            itemY = beltPixelY + TILE_SIZE - offset;
+            break;
+          default:
+            itemX = beltPixelX;
+            itemY = beltPixelY;
+        }
+      } else {
+        // Phase 2: Render on outgoing direction
+        let offset: number;
+        if (isOuterLane) {
+          // Outer lane: 8-32px for progress 0.5-1.0 (0.25-1.0 of tile)
+          offset = 8 + (progress - 0.5) * 48; // Maps 0.5-1.0 to 8-32
+        } else {
+          // Inner lane: 24-32px for progress 0.5-1.0 (0.75-1.0 of tile)
+          offset = 24 + (progress - 0.5) * 16; // Maps 0.5-1.0 to 24-32
+        }
+
+        // Use outgoing rotation and lane
+        switch (outputRotation) {
+          case 0: // Facing right
+            itemX = beltPixelX + offset;
+            itemY =
+              outgoingLane === "left"
+                ? beltPixelY + TILE_SIZE / 4
+                : beltPixelY + (TILE_SIZE * 3) / 4;
+            break;
+          case 90: // Facing down
+            itemX =
+              outgoingLane === "left"
+                ? beltPixelX + (TILE_SIZE * 3) / 4
+                : beltPixelX + TILE_SIZE / 4;
+            itemY = beltPixelY + offset;
+            break;
+          case 180: // Facing left
+            itemX = beltPixelX + TILE_SIZE - offset;
+            itemY =
+              outgoingLane === "left"
+                ? beltPixelY + (TILE_SIZE * 3) / 4
+                : beltPixelY + TILE_SIZE / 4;
+            break;
+          case 270: // Facing up
+            itemX =
+              outgoingLane === "left"
+                ? beltPixelX + TILE_SIZE / 4
+                : beltPixelX + (TILE_SIZE * 3) / 4;
+            itemY = beltPixelY + TILE_SIZE - offset;
+            break;
+          default:
+            itemX = beltPixelX;
+            itemY = beltPixelY;
+        }
+      }
     }
 
     graphic.x = itemX;

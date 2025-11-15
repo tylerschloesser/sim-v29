@@ -49,7 +49,10 @@ export const BELT_ITEM_SPACING = 16;
  * Right turns: left lane (outer) = 96, right lane (inner) = 32
  * Left turns: left lane (inner) = 32, right lane (outer) = 96
  */
-export function getBeltLength(turn: BeltTurn, laneType: "left" | "right"): number {
+export function getBeltLength(
+  turn: BeltTurn,
+  laneType: "left" | "right",
+): number {
   if (turn === "none") {
     return 64; // Straight belts always 64
   } else if (turn === "right") {
