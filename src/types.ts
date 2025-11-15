@@ -238,7 +238,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   "burner-mining-drill": {
     size: { x: 2, y: 2 },
     color: "hsl(40, 100%, 50%)", // yellow-orange
-    rotatable: false,
+    rotatable: true,
     icon: faBoreHole,
   },
   belt: {

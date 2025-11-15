@@ -3,6 +3,7 @@ import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
   BurnerInserterEntity,
+  BurnerMiningDrillEntity,
   Entity,
   EntityType,
   ItemType,
@@ -110,6 +111,31 @@ export function getTargetTileForInserter(entity: BurnerInserterEntity): {
       return { x: position.x - 1, y: position.y };
     case 270: // Facing up/north, target is north
       return { x: position.x, y: position.y - 1 };
+  }
+}
+
+/**
+ * Returns the tile coordinate for the output of a burner mining drill.
+ * For a 2x2 mining drill, the output is positioned below the bottom-right corner.
+ * At rotation 0 (facing down/south), output is below bottom-right (pos.x + 1, pos.y + 2).
+ * At rotation 90 (facing left/west), output is to the left of bottom-left (pos.x - 1, pos.y + 1).
+ * At rotation 180 (facing up/north), output is above top-left (pos.x, pos.y - 1).
+ * At rotation 270 (facing right/east), output is to the right of top-right (pos.x + 2, pos.y).
+ */
+export function getOutputTileForBurnerMiningDrill(
+  entity: BurnerMiningDrillEntity,
+): { x: number; y: number } {
+  const { position, rotation } = entity;
+
+  switch (rotation) {
+    case 0: // Facing down/south, output below bottom-right
+      return { x: position.x + 1, y: position.y + 2 };
+    case 90: // Facing left/west, output to left of bottom-left
+      return { x: position.x - 1, y: position.y + 1 };
+    case 180: // Facing up/north, output above top-left
+      return { x: position.x, y: position.y - 1 };
+    case 270: // Facing right/east, output to right of top-right
+      return { x: position.x + 2, y: position.y };
   }
 }
 
