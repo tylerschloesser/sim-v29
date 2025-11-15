@@ -1,5 +1,5 @@
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import invariant from "tiny-invariant";
+import { invariant } from "../invariant";
 
 interface FAIconSVGProps {
   icon: IconDefinition;

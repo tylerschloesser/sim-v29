@@ -1,4 +1,4 @@
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import type { Inventory, ItemType } from "./types";
 
 export function decrementInventory(

@@ -1,6 +1,6 @@
 import { Assets, Texture } from "pixi.js";
 import { renderToStaticMarkup } from "react-dom/server";
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import { EntitySVG } from "./components/entity-svgs";
 import { BeltSVG } from "./components/entity-svgs/BeltSVG";
 import {

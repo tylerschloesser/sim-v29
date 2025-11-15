@@ -2,7 +2,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { enableMapSet } from "immer";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import { AppContextProvider } from "./AppContextProvider.tsx";
 import { initializeState } from "./initState.ts";
 import { setupPixi } from "./pixi.ts";

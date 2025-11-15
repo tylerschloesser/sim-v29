@@ -1,4 +1,4 @@
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,

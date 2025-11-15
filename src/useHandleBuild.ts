@@ -1,4 +1,4 @@
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import { useAppContext } from "./appContext";
 import { getAdjacentBelts } from "./beltUtils";
 import { getTilesForEntity } from "./entityUtils";

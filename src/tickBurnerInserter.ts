@@ -1,4 +1,4 @@
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import { INSERTER_DELIVER_TICKS, INSERTER_RETURN_TICKS } from "./constants";
 import {
   getEntityAtTile,

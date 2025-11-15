@@ -1,5 +1,6 @@
 import { createNoise2D } from "simplex-noise";
 import Prando from "prando";
+import { invariant } from "./invariant";
 import type { Chunk, ChunkId, Resource, Tile } from "./types";
 import {
   CHUNK_SIZE,
@@ -9,7 +10,6 @@ import {
   worldToTile,
 } from "./types";
 import { WORLD_SEED } from "./constants";
-import invariant from "tiny-invariant";
 
 // Shared noise instance for consistent terrain across all chunks
 const rng = new Prando(WORLD_SEED);

@@ -1,4 +1,4 @@
-import invariant from "tiny-invariant";
+import { invariant } from "./invariant";
 import { MINE_DURATION_TICKS } from "./constants";
 import { incrementInventory } from "./inventoryUtils";
 import { getTileLocation } from "./tileUtils";
