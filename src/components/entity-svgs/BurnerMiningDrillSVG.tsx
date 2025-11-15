@@ -1,3 +1,4 @@
+import { faDownFromLine } from "@fortawesome/pro-solid-svg-icons";
 import { hslToHex } from "../../colorUtils";
 import { TILE_SIZE, type EntityConfig } from "../../types";
 import { FAIconSVG } from "../../utils/faIconUtils";
@@ -17,6 +18,9 @@ export function BurnerMiningDrillSVG({ config }: BurnerMiningDrillSVGProps) {
       <rect width={width} height={height} fill={colorHex} />
       <g transform={`translate(${width / 2}, ${height / 2})`}>
         <FAIconSVG icon={config.icon} size={24} fill="black" />
+      </g>
+      <g transform={`translate(${width * 0.75}, ${height * 0.85})`}>
+        <FAIconSVG icon={faDownFromLine} size={12} fill="black" />
       </g>
     </svg>
   );
