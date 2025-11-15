@@ -7,7 +7,7 @@ import type {
   EntityId,
 } from "./types";
 import { TILE_SIZE } from "./types";
-import { BELT_LENGTH } from "./constants";
+import { getBeltLength } from "./constants";
 
 /**
  * Manages rendering of items on belts.
@@ -98,10 +98,10 @@ export class BeltItemManager {
     const beltPixelY = belt.position.y * TILE_SIZE;
 
     // Calculate item position along belt
-    // Item position ranges from 0 to BELT_LENGTH (64)
+    // Item position ranges from 0 to getBeltLength(belt.turn, lane)
     // Belt tile is TILE_SIZE (32) pixels
-    // So we need to scale: position / BELT_LENGTH * TILE_SIZE
-    const progress = item.position / BELT_LENGTH; // 0 to 1
+    // So we need to scale: position / getBeltLength(...) * TILE_SIZE
+    const progress = item.position / getBeltLength(belt.turn, lane); // 0 to 1
     const offset = progress * TILE_SIZE; // 0 to 32 pixels
 
     // Calculate final position based on belt rotation and lane

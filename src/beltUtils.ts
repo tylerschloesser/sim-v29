@@ -1,4 +1,4 @@
-import { BELT_ITEM_SPACING, BELT_LENGTH } from "./constants";
+import { BELT_ITEM_SPACING, getBeltLength } from "./constants";
 import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
@@ -183,7 +183,7 @@ export function getBeltOutputEntity(
  * Checks if an item on a belt can move forward by the specified distance.
  * Ensures proper spacing between items and checks if the next belt can accept the item.
  *
- * @param _belt The belt containing the item (unused, kept for API consistency)
+ * @param belt The belt containing the item
  * @param lane The lane containing the item
  * @param fromPosition Current position of the item (0-63)
  * @param distance Distance to move (typically BELT_SPEED = 1)
@@ -192,7 +192,7 @@ export function getBeltOutputEntity(
  * @returns true if the item can move, false otherwise
  */
 export function canItemMove(
-  _belt: BeltEntity,
+  belt: BeltEntity,
   lane: BeltItem[],
   fromPosition: number,
   distance: number,
@@ -202,7 +202,7 @@ export function canItemMove(
   const newPosition = fromPosition + distance;
 
   // Check if item would transfer to next belt
-  if (newPosition >= BELT_LENGTH) {
+  if (newPosition >= getBeltLength(belt.turn, laneType)) {
     // If there's no output belt, item cannot move past end
     if (!outputEntity) {
       return false;

@@ -2,6 +2,8 @@
  * Shared game configuration constants
  */
 
+import type { BeltTurn } from "./types";
+
 // === Game Loop Constants ===
 /** Ticks per second for the game loop */
 export const TICK_RATE = 60;
@@ -40,5 +42,21 @@ export const BELT_SPEED = 1;
 /** Minimum spacing between items on a belt (in positions) */
 export const BELT_ITEM_SPACING = 16;
 
-/** Total length of a belt in positions (items can be at position 0-63) */
-export const BELT_LENGTH = 64;
+/**
+ * Get the total length of a belt in positions based on turn direction and lane.
+ *
+ * Straight belts: 64 positions (both lanes)
+ * Right turns: left lane (outer) = 96, right lane (inner) = 32
+ * Left turns: left lane (inner) = 32, right lane (outer) = 96
+ */
+export function getBeltLength(turn: BeltTurn, laneType: "left" | "right"): number {
+  if (turn === "none") {
+    return 64; // Straight belts always 64
+  } else if (turn === "right") {
+    // Right turn: left lane is outer (longer), right lane is inner (shorter)
+    return laneType === "left" ? 96 : 32;
+  } else {
+    // Left turn: left lane is inner (shorter), right lane is outer (longer)
+    return laneType === "left" ? 32 : 96;
+  }
+}

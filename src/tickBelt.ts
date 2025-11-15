@@ -5,7 +5,7 @@ import {
   getBeltOutputEntity,
   getOutputTile,
 } from "./beltUtils";
-import { BELT_LENGTH, BELT_SPEED } from "./constants";
+import { getBeltLength, BELT_SPEED } from "./constants";
 import { getEntityAtTile } from "./entityUtils";
 import { incrementInventory } from "./inventoryUtils";
 import type {
@@ -152,7 +152,7 @@ function processLane(
     const newPosition = item.position + BELT_SPEED;
 
     // Check if item should transfer to next entity
-    if (newPosition >= BELT_LENGTH) {
+    if (newPosition >= getBeltLength(currentBelt.turn, laneType)) {
       // Calculate effective output rotation (respects turn)
       const { rotation, turn } = currentBelt;
       let effectiveOutputRotation = rotation;
