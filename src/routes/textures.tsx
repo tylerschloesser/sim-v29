@@ -5,6 +5,7 @@ import { EntitySVG } from "../components/entity-svgs";
 import { BeltSVG } from "../components/entity-svgs/BeltSVG";
 import {
   ENTITY_CONFIGS,
+  type BeltEntity,
   type BeltTurn,
   type EntityConfig,
   type EntityType,
@@ -37,10 +38,18 @@ function TexturesComponent() {
               const beltTurns: BeltTurn[] = ["none", "left", "right"];
               return beltTurns.map((turn) => {
                 const textureKey = `belt:${turn}`;
-                const dataUrl = textureManager.getDataUrl({
+                // Create a minimal belt entity for texture lookup
+                const beltEntity: BeltEntity = {
                   type: "belt",
                   turn,
-                } as any);
+                  id: "temp",
+                  position: { x: 0, y: 0 },
+                  size: config.size,
+                  rotation: 0,
+                  leftLane: [],
+                  rightLane: [],
+                };
+                const dataUrl = textureManager.getDataUrl(beltEntity);
 
                 return (
                   <Fragment key={textureKey}>

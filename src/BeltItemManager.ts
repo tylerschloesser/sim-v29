@@ -6,8 +6,9 @@ import type {
   Entity,
   EntityId,
 } from "./types";
-import { TILE_SIZE } from "./types";
+import { ENTITY_CONFIGS, TILE_SIZE } from "./types";
 import { BELT_LENGTH } from "./constants";
+import { hslToPixi } from "./colorUtils";
 
 /**
  * Manages rendering of items on belts.
@@ -132,21 +133,27 @@ export class BeltItemManager {
   private getItemColor(itemType: string): number {
     // Simple color mapping for different item types
     // TODO: Use proper textures/sprites for items
-    const colors: Record<string, number> = {
+    const resourceColors: Record<string, number> = {
       coal: 0x000000, // black
       copper: 0xff6600, // orange
       iron: 0x4682b4, // steel blue
       stone: 0xff69b4, // hot pink
       "iron-plate": 0xaaaaaa, // light gray
-      // Default colors for entity types
-      "stone-furnace": 0xff4444,
-      "home-storage": 0x4444ff,
-      "burner-inserter": 0xffaa66,
-      "burner-mining-drill": 0xffaa00,
-      belt: 0xffff00,
     };
 
-    return colors[itemType] ?? 0xffffff; // white default
+    // Check if it's a resource color first
+    if (itemType in resourceColors) {
+      return resourceColors[itemType];
+    }
+
+    // Check if it's an entity type and use HSL color from ENTITY_CONFIGS
+    if (itemType in ENTITY_CONFIGS) {
+      return hslToPixi(
+        ENTITY_CONFIGS[itemType as keyof typeof ENTITY_CONFIGS].color,
+      );
+    }
+
+    return 0xffffff; // white default
   }
 
   private destroyItem(id: BeltItemId, graphic: Graphics) {

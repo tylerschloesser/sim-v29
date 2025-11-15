@@ -200,44 +200,44 @@ export interface Build {
 // Entity configuration constants
 export interface EntityConfig {
   size: { x: number; y: number };
-  color: number;
+  color: string; // HSL format: "hsl(h, s%, l%)"
   rotatable: boolean;
 }
 
 export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   "stone-furnace": {
     size: { x: 2, y: 2 },
-    color: 0xff4444, // red
+    color: "hsl(0, 100%, 63%)", // red
     rotatable: false,
   },
   "home-storage": {
     size: { x: 2, y: 2 },
-    color: 0x4444ff, // blue
+    color: "hsl(240, 100%, 63%)", // blue
     rotatable: false,
   },
   "burner-inserter": {
     size: { x: 1, y: 1 },
-    color: 0xffaa66, // light orange
+    color: "hsl(27, 100%, 70%)", // light orange
     rotatable: true,
   },
   "burner-mining-drill": {
     size: { x: 2, y: 2 },
-    color: 0xffaa00, // yellow-orange
+    color: "hsl(40, 100%, 50%)", // yellow-orange
     rotatable: false,
   },
   belt: {
     size: { x: 1, y: 1 },
-    color: 0xffff00, // yellow
+    color: "hsl(60, 100%, 50%)", // yellow
     rotatable: true,
   },
   "test-belt-input": {
     size: { x: 1, y: 1 },
-    color: 0x44ff44, // green
+    color: "hsl(120, 100%, 63%)", // green
     rotatable: true,
   },
   "test-belt-output": {
     size: { x: 1, y: 1 },
-    color: 0xff44ff, // magenta
+    color: "hsl(300, 100%, 63%)", // magenta
     rotatable: true,
   },
 };

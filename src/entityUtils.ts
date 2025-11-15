@@ -8,6 +8,7 @@ import type {
   ItemType,
 } from "./types";
 import { ALL_ITEM_TYPES, ENTITY_CONFIGS, TILE_SIZE } from "./types";
+import { hslToPixi } from "./colorUtils";
 
 /**
  * Returns the rotated size of an entity (swaps dimensions for 90/270 degree rotations)
@@ -56,10 +57,10 @@ export function getTilesForEntity(
 }
 
 /**
- * Returns the color for a given entity type
+ * Returns the color for a given entity type in PixiJS number format
  */
 export function getEntityColor(type: EntityType): number {
-  return ENTITY_CONFIGS[type].color;
+  return hslToPixi(ENTITY_CONFIGS[type].color);
 }
 
 /**
