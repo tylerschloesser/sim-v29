@@ -1,4 +1,4 @@
-import { BELT_ITEM_SPACING, BELT_LENGTH } from "./constants";
+import { BELT_ITEM_SPACING, getBeltLength } from "./constants";
 import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
@@ -183,24 +183,26 @@ export function getBeltOutputEntity(
  * Checks if an item on a belt can move forward by the specified distance.
  * Ensures proper spacing between items and checks if the next belt can accept the item.
  *
- * @param _belt The belt containing the item (unused, kept for API consistency)
+ * @param belt The belt containing the item
  * @param lane The lane containing the item
  * @param fromPosition Current position of the item (0-63)
  * @param distance Distance to move (typically BELT_SPEED = 1)
- * @param outputBelt Optional output belt to check if item would transfer
+ * @param outputEntity Optional output belt to check if item would transfer
+ * @param laneType Which lane is being checked ("left" or "right")
  * @returns true if the item can move, false otherwise
  */
 export function canItemMove(
-  _belt: BeltEntity,
+  belt: BeltEntity,
   lane: BeltItem[],
   fromPosition: number,
   distance: number,
   outputEntity: BeltEntity | TestBeltOutputEntity | null,
+  laneType: "left" | "right",
 ): boolean {
   const newPosition = fromPosition + distance;
 
   // Check if item would transfer to next belt
-  if (newPosition >= BELT_LENGTH) {
+  if (newPosition >= getBeltLength(belt.turn, laneType)) {
     // If there's no output belt, item cannot move past end
     if (!outputEntity) {
       return false;
@@ -210,9 +212,9 @@ export function canItemMove(
       return true;
     }
 
-    // Check if output belt's left lane has space at position 0
-    // (We only use left lane for now)
-    const outputLane = outputEntity.leftLane;
+    // Check if output belt's corresponding lane has space at position 0
+    const outputLane =
+      laneType === "left" ? outputEntity.leftLane : outputEntity.rightLane;
     const blockingItem = outputLane.find(
       (item) => item.position < BELT_ITEM_SPACING + distance,
     );
