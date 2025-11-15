@@ -37,8 +37,9 @@ const INITIAL_ENTITIES: Array<Entity> = [
   createEntity("", "test-belt-input", -3, 2),
   createEntity("", "belt", -2, 2, 0, "none"),
   createEntity("", "belt", -1, 2, 0, "none"),
-  createEntity("", "belt", 0, 2, 0, "none"),
-  createEntity("", "test-belt-output", 1, 2),
+  createEntity("", "belt", 0, 2, 0, "right"),
+  createEntity("", "belt", 0, 3, 90, "left"),
+  createEntity("", "test-belt-output", 1, 3),
 ];
 
 /**

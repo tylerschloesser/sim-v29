@@ -28,7 +28,9 @@ function getOutputTile(entity: TestBeltInputEntity): { x: number; y: number } {
 
 /**
  * Ticks all test-belt-input entities.
- * Each test-belt-input attempts to output an iron item every 60 ticks.
+ * Each test-belt-input attempts to output iron items:
+ * - Left lane: every 60 ticks (at ticks 0, 60, 120, ...)
+ * - Right lane: every 60 ticks, offset by 30 ticks (at ticks 30, 90, 150, ...)
  */
 export function tickAllTestBeltInputs(
   draft: Draft<AppState>,
@@ -40,13 +42,7 @@ export function tickAllTestBeltInputs(
 
     const testBeltInput = entity as TestBeltInputEntity;
 
-    // Check if it's time to output an item
-    if (tick < testBeltInput.nextOutputTick) continue;
-
-    // Always schedule next output attempt (even if this one fails)
-    testBeltInput.nextOutputTick = tick + 60;
-
-    // Find the output entity
+    // Find the output entity (used for both left and right lane outputs)
     const outputTile = getOutputTile(testBeltInput);
     const outputEntity = getEntityAtTile(draft, outputTile.x, outputTile.y);
 
@@ -56,20 +52,43 @@ export function tickAllTestBeltInputs(
     const outputBelt = outputEntity as BeltEntity;
     if (outputBelt.rotation !== testBeltInput.rotation) continue;
 
-    // Check if belt's leftLane has space at position 0
-    const lane = outputBelt.leftLane;
-    const blockingItem = lane.find((item) => item.position < BELT_ITEM_SPACING);
+    // LEFT LANE OUTPUT: every 60 ticks
+    if (tick >= testBeltInput.nextOutputTick) {
+      // Always schedule next output attempt (even if this one fails)
+      testBeltInput.nextOutputTick = tick + 60;
 
-    if (blockingItem) {
-      // Belt is blocked, skip this output attempt
-      continue;
+      // Check if belt's leftLane has space at position 0
+      const leftLane = outputBelt.leftLane;
+      const leftBlockingItem = leftLane.find(
+        (item) => item.position < BELT_ITEM_SPACING,
+      );
+
+      if (!leftBlockingItem) {
+        // Add iron item to left lane at position 0
+        leftLane.unshift({
+          id: getBeltItemId(draft.nextBeltItemId++),
+          itemType: "iron",
+          position: 0,
+        });
+      }
     }
 
-    // Add iron item to belt at position 0
-    lane.unshift({
-      id: getBeltItemId(draft.nextBeltItemId++),
-      itemType: "iron",
-      position: 0,
-    });
+    // RIGHT LANE OUTPUT: every 60 ticks, offset by 30 ticks
+    if ((tick - 30) % 60 === 0 && tick >= 30) {
+      // Check if belt's rightLane has space at position 0
+      const rightLane = outputBelt.rightLane;
+      const rightBlockingItem = rightLane.find(
+        (item) => item.position < BELT_ITEM_SPACING,
+      );
+
+      if (!rightBlockingItem) {
+        // Add iron item to right lane at position 0
+        rightLane.unshift({
+          id: getBeltItemId(draft.nextBeltItemId++),
+          itemType: "iron",
+          position: 0,
+        });
+      }
+    }
   }
 }
