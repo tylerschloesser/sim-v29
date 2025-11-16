@@ -116,6 +116,7 @@ export interface StoneFurnaceEntity extends BaseEntity {
   inputInventory: Inventory;
   outputInventory: Inventory;
   state: StoneFurnaceState;
+  fuel: number;
 }
 
 export interface HomeStorageEntity extends BaseEntity {
@@ -129,6 +130,8 @@ export type BurnerInserterState =
 
 export interface BurnerInserterEntity extends BaseEntity {
   type: "burner-inserter";
+  inputInventory: Inventory;
+  fuel: number;
   state: BurnerInserterState;
 }
 
@@ -140,6 +143,7 @@ export interface BurnerMiningDrillEntity extends BaseEntity {
   type: "burner-mining-drill";
   inputInventory: Inventory;
   outputInventory: Inventory;
+  fuel: number;
   state: BurnerMiningDrillState;
 }
 
@@ -420,6 +424,7 @@ export function createEntity(
       rotation,
       inputInventory: {},
       outputInventory: {},
+      fuel: 0,
       state: { type: "idle" },
     };
   } else if (type === "burner-inserter") {
@@ -429,6 +434,8 @@ export function createEntity(
       position,
       size,
       rotation,
+      inputInventory: {},
+      fuel: 0,
       state: { type: "idle" },
     };
   } else if (type === "burner-mining-drill") {
@@ -440,6 +447,7 @@ export function createEntity(
       rotation,
       inputInventory: {},
       outputInventory: {},
+      fuel: 0,
       state: { type: "idle" },
     };
   } else if (type === "belt") {

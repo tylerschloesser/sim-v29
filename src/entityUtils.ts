@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { ALL_ITEM_TYPES, ENTITY_CONFIGS, TILE_SIZE } from "./types";
 import { hslToPixi } from "./colorUtils";
+import { inventoryHas } from "./inventoryUtils";
 
 /**
  * Returns the rotated size of an entity (swaps dimensions for 90/270 degree rotations)
@@ -181,12 +182,37 @@ export function getRequestedItems(
 ): ReadonlySet<ItemType> {
   void state; // May be used in future for more complex logic
 
-  if (entity.type === "home-storage") {
-    return ALL_ITEM_TYPES;
-  } else if (entity.type === "stone-furnace") {
-    return new Set(["iron"]);
-  } else if (entity.type === "belt") {
-    return ALL_ITEM_TYPES;
+  switch (entity.type) {
+    case "home-storage": {
+      return ALL_ITEM_TYPES;
+    }
+    case "stone-furnace": {
+      const requestedItems = new Set<ItemType>();
+      if (!inventoryHas(entity.inputInventory, "iron", 5)) {
+        requestedItems.add("iron");
+      }
+      if (!inventoryHas(entity.inputInventory, "coal", 1)) {
+        requestedItems.add("coal");
+      }
+      return requestedItems;
+    }
+    case "burner-inserter": {
+      const requestedItems = new Set<ItemType>();
+      if (!inventoryHas(entity.inputInventory, "coal", 1)) {
+        requestedItems.add("coal");
+      }
+      return requestedItems;
+    }
+    case "burner-mining-drill": {
+      const requestedItems = new Set<ItemType>();
+      if (!inventoryHas(entity.inputInventory, "coal", 1)) {
+        requestedItems.add("coal");
+      }
+      return requestedItems;
+    }
+    case "belt": {
+      return ALL_ITEM_TYPES;
+    }
   }
   return EMPTY_SET;
 }
