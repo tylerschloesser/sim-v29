@@ -1,5 +1,9 @@
 import { invariant } from "./invariant";
-import { INSERTER_DELIVER_TICKS, INSERTER_RETURN_TICKS } from "./constants";
+import {
+  BELT_ITEM_SPACING,
+  INSERTER_DELIVER_TICKS,
+  INSERTER_RETURN_TICKS,
+} from "./constants";
 import {
   getEntityAtTile,
   getRequestedItems,
@@ -158,21 +162,16 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
     const belt = targetEntity as BeltEntity;
     const lane = belt.leftLane;
 
-    // Check spacing: positions 17-47 must be free (15 spaces on each side of position 32)
-    const blockingItem = lane.find(
-      (item) => item.position >= 17 && item.position <= 47,
-    );
-
-    if (blockingItem) {
-      // Belt is blocked, stay in DELIVER state and retry next tick
+    const firstItem = lane.at(0);
+    if (firstItem && firstItem.position < BELT_ITEM_SPACING) {
       return;
     }
 
     // Add item to belt at position 32
-    lane.push({
+    lane.unshift({
       id: getBeltItemId(draft.nextBeltItemId++),
-      itemType: itemType,
-      position: 32,
+      itemType,
+      position: 0,
     });
 
     // Transition to RETURN state
