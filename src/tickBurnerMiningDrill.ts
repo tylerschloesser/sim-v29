@@ -4,15 +4,10 @@ import {
   getOutputTileForBurnerMiningDrill,
   getTilesForEntity,
 } from "./entityUtils";
-import {
-  decrementInventory,
-  incrementInventory,
-  inventoryHas,
-} from "./inventoryUtils";
+import { decrementInventory, incrementInventory } from "./inventoryUtils";
 import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
-  BeltEntity,
   BurnerMiningDrillEntity,
   ItemType,
   ResourceType,
@@ -105,40 +100,47 @@ function tickMining(_draft: AppState, entity: BurnerMiningDrillEntity) {
   }
 }
 
+function getFirstAvailableItemForOutput(
+  entity: BurnerMiningDrillEntity,
+): ItemType | null {
+  for (const [itemType, count] of Object.entries(entity.outputInventory)) {
+    if (count > 0) {
+      return itemType as ItemType;
+    }
+  }
+  return null;
+}
+
 /**
  * Attempts to output one item from the drill's output inventory to a belt.
  * This runs every tick, independently of the mining state.
  */
-function tryOutputToBelt(draft: AppState, entity: BurnerMiningDrillEntity) {
-  // Check if we have any items in output inventory
-  const outputInventory = entity.outputInventory;
-  const itemTypes = Object.keys(outputInventory) as ItemType[];
-
-  if (itemTypes.length === 0) return;
-
-  // Try to output the first available item type
-  const itemType = itemTypes[0];
-  if (!inventoryHas(outputInventory, itemType)) return;
+function tryOutputToBelt(
+  draft: AppState,
+  entity: BurnerMiningDrillEntity,
+): void {
+  const itemType = getFirstAvailableItemForOutput(entity);
+  if (!itemType) {
+    return;
+  }
 
   // Get output tile and check for belt
   const outputTile = getOutputTileForBurnerMiningDrill(entity);
   const outputEntity = getEntityAtTile(draft, outputTile.x, outputTile.y);
 
   // Check if output is a belt
-  if (!outputEntity || outputEntity.type !== "belt") return;
-
-  const outputBelt = outputEntity as BeltEntity;
+  if (outputEntity?.type !== "belt") return;
 
   // Check if belt's leftLane has space at position 0
-  const leftLane = outputBelt.leftLane;
-  const leftBlockingItem = leftLane.find(
-    (item) => item.position < BELT_ITEM_SPACING,
-  );
-
-  if (leftBlockingItem) return;
+  const leftLane = outputEntity.leftLane;
+  const firstItem = leftLane.at(0);
+  if (firstItem && firstItem.position < BELT_ITEM_SPACING) {
+    return;
+  }
 
   // Transfer item from inventory to belt
-  decrementInventory(outputInventory, itemType);
+  decrementInventory(entity.outputInventory, itemType);
+
   leftLane.unshift({
     id: getBeltItemId(draft.nextBeltItemId++),
     itemType: itemType,
