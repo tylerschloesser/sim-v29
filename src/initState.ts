@@ -27,9 +27,23 @@ const INITIAL_RESOURCES: Record<
     { x: -4, y: -5 },
     { x: -5, y: -5 },
   ],
-  copper: [{ x: -8, y: 3 }],
-  iron: [{ x: 3, y: 2 }],
-  stone: [{ x: 1, y: -3 }],
+  copper: [
+    { x: -8, y: 5 },
+    { x: -8, y: 6 },
+  ],
+  iron: [
+    { x: 8, y: 6 },
+    { x: 9, y: 6 },
+    { x: 9, y: 7 },
+    { x: 10, y: 7 },
+  ],
+  stone: [
+    { x: 3, y: -6 },
+    { x: 4, y: -6 },
+    { x: 5, y: -6 },
+    { x: 4, y: -7 },
+    { x: 5, y: -7 },
+  ],
 };
 
 const INITIAL_ENTITIES: Array<Entity> = [
