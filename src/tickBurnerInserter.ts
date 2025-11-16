@@ -1,9 +1,4 @@
-import { invariant } from "./invariant";
-import {
-  BELT_ITEM_SPACING,
-  INSERTER_DELIVER_TICKS,
-  INSERTER_RETURN_TICKS,
-} from "./constants";
+import { INSERTER_DELIVER_TICKS, INSERTER_RETURN_TICKS } from "./constants";
 import {
   getEntityAtTile,
   getRequestedItems,
@@ -11,19 +6,10 @@ import {
   getTargetTileForInserter,
 } from "./entityUtils";
 import {
-  decrementInventory,
-  incrementInventory,
-  inventoryHas,
-} from "./inventoryUtils";
-import {
-  getEntityInputInventory,
-  getEntityOutputInventory,
-  getBeltItemId,
+  takeFirstAvailableRequested,
+  tryPutItem,
   type AppState,
-  type BeltEntity,
   type BurnerInserterEntity,
-  type Inventory,
-  type ItemType,
 } from "./types";
 
 /**
@@ -67,20 +53,17 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
     return;
   }
 
-  const outputInventory = getEntityOutputInventory(draft, sourceEntity);
-  if (!outputInventory) {
-    return;
-  }
-
   // Get items that target is requesting
   const requestedItems = getRequestedItems(draft, targetEntity);
 
   // Find first requested item that's available
-  const itemToDeliver = getItemToDeliver(requestedItems, outputInventory);
+  const itemToDeliver = takeFirstAvailableRequested(
+    draft,
+    sourceEntity,
+    requestedItems,
+  );
 
   if (itemToDeliver) {
-    decrementInventory(outputInventory, itemToDeliver);
-
     // Transition to DELIVER state
     entity.state = {
       type: "deliver",
@@ -90,25 +73,11 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
   }
 }
 
-function getItemToDeliver(
-  requestedItems: ReadonlySet<ItemType>,
-  inventory: Inventory,
-): ItemType | null {
-  for (const item of requestedItems) {
-    if (inventoryHas(inventory, item)) {
-      return item;
-    }
-  }
-  return null;
-}
-
 /**
  * Tick logic for DELIVER state.
  * Increments progress, attempts delivery when progress reaches 1.
  */
 function tickDeliver(draft: AppState, entity: BurnerInserterEntity) {
-  if (entity.state.type !== "deliver") return;
-
   if (entity.state.type !== "deliver") return;
 
   // Increment progress
@@ -157,42 +126,13 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
     return;
   }
 
-  // Handle belt delivery
-  if (targetEntity.type === "belt") {
-    const belt = targetEntity as BeltEntity;
-    const lane = belt.leftLane;
-
-    const firstItem = lane.at(0);
-    if (firstItem && firstItem.position < BELT_ITEM_SPACING) {
-      return;
-    }
-
-    // Add item to belt at position 32
-    lane.unshift({
-      id: getBeltItemId(draft.nextBeltItemId++),
-      itemType,
-      position: 0,
-    });
-
+  if (tryPutItem(draft, targetEntity, itemType).success) {
     // Transition to RETURN state
     entity.state = {
       type: "return",
       progress: 0,
     };
-    return;
   }
-
-  // Handle inventory-based delivery for non-belt entities
-  const inputInventory = getEntityInputInventory(draft, targetEntity);
-  invariant(inputInventory, "Target entity must have an input inventory");
-
-  incrementInventory(inputInventory, itemType);
-
-  // Transition to RETURN state
-  entity.state = {
-    type: "return",
-    progress: 0,
-  };
 }
 
 /**

@@ -8,6 +8,12 @@ import {
   faRightToBracket,
   type IconDefinition,
 } from "@fortawesome/pro-solid-svg-icons";
+import {
+  decrementInventory,
+  incrementInventory,
+  inventoryHas,
+} from "./inventoryUtils";
+import { BELT_ITEM_SPACING } from "./constants";
 
 export const CHUNK_SIZE = 32; // tiles per chunk
 export const TILE_SIZE = 32; // pixels per tile
@@ -171,36 +177,77 @@ export type Entity =
   | TestBeltInputEntity
   | TestBeltOutputEntity;
 
-export function getEntityInputInventory(
+export function takeFirstAvailableRequested(
   state: AppState,
   entity: Entity,
-): Inventory | null {
+  requestedItems: ReadonlySet<ItemType>,
+): ItemType | null {
+  let inventory: Inventory;
   switch (entity.type) {
     case "stone-furnace":
-      return entity.inputInventory;
+      inventory = entity.outputInventory;
+      break;
     case "burner-mining-drill":
-      return entity.inputInventory;
+      inventory = entity.outputInventory;
+      break;
     case "home-storage":
-      return state.inventory;
+      inventory = state.inventory;
+      break;
     default:
       return null;
   }
+  for (const item of requestedItems) {
+    if (inventoryHas(inventory, item)) {
+      decrementInventory(inventory, item);
+      return item;
+    }
+  }
+  return null;
 }
 
-export function getEntityOutputInventory(
+export function tryPutItem(
   state: AppState,
   entity: Entity,
-): Inventory | null {
+  itemType: ItemType,
+): { success: boolean } {
+  if (entity.type === "belt") {
+    const lane = entity.leftLane;
+
+    const firstItem = lane.at(0);
+    if (firstItem && firstItem.position < BELT_ITEM_SPACING) {
+      return { success: false };
+    }
+
+    // Add item to belt at position 32
+    lane.unshift({
+      id: getBeltItemId(state.nextBeltItemId++),
+      itemType,
+      position: 0,
+    });
+
+    return { success: true };
+  }
+
+  let inventory: Inventory;
   switch (entity.type) {
     case "stone-furnace":
-      return entity.outputInventory;
+      inventory = entity.inputInventory;
+      break;
     case "burner-mining-drill":
-      return entity.outputInventory;
+      inventory = entity.inputInventory;
+      break;
+    case "test-belt-output":
+      inventory = entity.inventory;
+      break;
     case "home-storage":
-      return state.inventory;
+      inventory = state.inventory;
+      break;
     default:
-      return null;
+      return { success: false };
   }
+
+  incrementInventory(inventory, itemType);
+  return { success: true };
 }
 
 export interface Build {
