@@ -182,6 +182,20 @@ export function takeFirstAvailableRequested(
   entity: Entity,
   requestedItems: ReadonlySet<ItemType>,
 ): ItemType | null {
+  if (entity.type === "belt") {
+    for (const lane of [entity.leftLane, entity.rightLane]) {
+      for (let i = 0; i < lane.length; i++) {
+        const beltItem = lane[i];
+        if (requestedItems.has(beltItem.itemType)) {
+          // Remove item from belt
+          lane.splice(i, 1);
+          return beltItem.itemType;
+        }
+      }
+    }
+    return null;
+  }
+
   let inventory: Inventory;
   switch (entity.type) {
     case "stone-furnace":
