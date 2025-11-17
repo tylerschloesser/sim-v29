@@ -1,7 +1,7 @@
 import {
   COAL_BURN_TIME_TICKS,
+  INSERTER_DELIVER_FUEL_TICKS,
   INSERTER_DELIVER_TICKS,
-  INSERTER_GRAB_FUEL_TICKS,
   INSERTER_RETURN_FUEL_TICKS,
   INSERTER_RETURN_TICKS,
 } from "./constants";
@@ -17,8 +17,6 @@ import {
   tryPutItem,
   type AppState,
   type BurnerInserterEntity,
-  type Entity,
-  type ItemType,
 } from "./types";
 
 /**
@@ -41,8 +39,8 @@ export function tickBurnerInserter(
     case "return":
       tickReturn(draft, entity);
       break;
-    case "grab-fuel":
-      tickGrabFuel(draft, entity);
+    case "deliver-fuel":
+      tickDeliverFuel(draft, entity);
       break;
     case "return-fuel":
       tickReturnFuel(draft, entity);
@@ -59,14 +57,30 @@ function tickIdle(draft: AppState, entity: BurnerInserterEntity) {
   const sourceTile = getSourceTileForInserter(entity);
   const sourceEntity = getEntityAtTile(draft, sourceTile.x, sourceTile.y);
 
-  let targetEntity: Entity | null = null;
   if (entity.fuel === 0) {
-    targetEntity = entity;
-  } else {
-    // Find target entity (to the right/in front)
-    const targetTile = getTargetTileForInserter(entity);
-    targetEntity = getEntityAtTile(draft, targetTile.x, targetTile.y) ?? null;
+    if (!sourceEntity) {
+      return;
+    }
+    const itemType = takeFirstAvailableRequested(
+      draft,
+      sourceEntity,
+      new Set(["coal"]),
+    );
+    if (itemType === null) {
+      return;
+    }
+    entity.state = {
+      type: "deliver-fuel",
+      itemType: itemType,
+      progress: 0,
+    };
+    return;
   }
+
+  // Find target entity (to the right/in front)
+  const targetTile = getTargetTileForInserter(entity);
+  const targetEntity =
+    getEntityAtTile(draft, targetTile.x, targetTile.y) ?? null;
 
   // Both entities must exist
   if (!sourceEntity || !targetEntity) {
@@ -113,25 +127,24 @@ function tickDeliver(draft: AppState, entity: BurnerInserterEntity) {
   }
 }
 
-function tickGrabFuel(draft: AppState, entity: BurnerInserterEntity) {
-  invariant(entity.state.type === "grab-fuel");
+function tickDeliverFuel(draft: AppState, entity: BurnerInserterEntity) {
+  void draft;
+  invariant(entity.state.type === "deliver-fuel");
 
   entity.fuel = Math.max(entity.fuel - 1, 0);
 
   entity.state.progress = Math.min(
-    entity.state.progress + 1 / INSERTER_GRAB_FUEL_TICKS,
+    entity.state.progress + 1 / INSERTER_DELIVER_FUEL_TICKS,
     1,
   );
 
   if (entity.state.progress === 1) {
-    const itemType = attemptGrabFuel(draft, entity);
-    if (itemType) {
-      entity.state = {
-        type: "return-fuel",
-        itemType,
-        progress: 0,
-      };
-    }
+    invariant(entity.state.itemType === "coal");
+    entity.fuel += COAL_BURN_TIME_TICKS;
+    entity.state = {
+      type: "return-fuel",
+      progress: 0,
+    };
   }
 }
 
@@ -145,8 +158,6 @@ function tickReturnFuel(_draft: AppState, entity: BurnerInserterEntity) {
   );
 
   if (entity.state.progress === 1) {
-    invariant(entity.state.itemType === "coal");
-    entity.fuel += COAL_BURN_TIME_TICKS;
     entity.state = { type: "idle" };
   }
 }
@@ -190,22 +201,6 @@ function attemptDelivery(draft: AppState, entity: BurnerInserterEntity) {
       progress: 0,
     };
   }
-}
-
-function attemptGrabFuel(
-  draft: AppState,
-  entity: BurnerInserterEntity,
-): ItemType | null {
-  invariant(entity.state.type === "grab-fuel");
-
-  const sourceTile = getSourceTileForInserter(entity);
-  const sourceEntity = getEntityAtTile(draft, sourceTile.x, sourceTile.y);
-
-  if (!sourceEntity) {
-    return null;
-  }
-
-  return takeFirstAvailableRequested(draft, sourceEntity, new Set(["coal"]));
 }
 
 /**

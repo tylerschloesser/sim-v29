@@ -90,6 +90,20 @@ export class ProgressBarManager {
         fillColor = 0x0000ff; // blue
         progress = state.progress;
         break;
+      case "deliver-fuel": {
+        if (state.progress === 1) {
+          fillColor = 0xff0000; // red
+          progress = state.progress / 2;
+        } else {
+          fillColor = 0x0000ff; // blue
+          progress = state.progress / 2;
+        }
+        break;
+      }
+      case "return-fuel": {
+        fillColor = 0x00ff00; // green
+        progress = state.progress / 2;
+      }
     }
 
     // Draw background (dark gray)

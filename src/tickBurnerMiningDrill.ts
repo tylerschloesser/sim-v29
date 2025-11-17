@@ -1,4 +1,3 @@
-import type { invert } from "lodash-es";
 import {
   BELT_ITEM_SPACING,
   COAL_BURN_TIME_TICKS,
@@ -9,6 +8,7 @@ import {
   getOutputTileForBurnerMiningDrill,
   getTilesForEntity,
 } from "./entityUtils";
+import { invariant } from "./invariant";
 import {
   decrementInventory,
   incrementInventory,
@@ -22,7 +22,6 @@ import type {
   ResourceType,
 } from "./types";
 import { getBeltItemId } from "./types";
-import { invariant } from "./invariant";
 
 /**
  * Process one tick for a burner mining drill entity.
