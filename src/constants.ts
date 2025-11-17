@@ -21,6 +21,9 @@ export const INSERTER_DELIVER_TICKS = 1 * TICK_RATE;
 /** Duration of burner inserter return action in ticks (1 second) */
 export const INSERTER_RETURN_TICKS = 1 * TICK_RATE;
 
+export const INSERTER_GRAB_FUEL_TICKS = 30;
+export const INSERTER_RETURN_FUEL_TICKS = 30;
+
 /** Duration of stone furnace smelting action in ticks (1 second) */
 export const SMELT_DURATION_TICKS = 1 * TICK_RATE;
 
@@ -41,6 +44,8 @@ export const BELT_SPEED = 1;
 
 /** Minimum spacing between items on a belt (in positions) */
 export const BELT_ITEM_SPACING = 16;
+
+export const COAL_BURN_TIME_TICKS = 10 * TICK_RATE;
 
 /**
  * Get the total length of a belt in positions based on turn direction and lane.

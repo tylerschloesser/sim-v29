@@ -1,10 +1,19 @@
-import { BELT_ITEM_SPACING, MINING_DRILL_DURATION_TICKS } from "./constants";
+import type { invert } from "lodash-es";
+import {
+  BELT_ITEM_SPACING,
+  COAL_BURN_TIME_TICKS,
+  MINING_DRILL_DURATION_TICKS,
+} from "./constants";
 import {
   getEntityAtTile,
   getOutputTileForBurnerMiningDrill,
   getTilesForEntity,
 } from "./entityUtils";
-import { decrementInventory, incrementInventory } from "./inventoryUtils";
+import {
+  decrementInventory,
+  incrementInventory,
+  inventoryHas,
+} from "./inventoryUtils";
 import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
@@ -13,6 +22,7 @@ import type {
   ResourceType,
 } from "./types";
 import { getBeltItemId } from "./types";
+import { invariant } from "./invariant";
 
 /**
  * Process one tick for a burner mining drill entity.
@@ -46,6 +56,10 @@ export function tickBurnerMiningDrill(
 function tickIdle(draft: AppState, entity: BurnerMiningDrillEntity) {
   // Get all tiles covered by this entity
   const tiles = getTilesForEntity(entity);
+
+  if (entity.fuel === 0 && !inventoryHas(entity.inputInventory, "coal")) {
+    return;
+  }
 
   // Check each tile for a resource
   for (const { x, y } of tiles) {
@@ -81,6 +95,16 @@ function tickIdle(draft: AppState, entity: BurnerMiningDrillEntity) {
  */
 function tickMining(_draft: AppState, entity: BurnerMiningDrillEntity) {
   if (entity.state.type !== "mining") return;
+
+  if (entity.fuel === 0) {
+    if (!inventoryHas(entity.inputInventory, "coal")) {
+      return;
+    }
+    decrementInventory(entity.inputInventory, "coal");
+    entity.fuel = COAL_BURN_TIME_TICKS;
+  }
+  invariant(entity.fuel > 0, "Entity must have fuel to mine");
+  entity.fuel -= 1;
 
   // Increment progress
   entity.state.progress += 1 / MINING_DRILL_DURATION_TICKS;

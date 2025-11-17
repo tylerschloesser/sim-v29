@@ -126,7 +126,9 @@ export interface HomeStorageEntity extends BaseEntity {
 export type BurnerInserterState =
   | { type: "idle" }
   | { type: "deliver"; itemType: ItemType; progress: number }
-  | { type: "return"; progress: number };
+  | { type: "return"; progress: number }
+  | { type: "grab-fuel"; progress: number }
+  | { type: "return-fuel"; itemType: ItemType; progress: number };
 
 export interface BurnerInserterEntity extends BaseEntity {
   type: "burner-inserter";
