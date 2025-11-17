@@ -12,8 +12,9 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import clsx from "clsx";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useAppContext } from "../appContext";
+import { searchSchema } from "../build-types";
 import { IconButton } from "../IconButton";
 import { IconLink } from "../IconLink";
 import { inventoryHas } from "../inventoryUtils";
@@ -21,108 +22,97 @@ import { Panel } from "../Panel";
 import { SelectEntityPanel } from "../SelectEntityPanel";
 import {
   ENTITY_CONFIGS,
-  isEntityType,
+  entityTypeSchema,
+  rotateClockwise,
   type BeltTurn,
   type EntityType,
 } from "../types";
 import { useBuildPreview } from "../useBuildPreview";
 import { useHandleBuild } from "../useHandleBuild";
 
-interface BuildSearch {
-  selectedEntityType?: EntityType;
-  rotation?: 0 | 90 | 180 | 270;
-  turn?: BeltTurn;
-}
-
 export const Route = createFileRoute("/build")({
   component: BuildComponent,
-  validateSearch: (search: Record<string, unknown>): BuildSearch => {
-    const selectedEntityType = search.selectedEntityType;
-    const rotation = search.rotation;
-    const turn = search.turn;
-    const isValidRotation = (value: unknown): value is 0 | 90 | 180 | 270 =>
-      value === 0 || value === 90 || value === 180 || value === 270;
-    const isValidTurn = (value: unknown): value is BeltTurn =>
-      value === "none" || value === "left" || value === "right";
-
-    return {
-      selectedEntityType: isEntityType(selectedEntityType)
-        ? selectedEntityType
-        : undefined,
-      rotation: isValidRotation(rotation) ? rotation : 0,
-      turn: isValidTurn(turn) ? turn : "none",
-    };
-  },
+  validateSearch: (search) => searchSchema.parse(search),
 });
 
 function BuildComponent() {
   const { state, pixiController } = useAppContext();
-  const { selectedEntityType, rotation, turn } = useSearch({
-    from: "/build",
-  }) as BuildSearch;
+  const search = useSearch({ from: "/build" });
   const navigate = useNavigate({ from: "/build" });
 
   // Monitor inventory and clear selection if count drops to 0
   useEffect(() => {
     if (
-      selectedEntityType !== undefined &&
-      !inventoryHas(state.inventory, selectedEntityType)
+      search.selectedEntityType !== undefined &&
+      !inventoryHas(state.inventory, search.selectedEntityType)
     ) {
-      navigate({
-        search: { selectedEntityType: undefined, rotation: 0, turn: "none" },
-      });
+      navigate({ search: { selectedEntityType: undefined } });
     }
-  }, [selectedEntityType, state.inventory, navigate]);
+  }, [search, state.inventory, navigate]);
 
   // Update build preview based on camera, selected entity type, rotation, and turn
-  const build = useBuildPreview(
-    selectedEntityType,
-    rotation ?? 0,
-    turn ?? "none",
-    state,
-    pixiController,
-  );
+  const build = useBuildPreview(search, state, pixiController);
 
-  const handleSelectEntity = (entityType: EntityType) => {
-    navigate({
-      search: { selectedEntityType: entityType, rotation: 0, turn: "none" },
-    });
-  };
-
-  const handleRotate = () => {
-    const nextRotation = (((rotation ?? 0) + 90) % 360) as 0 | 90 | 180 | 270;
-    navigate({ search: { selectedEntityType, rotation: nextRotation, turn } });
-  };
-
-  const handleTurn = () => {
-    const currentTurn = turn ?? "none";
-    let nextTurn: BeltTurn;
-    if (currentTurn === "none") {
-      nextTurn = "right";
-    } else if (currentTurn === "right") {
-      nextTurn = "left";
-    } else {
-      nextTurn = "none";
+  const handleRotate = useCallback(() => {
+    if (search.selectedEntityType) {
+      navigate({
+        search: { ...search, rotation: rotateClockwise(search.rotation) },
+      });
     }
-    navigate({ search: { selectedEntityType, rotation, turn: nextTurn } });
-  };
+  }, [search, navigate]);
+
+  const handleTurn = useCallback(() => {
+    if (search.selectedEntityType === entityTypeSchema.enum.belt) {
+      let nextTurn: BeltTurn;
+      if (search.turn === "none") {
+        nextTurn = "right";
+      } else if (search.turn === "right") {
+        nextTurn = "left";
+      } else {
+        nextTurn = "none";
+      }
+      navigate({ search: { ...search, turn: nextTurn } });
+    }
+  }, [search, navigate]);
 
   const handleBuild = useHandleBuild();
 
   // Check if the selected entity is rotatable
   const isRotatable =
-    selectedEntityType !== undefined &&
-    ENTITY_CONFIGS[selectedEntityType].rotatable;
+    search.selectedEntityType !== undefined &&
+    ENTITY_CONFIGS[search.selectedEntityType].rotatable;
 
   // Check if the selected entity is a belt (for turn button)
-  const isBelt = selectedEntityType === "belt";
+  const isBelt = search.selectedEntityType === "belt";
+
+  const handleSelectEntity = useCallback(
+    (entityType: EntityType) => {
+      if (entityType === entityTypeSchema.enum.belt) {
+        navigate({
+          search: {
+            selectedEntityType: entityType,
+            rotation: 0,
+            turn: "none",
+          },
+        });
+      } else {
+        navigate({
+          search: {
+            selectedEntityType: entityType,
+            rotation: 0,
+          },
+        });
+      }
+    },
+    [navigate],
+  );
 
   return (
     <>
       <div
         className={clsx("fixed inset-0", "p-4 flex flex-col justify-end gap-4")}
       >
-        {!selectedEntityType && (
+        {!search.selectedEntityType && (
           <SelectEntityPanel
             inventory={state.inventory}
             onSelectEntity={handleSelectEntity}
@@ -139,9 +129,10 @@ function BuildComponent() {
             />
             <IconButton
               faIcon={
-                turn === "none"
+                search.selectedEntityType !== entityTypeSchema.enum.belt ||
+                search.turn === "none"
                   ? faUp
-                  : turn === "right"
+                  : search.turn === "right"
                     ? faTurnRight
                     : faTurnLeft
               }

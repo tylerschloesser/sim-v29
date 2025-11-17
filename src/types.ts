@@ -8,12 +8,14 @@ import {
   faRightToBracket,
   type IconDefinition,
 } from "@fortawesome/pro-solid-svg-icons";
+import z from "zod";
+import { BELT_ITEM_SPACING } from "./constants";
+import { invariant } from "./invariant";
 import {
   decrementInventory,
   incrementInventory,
   inventoryHas,
 } from "./inventoryUtils";
-import { BELT_ITEM_SPACING } from "./constants";
 
 export const CHUNK_SIZE = 32; // tiles per chunk
 export const TILE_SIZE = 32; // pixels per tile
@@ -30,14 +32,17 @@ export interface Resource {
   count: number;
 }
 
-export type EntityType =
-  | "stone-furnace"
-  | "home-storage"
-  | "burner-inserter"
-  | "burner-mining-drill"
-  | "belt"
-  | "test-belt-input"
-  | "test-belt-output";
+export const entityTypeSchema = z.enum([
+  "stone-furnace",
+  "home-storage",
+  "burner-inserter",
+  "burner-mining-drill",
+  "belt",
+  "test-belt-input",
+  "test-belt-output",
+]);
+
+export type EntityType = z.infer<typeof entityTypeSchema>;
 
 export type ItemType = ResourceType | EntityType | "iron-plate";
 
@@ -412,8 +417,9 @@ export function createEntity(
   x: number,
   y: number,
   rotation: 0 | 90 | 180 | 270 = 0,
-  turn: BeltTurn = "none",
 ): Entity {
+  invariant(type !== entityTypeSchema.enum.belt);
+
   const size = ENTITY_CONFIGS[type].size;
   const position = { x, y };
 
@@ -452,17 +458,6 @@ export function createEntity(
       fuel: 0,
       state: { type: "idle" },
     };
-  } else if (type === "belt") {
-    return {
-      id,
-      type,
-      position,
-      size,
-      rotation,
-      turn,
-      leftLane: [],
-      rightLane: [],
-    };
   } else if (type === "test-belt-input") {
     return {
       id,
@@ -482,7 +477,7 @@ export function createEntity(
       inventory: {},
     };
   } else {
-    // home-storage
+    invariant(type === entityTypeSchema.enum["home-storage"]);
     return {
       id,
       type,
@@ -493,9 +488,42 @@ export function createEntity(
   }
 }
 
+export function createBeltEntity(
+  id: EntityId,
+  type: typeof entityTypeSchema.enum.belt,
+  x: number,
+  y: number,
+  rotation: Rotation = 0,
+  turn: BeltTurn = "none",
+): BeltEntity {
+  return {
+    id,
+    type,
+    position: { x, y },
+    size: ENTITY_CONFIGS["belt"].size,
+    rotation,
+    turn,
+    leftLane: [],
+    rightLane: [],
+  };
+}
+
 /**
  * Converts degrees to radians
  */
 export function degreesToRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
+}
+
+export function rotateClockwise(rotation: Rotation): Rotation {
+  switch (rotation) {
+    case 0:
+      return 90;
+    case 90:
+      return 180;
+    case 180:
+      return 270;
+    case 270:
+      return 0;
+  }
 }

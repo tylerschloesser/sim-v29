@@ -38,7 +38,11 @@ export function BottomBar() {
           })}
         >
           <PrimaryButton />
-          <IconLink faIcon={faHammer} to="/build" />
+          <IconLink
+            faIcon={faHammer}
+            to="/build"
+            search={{ selectedEntityType: undefined }}
+          />
           <HomeButton />
           <IconButton
             faIcon={config === "left" ? faBorderLeft : faBorderRight}

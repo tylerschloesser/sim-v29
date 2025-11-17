@@ -12,7 +12,7 @@ import type {
   EntityId,
   Tile,
 } from "./types";
-import { CHUNK_SIZE, createEntity, getChunkId, tileToChunk } from "./types";
+import { CHUNK_SIZE, createBeltEntity, getChunkId, tileToChunk } from "./types";
 
 /**
  * Creates a mock chunk with empty tiles.
@@ -37,7 +37,7 @@ export function createMockBelt(
   rotation: 0 | 90 | 180 | 270,
   turn: BeltTurn = "none",
 ): BeltEntity {
-  const entity = createEntity(id, "belt", x, y, rotation, turn);
+  const entity = createBeltEntity(id, "belt", x, y, rotation, turn);
   if (entity.type !== "belt") {
     throw new Error("Expected belt entity");
   }

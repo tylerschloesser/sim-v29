@@ -6,7 +6,13 @@ import {
 } from "./chunkUtils.ts";
 import { placeEntity } from "./entityUtils.ts";
 import type { AppState, ChunkId, Entity, ResourceType } from "./types.ts";
-import { CHUNK_SIZE, createEntity, getChunkId, getEntityId } from "./types.ts";
+import {
+  CHUNK_SIZE,
+  createBeltEntity,
+  createEntity,
+  getChunkId,
+  getEntityId,
+} from "./types.ts";
 
 export interface InitializedState {
   state: AppState;
@@ -49,14 +55,14 @@ const INITIAL_RESOURCES: Record<
 const INITIAL_ENTITIES: Array<Entity> = [
   createEntity("", "home-storage", -1, -1),
   createEntity("", "test-belt-input", -3, 2),
-  createEntity("", "belt", -2, 2, 0, "none"),
-  createEntity("", "belt", -1, 2, 0, "none"),
-  createEntity("", "belt", 0, 2, 0, "right"),
-  createEntity("", "belt", 0, 3, 90, "left"),
+  createBeltEntity("", "belt", -2, 2, 0, "none"),
+  createBeltEntity("", "belt", -1, 2, 0, "none"),
+  createBeltEntity("", "belt", 0, 2, 0, "right"),
+  createBeltEntity("", "belt", 0, 3, 90, "left"),
   createEntity("", "test-belt-output", 1, 3),
   createEntity("", "test-belt-input", -3, 5),
-  createEntity("", "belt", -2, 5, 0, "none"),
-  createEntity("", "belt", -1, 5, 0, "right"),
+  createBeltEntity("", "belt", -2, 5, 0, "none"),
+  createBeltEntity("", "belt", -1, 5, 0, "right"),
 ];
 
 /**
