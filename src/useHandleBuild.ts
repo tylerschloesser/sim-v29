@@ -25,8 +25,6 @@ export function useHandleBuild(
 
   return useCallback(
     (entity: Entity) => {
-      invariant(entity.id === "", "Entity ID must be empty string");
-
       if (entity.type === entityTypeSchema.enum.belt) {
         invariant(search.selectedEntityType === entityTypeSchema.enum.belt);
         if (search.sourceId !== null) {
