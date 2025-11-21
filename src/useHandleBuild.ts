@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { useAppContext } from "./appContext";
-import type { BuildRouteSearch } from "./build-types";
 import { getTilesForEntity } from "./entityUtils";
 import { invariant } from "./invariant";
 import { decrementInventory } from "./inventoryUtils";
@@ -12,9 +11,7 @@ import { CHUNK_SIZE, getChunkId, getEntityId, tileToChunk } from "./types";
  * Validates that the entity ID is empty, generates a new ID, and updates
  * all tiles occupied by the entity.
  */
-export function useHandleBuild(
-  search: BuildRouteSearch,
-): (entities: Entity[]) => void {
+export function useHandleBuild(): (entities: Entity[]) => void {
   const { updateState } = useAppContext();
 
   return useCallback(
@@ -57,6 +54,6 @@ export function useHandleBuild(
         }
       });
     },
-    [search, updateState],
+    [updateState],
   );
 }

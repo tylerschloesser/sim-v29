@@ -91,7 +91,7 @@ function BuildComponent() {
     navigate({ search: { ...search, turn: nextTurn } });
   }, [search, navigate]);
 
-  const handleBuild = useHandleBuild(search);
+  const handleBuild = useHandleBuild();
 
   // Check if the selected entity is rotatable
   const isRotatable =
