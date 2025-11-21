@@ -8,6 +8,7 @@ import {
   createBeltEntity,
   createEntity,
   ENTITY_CONFIGS,
+  getEntityId,
   TILE_SIZE,
 } from "./types";
 
@@ -26,6 +27,8 @@ export function useBuildPreview(
       return null;
     }
 
+    const entityId = getEntityId(state.nextEntityId);
+
     // Create entity with empty ID at camera position
     // Entity position is top-left, so offset by half the entity size to center it
     // Account for rotation: swap dimensions for 90/270 degrees
@@ -38,7 +41,7 @@ export function useBuildPreview(
     let entity: Entity;
     if (isBelt(search)) {
       entity = createBeltEntity(
-        "",
+        entityId,
         search.selectedEntityType,
         entityX,
         entityY,
@@ -47,7 +50,7 @@ export function useBuildPreview(
       );
     } else {
       entity = createEntity(
-        "",
+        entityId,
         search.selectedEntityType,
         entityX,
         entityY,

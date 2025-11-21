@@ -1,38 +1,48 @@
 import { useCallback } from "react";
 import { useAppContext } from "./appContext";
+import type { BuildRouteSearch } from "./build-types";
 import { getTilesForEntity } from "./entityUtils";
 import { invariant } from "./invariant";
 import { decrementInventory } from "./inventoryUtils";
 import type { Entity } from "./types";
-import { CHUNK_SIZE, getChunkId, getEntityId, tileToChunk } from "./types";
+import {
+  CHUNK_SIZE,
+  entityTypeSchema,
+  getChunkId,
+  getEntityId,
+  tileToChunk,
+} from "./types";
 
 /**
  * Hook that provides a function to add an entity to the app state.
  * Validates that the entity ID is empty, generates a new ID, and updates
  * all tiles occupied by the entity.
  */
-export function useHandleBuild(): (entity: Entity) => void {
+export function useHandleBuild(
+  search: BuildRouteSearch,
+): (entity: Entity) => void {
   const { updateState } = useAppContext();
 
   return useCallback(
     (entity: Entity) => {
       invariant(entity.id === "", "Entity ID must be empty string");
 
-      updateState((draft) => {
-        // Generate unique entity ID and increment counter
-        const entityId = getEntityId(draft.nextEntityId++);
+      if (entity.type === entityTypeSchema.enum.belt) {
+        invariant(search.selectedEntityType === entityTypeSchema.enum.belt);
+        if (search.sourceId !== null) {
+          // TODO handle
+        }
+      }
 
-        // Create updated entity with new ID
-        const updatedEntity: Entity = {
-          ...entity,
-          id: entityId,
-        };
+      updateState((draft) => {
+        invariant(entity.id === getEntityId(draft.nextEntityId));
+        draft.nextEntityId += 1;
 
         // Add entity to entities Map
-        draft.entities.set(entityId, updatedEntity);
+        draft.entities.set(entity.id, entity);
 
         // Update all tiles occupied by entity to reference it
-        for (const { x, y } of getTilesForEntity(updatedEntity)) {
+        for (const { x, y } of getTilesForEntity(entity)) {
           // Convert tile coordinates to chunk coordinates
           const chunkX = tileToChunk(x);
           const chunkY = tileToChunk(y);
@@ -54,12 +64,12 @@ export function useHandleBuild(): (entity: Entity) => void {
             `Tile at (${x}, ${y}) must not already have an entity`,
           );
 
-          tile.entityId = entityId;
+          tile.entityId = entity.id;
         }
 
         decrementInventory(draft.inventory, entity.type, 1);
       });
     },
-    [updateState],
+    [search, updateState],
   );
 }

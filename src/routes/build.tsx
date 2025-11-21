@@ -32,7 +32,7 @@ import { useHandleBuild } from "../useHandleBuild";
 
 export const Route = createFileRoute("/build")({
   component: BuildComponent,
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: searchSchema.catch({ selectedEntityType: undefined }),
 });
 
 function BuildComponent() {
@@ -76,7 +76,7 @@ function BuildComponent() {
     navigate({ search: { ...search, turn: nextTurn } });
   }, [search, navigate]);
 
-  const handleBuild = useHandleBuild();
+  const handleBuild = useHandleBuild(search);
 
   // Check if the selected entity is rotatable
   const isRotatable =
