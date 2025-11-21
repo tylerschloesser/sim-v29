@@ -64,8 +64,8 @@ export function useHandleBuild(
 
           tile.entityId = entity.id;
         }
-
         decrementInventory(draft.inventory, entity.type, 1);
+        console.debug("Build entity:", entity);
       });
     },
     [search, updateState],
