@@ -3,7 +3,7 @@ import { isBelt, type BuildRouteSearch } from "./build-types";
 import { getRotatedSize, getTilesForEntity } from "./entityUtils";
 import type { PixiController } from "./PixiController";
 import { getTileAtCoords } from "./tileUtils";
-import type { AppState, Build, Entity, Rotation } from "./types";
+import type { AppState, Build, Entity, Rotation, SimpleBuild } from "./types";
 import {
   createBeltEntity,
   createEntity,
@@ -64,7 +64,7 @@ export function useBuildPreview(
     );
     const valid = entityTiles.every((tile) => !tile?.entityId);
 
-    return { entity, valid };
+    return { type: "simple", entities: [entity], valid } satisfies SimpleBuild;
   }, [state, search]);
 
   useEffect(() => {

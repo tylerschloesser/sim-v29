@@ -131,7 +131,6 @@ function BuildComponent() {
                 disabled={!isBelt}
                 onClick={handleTurn}
                 title="Change belt turn"
-                className="block"
               />
             )}
             <IconButton
@@ -139,23 +138,21 @@ function BuildComponent() {
               disabled={!isRotatable}
               onClick={handleRotate}
               title="Rotate (90° clockwise)"
-              className="block"
             />
-            <IconButton
-              faIcon={faHammer}
-              disabled={!build?.valid}
-              onClick={() => {
-                if (build?.valid) {
-                  handleBuild(build.entity);
+            {!build && <IconButton faIcon={faHammer} disabled={true} />}
+            {build?.type === "simple" && (
+              <IconButton
+                faIcon={faHammer}
+                disabled={!build.valid}
+                onClick={
+                  build.valid &&
+                  (() => {
+                    handleBuild(build.entities);
+                  })
                 }
-              }}
-              className="block"
-            />
-            <IconLink
-              faIcon={faArrowLeft}
-              to={build ? "/build" : "/"}
-              className="block"
-            />
+              />
+            )}
+            <IconLink faIcon={faArrowLeft} to={build ? "/build" : "/"} />
           </Panel>
         </div>
       </div>

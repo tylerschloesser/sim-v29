@@ -275,10 +275,20 @@ export function tryPutItem(
   return { success: true };
 }
 
-export interface Build {
-  entity: Entity;
+export type BuildType = "simple" | "start-belt";
+
+export interface SimpleBuild {
+  type: "simple";
+  entities: Entity[];
   valid: boolean;
 }
+
+export interface StartBeltBuild {
+  type: "start-belt";
+  startId: string;
+}
+
+export type Build = SimpleBuild | StartBeltBuild;
 
 // Entity configuration constants
 export interface EntityConfig {

@@ -5,13 +5,7 @@ import { getTilesForEntity } from "./entityUtils";
 import { invariant } from "./invariant";
 import { decrementInventory } from "./inventoryUtils";
 import type { Entity } from "./types";
-import {
-  CHUNK_SIZE,
-  entityTypeSchema,
-  getChunkId,
-  getEntityId,
-  tileToChunk,
-} from "./types";
+import { CHUNK_SIZE, getChunkId, getEntityId, tileToChunk } from "./types";
 
 /**
  * Hook that provides a function to add an entity to the app state.
@@ -20,52 +14,47 @@ import {
  */
 export function useHandleBuild(
   search: BuildRouteSearch,
-): (entity: Entity) => void {
+): (entities: Entity[]) => void {
   const { updateState } = useAppContext();
 
   return useCallback(
-    (entity: Entity) => {
-      if (entity.type === entityTypeSchema.enum.belt) {
-        invariant(search.selectedEntityType === entityTypeSchema.enum.belt);
-        if (search.sourceId !== null) {
-          // TODO handle
-        }
-      }
-
+    (entities: Entity[]) => {
       updateState((draft) => {
-        invariant(entity.id === getEntityId(draft.nextEntityId));
-        draft.nextEntityId += 1;
+        for (const entity of entities) {
+          invariant(entity.id === getEntityId(draft.nextEntityId));
+          draft.nextEntityId += 1;
 
-        // Add entity to entities Map
-        draft.entities.set(entity.id, entity);
+          // Add entity to entities Map
+          draft.entities.set(entity.id, entity);
 
-        // Update all tiles occupied by entity to reference it
-        for (const { x, y } of getTilesForEntity(entity)) {
-          // Convert tile coordinates to chunk coordinates
-          const chunkX = tileToChunk(x);
-          const chunkY = tileToChunk(y);
-          const chunkId = getChunkId(chunkX, chunkY);
+          // Update all tiles occupied by entity to reference it
+          for (const { x, y } of getTilesForEntity(entity)) {
+            // Convert tile coordinates to chunk coordinates
+            const chunkX = tileToChunk(x);
+            const chunkY = tileToChunk(y);
+            const chunkId = getChunkId(chunkX, chunkY);
 
-          // Get chunk from state
-          const chunk = draft.chunks.get(chunkId);
-          invariant(chunk, `Chunk ${chunkId} must exist to place entity`);
+            // Get chunk from state
+            const chunk = draft.chunks.get(chunkId);
+            invariant(chunk, `Chunk ${chunkId} must exist to place entity`);
 
-          // Calculate local tile position within chunk
-          const localTileX = x - chunkX;
-          const localTileY = y - chunkY;
-          const tileIndex = localTileY * CHUNK_SIZE + localTileX;
+            // Calculate local tile position within chunk
+            const localTileX = x - chunkX;
+            const localTileY = y - chunkY;
+            const tileIndex = localTileY * CHUNK_SIZE + localTileX;
 
-          // Validate and update tile
-          const tile = chunk.tiles[tileIndex];
-          invariant(
-            !tile.entityId,
-            `Tile at (${x}, ${y}) must not already have an entity`,
-          );
+            // Validate and update tile
+            const tile = chunk.tiles[tileIndex];
+            invariant(
+              !tile.entityId,
+              `Tile at (${x}, ${y}) must not already have an entity`,
+            );
 
-          tile.entityId = entity.id;
+            tile.entityId = entity.id;
+          }
+          decrementInventory(draft.inventory, entity.type, 1);
+          console.debug("Built entity:", entity);
         }
-        decrementInventory(draft.inventory, entity.type, 1);
-        console.debug("Build entity:", entity);
       });
     },
     [search, updateState],

@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 interface IconButtonProps {
   faIcon: IconDefinition;
-  onClick?: () => void;
+  onClick?: false | (() => void);
   disabled?: boolean;
   className?: string;
   title?: string;
@@ -18,7 +18,7 @@ export function IconButton({
   title,
 }: IconButtonProps) {
   const baseClassName = clsx(
-    "p-4",
+    "block p-4",
     "disabled:opacity-50 disabled:cursor-not-allowed",
     className,
   );
@@ -26,7 +26,7 @@ export function IconButton({
   return (
     <button
       className={baseClassName}
-      onClick={onClick}
+      onClick={onClick || undefined}
       disabled={disabled}
       title={title}
     >

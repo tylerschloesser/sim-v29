@@ -1,14 +1,14 @@
 import { Application, Container, Sprite } from "pixi.js";
-import type { Build } from "./types";
-import { degreesToRadians } from "./types";
 import type { TextureManager } from "./TextureManager";
 import { getCenterPixelPosition, getRotatedSize } from "./entityUtils";
+import type { Build } from "./types";
+import { degreesToRadians } from "./types";
 
 export class BuildManager {
   private app: Application;
   private container: Container;
-  private buildSprite: Sprite | null = null;
   private textureManager: TextureManager;
+  private sprites: Sprite[] = [];
 
   constructor(app: Application, textureManager: TextureManager) {
     this.app = app;
@@ -21,46 +21,40 @@ export class BuildManager {
 
   updateBuild(build: Build | null) {
     // Clear existing build preview
-    if (this.buildSprite) {
-      this.container.removeChild(this.buildSprite);
-      this.buildSprite.destroy();
-      this.buildSprite = null;
-    }
+    this.destroySprites();
 
     // If no build, we're done
-    if (!build) {
+    if (build?.type !== "simple") {
       return;
     }
 
-    // Render new build preview
-    const texture = this.textureManager.getTexture(build.entity);
-    this.buildSprite = new Sprite(texture);
+    for (const entity of build.entities) {
+      // Render new build preview
+      const texture = this.textureManager.getTexture(entity);
+      const sprite = this.container.addChild(new Sprite(texture));
+      this.sprites.push(sprite);
 
-    // Set anchor to center for proper rotation
-    this.buildSprite.anchor.set(0.5, 0.5);
+      // Set anchor to center for proper rotation
+      sprite.anchor.set(0.5, 0.5);
 
-    // Calculate rotated size and center pixel position
-    const rotatedSize = getRotatedSize(
-      build.entity.size,
-      build.entity.rotation,
-    );
-    const centerPosition = getCenterPixelPosition(
-      build.entity.position,
-      rotatedSize,
-    );
-    this.buildSprite.x = centerPosition.x;
-    this.buildSprite.y = centerPosition.y;
+      // Calculate rotated size and center pixel position
+      const rotatedSize = getRotatedSize(entity.size, entity.rotation);
+      const centerPosition = getCenterPixelPosition(
+        entity.position,
+        rotatedSize,
+      );
+      sprite.x = centerPosition.x;
+      sprite.y = centerPosition.y;
 
-    // Apply rotation (convert degrees to radians)
-    this.buildSprite.rotation = degreesToRadians(build.entity.rotation);
+      // Apply rotation (convert degrees to radians)
+      sprite.rotation = degreesToRadians(entity.rotation);
 
-    // Use green tint for valid placement, red tint for invalid
-    this.buildSprite.tint = build.valid ? 0x00ff00 : 0xff0000;
+      // Use green tint for valid placement, red tint for invalid
+      sprite.tint = build.valid ? 0x00ff00 : 0xff0000;
 
-    // Make it semi-transparent for preview effect
-    this.buildSprite.alpha = 0.5;
-
-    this.container.addChild(this.buildSprite);
+      // Make it semi-transparent for preview effect
+      sprite.alpha = 0.5;
+    }
   }
 
   updatePosition(cameraX: number, cameraY: number) {
@@ -72,11 +66,16 @@ export class BuildManager {
     this.container.position.y = centerY - cameraY;
   }
 
-  destroy() {
-    if (this.buildSprite) {
-      this.buildSprite.destroy();
-      this.buildSprite = null;
+  destroySprites() {
+    for (const sprite of this.sprites) {
+      this.container.removeChild(sprite);
+      sprite.destroy();
     }
+    this.sprites = [];
+  }
+
+  destroy() {
+    this.destroySprites();
     this.container.destroy();
   }
 }
