@@ -285,7 +285,7 @@ export interface SimpleBuild {
 
 export interface StartBeltBuild {
   type: "start-belt";
-  startId: string;
+  entities: Entity[];
 }
 
 export type Build = SimpleBuild | StartBeltBuild;

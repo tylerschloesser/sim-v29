@@ -3,7 +3,14 @@ import { isBelt, type BuildRouteSearch } from "./build-types";
 import { getRotatedSize, getTilesForEntity } from "./entityUtils";
 import type { PixiController } from "./PixiController";
 import { getTileAtCoords } from "./tileUtils";
-import type { AppState, Build, Entity, Rotation, SimpleBuild } from "./types";
+import type {
+  AppState,
+  Build,
+  Entity,
+  Rotation,
+  SimpleBuild,
+  StartBeltBuild,
+} from "./types";
 import {
   createBeltEntity,
   createEntity,
@@ -11,6 +18,7 @@ import {
   getEntityId,
   TILE_SIZE,
 } from "./types";
+import { invariant } from "./invariant";
 
 /**
  * Hook that manages the build preview based on camera position and selected entity type.
@@ -63,6 +71,25 @@ export function useBuildPreview(
       getTileAtCoords(state, x, y),
     );
     const valid = entityTiles.every((tile) => !tile?.entityId);
+
+    if (
+      !valid &&
+      search.selectedEntityType === "belt" &&
+      search.sourceId === null
+    ) {
+      // check if placing the belt here would connect to any existing belts
+      invariant(entityTiles.length === 1);
+      const tile = entityTiles.at(0);
+      invariant(tile?.entityId);
+      const existingEntity = state.entities.get(tile.entityId);
+      invariant(existingEntity);
+      if (existingEntity.type === "belt") {
+        return {
+          type: "start-belt",
+          entities: [existingEntity],
+        } satisfies StartBeltBuild;
+      }
+    }
 
     return { type: "simple", entities: [entity], valid } satisfies SimpleBuild;
   }, [state, search]);

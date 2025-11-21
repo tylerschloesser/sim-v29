@@ -1,5 +1,6 @@
 import {
   faArrowLeft,
+  faCircleNodes,
   faHammer,
   faRotateRight,
   faTurnLeft,
@@ -128,14 +129,14 @@ function BuildComponent() {
                       ? faTurnRight
                       : faTurnLeft
                 }
-                disabled={!isBelt}
+                disabled={build?.type === "start-belt"}
                 onClick={handleTurn}
                 title="Change belt turn"
               />
             )}
             <IconButton
               faIcon={faRotateRight}
-              disabled={!isRotatable}
+              disabled={!isRotatable || build?.type === "start-belt"}
               onClick={handleRotate}
               title="Rotate (90° clockwise)"
             />
@@ -151,6 +152,9 @@ function BuildComponent() {
                   })
                 }
               />
+            )}
+            {build?.type === "start-belt" && (
+              <IconButton faIcon={faCircleNodes} />
             )}
             <IconLink faIcon={faArrowLeft} to={build ? "/build" : "/"} />
           </Panel>
