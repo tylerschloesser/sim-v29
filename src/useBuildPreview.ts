@@ -46,15 +46,28 @@ export function useBuildPreview(
 
     let entity: Entity;
     if (isBelt(search)) {
-      const entityId = getEntityId(state.nextEntityId);
-      entity = createBeltEntity(
-        entityId,
-        search.selectedEntityType,
-        entityX,
-        entityY,
-        rotation,
-        search.turn,
-      );
+      if (search.sourceId === null) {
+        const entityId = getEntityId(state.nextEntityId);
+        entity = createBeltEntity(
+          entityId,
+          search.selectedEntityType,
+          entityX,
+          entityY,
+          rotation,
+          search.turn,
+        );
+      } else {
+        // TODO
+        const entityId = getEntityId(state.nextEntityId);
+        entity = createBeltEntity(
+          entityId,
+          search.selectedEntityType,
+          entityX,
+          entityY,
+          rotation,
+          search.turn,
+        );
+      }
     } else {
       const entityId = getEntityId(state.nextEntityId);
       entity = createEntity(

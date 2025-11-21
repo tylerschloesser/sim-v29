@@ -39,7 +39,20 @@ export const Route = createFileRoute("/build")({
 
 function BuildComponent() {
   const { state, pixiController } = useAppContext();
-  const search = useSearch({ from: "/build" });
+  const search = useSearch({
+    from: "/build",
+    select: (s) => {
+      if (s.selectedEntityType !== "belt" || s.sourceId === null) {
+        return s;
+      }
+      // validate sourceId
+      const source = state.entities.get(s.sourceId);
+      if (!source || source.type !== "belt") {
+        return { ...s, sourceId: null };
+      }
+      return s;
+    },
+  });
   const navigate = useNavigate({ from: "/build" });
 
   // Monitor inventory and clear selection if count drops to 0
