@@ -30,6 +30,7 @@ import {
 } from "../types";
 import { useBuildPreview } from "../useBuildPreview";
 import { useHandleBuild } from "../useHandleBuild";
+import { invariant } from "../invariant";
 
 export const Route = createFileRoute("/build")({
   component: BuildComponent,
@@ -154,7 +155,21 @@ function BuildComponent() {
               />
             )}
             {build?.type === "start-belt" && (
-              <IconButton faIcon={faCircleNodes} />
+              <IconButton
+                faIcon={faCircleNodes}
+                onClick={() => {
+                  invariant(search.selectedEntityType === "belt");
+                  invariant(build.entities.length === 1);
+                  const existingBelt = build.entities.at(0);
+                  invariant(existingBelt);
+                  navigate({
+                    search: {
+                      ...search,
+                      sourceId: existingBelt.id,
+                    },
+                  });
+                }}
+              />
             )}
             <IconLink faIcon={faArrowLeft} to={build ? "/build" : "/"} />
           </Panel>
