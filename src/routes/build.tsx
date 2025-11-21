@@ -14,7 +14,11 @@ import {
 import clsx from "clsx";
 import { useCallback, useEffect } from "react";
 import { useAppContext } from "../appContext";
-import { searchSchema } from "../build-types";
+import {
+  isAdvancedBeltMode,
+  isSimpleBeltMode,
+  searchSchema,
+} from "../build-types";
 import { IconButton } from "../IconButton";
 import { IconLink } from "../IconLink";
 import { inventoryHas } from "../inventoryUtils";
@@ -55,6 +59,9 @@ function BuildComponent() {
 
   const handleRotate = useCallback(() => {
     if (search.selectedEntityType) {
+      if (isAdvancedBeltMode(search)) {
+        return;
+      }
       navigate({
         search: { ...search, rotation: rotateClockwise(search.rotation) },
       });
@@ -62,17 +69,18 @@ function BuildComponent() {
   }, [search, navigate]);
 
   const handleTurn = useCallback(() => {
-    if (search.selectedEntityType === entityTypeSchema.enum.belt) {
-      let nextTurn: BeltTurn;
-      if (search.turn === "none") {
-        nextTurn = "right";
-      } else if (search.turn === "right") {
-        nextTurn = "left";
-      } else {
-        nextTurn = "none";
-      }
-      navigate({ search: { ...search, turn: nextTurn } });
+    if (!isSimpleBeltMode(search)) {
+      return;
     }
+    let nextTurn: BeltTurn;
+    if (search.turn === "none") {
+      nextTurn = "right";
+    } else if (search.turn === "right") {
+      nextTurn = "left";
+    } else {
+      nextTurn = "none";
+    }
+    navigate({ search: { ...search, turn: nextTurn } });
   }, [search, navigate]);
 
   const handleBuild = useHandleBuild();
@@ -92,6 +100,7 @@ function BuildComponent() {
           search: {
             selectedEntityType: entityType,
             rotation: 0,
+            mode: "simple",
             turn: "none",
           },
         });
@@ -120,25 +129,26 @@ function BuildComponent() {
         )}
         <div className="flex justify-end">
           <Panel className="flex">
+            {isSimpleBeltMode(search) && (
+              <IconButton
+                faIcon={
+                  search.turn === "none"
+                    ? faUp
+                    : search.turn === "right"
+                      ? faTurnRight
+                      : faTurnLeft
+                }
+                disabled={!isBelt}
+                onClick={handleTurn}
+                title="Change belt turn"
+                className="block"
+              />
+            )}
             <IconButton
               faIcon={faRotateRight}
               disabled={!isRotatable}
               onClick={handleRotate}
               title="Rotate (90° clockwise)"
-              className="block"
-            />
-            <IconButton
-              faIcon={
-                search.selectedEntityType !== entityTypeSchema.enum.belt ||
-                search.turn === "none"
-                  ? faUp
-                  : search.turn === "right"
-                    ? faTurnRight
-                    : faTurnLeft
-              }
-              disabled={!isBelt}
-              onClick={handleTurn}
-              title="Change belt turn"
               className="block"
             />
             <IconButton

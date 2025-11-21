@@ -1,14 +1,18 @@
 import { useEffect, useMemo } from "react";
-import type { BuildRouteSearch } from "./build-types";
+import {
+  isAdvancedBeltMode,
+  isSimpleBeltMode,
+  type BuildRouteSearch,
+} from "./build-types";
 import { getRotatedSize, getTilesForEntity } from "./entityUtils";
+import { invariant } from "./invariant";
 import type { PixiController } from "./PixiController";
 import { getTileAtCoords } from "./tileUtils";
-import type { AppState, Build, Entity } from "./types";
+import type { AppState, Build, Entity, Rotation } from "./types";
 import {
   createBeltEntity,
   createEntity,
   ENTITY_CONFIGS,
-  entityTypeSchema,
   TILE_SIZE,
 } from "./types";
 
@@ -30,19 +34,22 @@ export function useBuildPreview(
     // Create entity with empty ID at camera position
     // Entity position is top-left, so offset by half the entity size to center it
     // Account for rotation: swap dimensions for 90/270 degrees
+    const rotation = getEffectiveSearchRotation(search);
     const entitySize = ENTITY_CONFIGS[search.selectedEntityType].size;
-    const rotatedSize = getRotatedSize(entitySize, search.rotation);
+    const rotatedSize = getRotatedSize(entitySize, rotation);
     const entityX = Math.round(state.camera.x / TILE_SIZE - rotatedSize.x / 2);
     const entityY = Math.round(state.camera.y / TILE_SIZE - rotatedSize.y / 2);
 
     let entity: Entity;
-    if (search.selectedEntityType === entityTypeSchema.enum.belt) {
+    if (isAdvancedBeltMode(search)) {
+      invariant(false, "Advanced belt mode not implemented in build preview");
+    } else if (isSimpleBeltMode(search)) {
       entity = createBeltEntity(
         "",
         search.selectedEntityType,
         entityX,
         entityY,
-        search.rotation,
+        rotation,
         search.turn,
       );
     } else {
@@ -76,4 +83,11 @@ export function useBuildPreview(
   }, [pixiController]);
 
   return build;
+}
+
+function getEffectiveSearchRotation(search: BuildRouteSearch): Rotation {
+  if (!("rotation" in search)) {
+    return 0;
+  }
+  return search.rotation;
 }
