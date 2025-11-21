@@ -1,11 +1,6 @@
 import { useEffect, useMemo } from "react";
-import {
-  isAdvancedBeltMode,
-  isSimpleBeltMode,
-  type BuildRouteSearch,
-} from "./build-types";
+import { isBelt, type BuildRouteSearch } from "./build-types";
 import { getRotatedSize, getTilesForEntity } from "./entityUtils";
-import { invariant } from "./invariant";
 import type { PixiController } from "./PixiController";
 import { getTileAtCoords } from "./tileUtils";
 import type { AppState, Build, Entity, Rotation } from "./types";
@@ -41,9 +36,7 @@ export function useBuildPreview(
     const entityY = Math.round(state.camera.y / TILE_SIZE - rotatedSize.y / 2);
 
     let entity: Entity;
-    if (isAdvancedBeltMode(search)) {
-      invariant(false, "Advanced belt mode not implemented in build preview");
-    } else if (isSimpleBeltMode(search)) {
+    if (isBelt(search)) {
       entity = createBeltEntity(
         "",
         search.selectedEntityType,

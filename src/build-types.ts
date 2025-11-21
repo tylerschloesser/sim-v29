@@ -24,28 +24,12 @@ export const basicSearchSchema = z.strictObject({
   rotation: rotationSchema,
 });
 
-export const beltSearchBaseSchema = z.strictObject({
+export const beltSearchSchema = z.strictObject({
   selectedEntityType: z.literal(entityTypeSchema.enum.belt),
-});
-
-export const beltSimpleSearchSchema = beltSearchBaseSchema.extend({
-  mode: z.literal("simple"),
   rotation: rotationSchema,
   turn: z.enum(["none", "left", "right"]),
+  sourceId: z.string().nullable(),
 });
-export type BeltSimpleSearch = z.infer<typeof beltSimpleSearchSchema>;
-
-export const beltAdvancedSearchSchema = beltSearchBaseSchema.extend({
-  mode: z.literal("advanced"),
-  start: z.string(),
-});
-export type BeltAdvancedSearch = z.infer<typeof beltAdvancedSearchSchema>;
-
-export const beltSearchSchema = z.discriminatedUnion("mode", [
-  beltSimpleSearchSchema,
-  beltAdvancedSearchSchema,
-]);
-
 export const searchSchema = z.union([
   emptySearchSchema,
   basicSearchSchema,
@@ -54,20 +38,8 @@ export const searchSchema = z.union([
 
 export type BuildRouteSearch = z.infer<typeof searchSchema>;
 
-export function isAdvancedBeltMode(
+export function isBelt(
   search: BuildRouteSearch,
-): search is BeltAdvancedSearch {
-  return (
-    search.selectedEntityType === entityTypeSchema.enum.belt &&
-    search.mode === "advanced"
-  );
-}
-
-export function isSimpleBeltMode(
-  search: BuildRouteSearch,
-): search is BeltSimpleSearch {
-  return (
-    search.selectedEntityType === entityTypeSchema.enum.belt &&
-    search.mode === "simple"
-  );
+): search is z.infer<typeof beltSearchSchema> {
+  return search.selectedEntityType === entityTypeSchema.enum.belt;
 }

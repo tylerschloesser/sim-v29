@@ -14,11 +14,7 @@ import {
 import clsx from "clsx";
 import { useCallback, useEffect } from "react";
 import { useAppContext } from "../appContext";
-import {
-  isAdvancedBeltMode,
-  isSimpleBeltMode,
-  searchSchema,
-} from "../build-types";
+import { isBelt, searchSchema } from "../build-types";
 import { IconButton } from "../IconButton";
 import { IconLink } from "../IconLink";
 import { inventoryHas } from "../inventoryUtils";
@@ -59,9 +55,6 @@ function BuildComponent() {
 
   const handleRotate = useCallback(() => {
     if (search.selectedEntityType) {
-      if (isAdvancedBeltMode(search)) {
-        return;
-      }
       navigate({
         search: { ...search, rotation: rotateClockwise(search.rotation) },
       });
@@ -69,7 +62,7 @@ function BuildComponent() {
   }, [search, navigate]);
 
   const handleTurn = useCallback(() => {
-    if (!isSimpleBeltMode(search)) {
+    if (!isBelt(search)) {
       return;
     }
     let nextTurn: BeltTurn;
@@ -90,9 +83,6 @@ function BuildComponent() {
     search.selectedEntityType !== undefined &&
     ENTITY_CONFIGS[search.selectedEntityType].rotatable;
 
-  // Check if the selected entity is a belt (for turn button)
-  const isBelt = search.selectedEntityType === "belt";
-
   const handleSelectEntity = useCallback(
     (entityType: EntityType) => {
       if (entityType === entityTypeSchema.enum.belt) {
@@ -100,8 +90,8 @@ function BuildComponent() {
           search: {
             selectedEntityType: entityType,
             rotation: 0,
-            mode: "simple",
             turn: "none",
+            sourceId: null,
           },
         });
       } else {
@@ -129,7 +119,7 @@ function BuildComponent() {
         )}
         <div className="flex justify-end">
           <Panel className="flex">
-            {isSimpleBeltMode(search) && (
+            {isBelt(search) && (
               <IconButton
                 faIcon={
                   search.turn === "none"
