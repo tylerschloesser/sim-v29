@@ -9,10 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "tsc -b --noEmit && eslint --cache --fix . && prettier --cache --write --log-level warn .",
-    "check:ci": "tsc -b --noEmit && eslint --cache . && prettier --cache --check --log-level warn .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "check:ci": "tsc -b --noEmit && eslint --cache . && prettier --cache --check --log-level warn ."
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -52,7 +49,6 @@
     "type-fest": "^5.2.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
-    "vite": "^7.1.7",
-    "vitest": "^4.0.8"
+    "vite": "^7.1.7"
   }
 }

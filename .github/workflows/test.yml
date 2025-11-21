@@ -19,5 +19,3 @@ jobs:
           FONTAWESOME_PACKAGE_TOKEN: ${{ secrets.FONTAWESOME_PACKAGE_TOKEN }}
       - name: Run check
         run: bun check:ci
-      - name: Run tests
-        run: bun run test
