@@ -6,6 +6,7 @@ import type { PixiController } from "./PixiController";
 import { getTileAtCoords } from "./tileUtils";
 import type {
   AppState,
+  BeltEntity,
   Build,
   Entity,
   Rotation,
@@ -59,18 +60,30 @@ export function useBuildPreview(
           ),
         );
       } else {
-        // TODO
-        const entityId = getEntityId(state.nextEntityId);
-        entities.push(
-          createBeltEntity(
-            entityId,
-            search.selectedEntityType,
-            entityX,
-            entityY,
-            rotation,
-            search.turn,
-          ),
-        );
+        const sourceEntity = state.entities.get(search.sourceId);
+        invariant(sourceEntity?.type === "belt");
+
+        const path = getPathFromSource(sourceEntity, {
+          position: { x: entityX, y: entityY },
+          rotation,
+          turn: search.turn,
+        });
+
+        for (let i = 0; i < path.length; i++) {
+          const partial = path.at(i);
+          invariant(partial);
+          const entityId = getEntityId(state.nextEntityId + i);
+          entities.push(
+            createBeltEntity(
+              entityId,
+              search.selectedEntityType,
+              entityX,
+              entityY,
+              rotation,
+              search.turn,
+            ),
+          );
+        }
       }
     } else {
       const entityId = getEntityId(state.nextEntityId);
@@ -107,12 +120,14 @@ export function useBuildPreview(
       }
     }
 
-    const valid = entities.every((entity) => {
-      const entityTiles = getTilesForEntity(entity).map(({ x, y }) =>
-        getTileAtCoords(state, x, y),
-      );
-      return entityTiles.every((tile) => !tile?.entityId);
-    });
+    const valid =
+      entities.length > 0 &&
+      entities.every((entity) => {
+        const entityTiles = getTilesForEntity(entity).map(({ x, y }) =>
+          getTileAtCoords(state, x, y),
+        );
+        return entityTiles.every((tile) => !tile?.entityId);
+      });
 
     return { type: "simple", entities, valid } satisfies SimpleBuild;
   }, [state, search]);
@@ -136,4 +151,12 @@ function getEffectiveSearchRotation(search: BuildRouteSearch): Rotation {
     return 0;
   }
   return search.rotation;
+}
+
+function getPathFromSource(
+  source: BeltEntity,
+  target: Pick<BeltEntity, "position" | "rotation" | "turn">,
+): Pick<BeltEntity, "position" | "rotation" | "turn">[] {
+  void source;
+  return [target];
 }
